@@ -1,0 +1,299 @@
+---
+title: "Stability Simulations"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+## Setup
+
+```{r setup, echo = FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+
+# Check and install required packages
+required_packages <- c(
+  "lhs", "dplyr", "purrr", "igraph", "ggplot2", "tibble", "doFuture","devtools","abc", "tidyverse"
+)
+for (pkg in required_packages) {
+  if (!requireNamespace(pkg, quietly = TRUE)) {
+    install.packages(pkg, repos = "https://cloud.r-project.org")
+  }
+  require(pkg, character.only = TRUE)
+}
+
+
+# Install meweasmo from GitHub if not installed
+if (!requireNamespace("meweasmo", quietly = TRUE)) {
+  devtools::install_github("lsaravia/meweasmo")
+}
+library(meweasmo)
+
+# Install multiweb from GitHub if not installed
+if (!requireNamespace("multiweb", quietly = TRUE)) {
+  devtools::install_github("lsaravia/multiweb")
+}
+library(multiweb)
+
+source("R/network_fun.r")
+
+# load network_info
+network_info <- readRDS("Data/network_info.rds")
+
+# All networks with "std" ones 
+#network_info <- network_info %>% filter(!(site %in% c("WeddellSea","BeagleChannel")))
+# Only networks with "std" in the site name
+#network_info <- network_info %>% filter(grepl("std", site, ignore.case = TRUE))
+
+```
+
+## Parameter Ranges and Simulation Settings and Run Simulations
+
+```{r simulStability4060, eval=FALSE, message=FALSE, warning=TRUE}
+stability_results <- readRDS("Data/stability_results.rds") 
+
+#network_info <- anti_join(network_info, stability_results %>% filter(QSS>=0.05), by = "site")
+#network_info <- filter(network_info, site=="NorthernScotia")
+unique(network_info$site)
+
+# Parameter ranges (adjust as needed)
+require(future)
+num_cores <- future::availableCores()
+plan(multisession, workers = num_cores)  # or your preferred plan
+
+# Run the stability analysis
+stability_res <- calculate_network_stability_parallel(network_info$igraph, network_info$site,
+                                                          nsim = 10000,
+                                                          selfDamping_range = seq(-40, -60, by = -1))
+
+
+plan(sequential)  # Reset to sequential plan after parallel processing
+
+# Join to the metadata
+# network_info <- dplyr::left_join(network_info, stability_results, by = "site")
+## Fit Metaweb Assembly Model
+
+stability_results <- stability_results %>% bind_rows(stability_res)
+saveRDS(stability_results, "Data/stability_results.rds")
+```
+
+# Plot Stability Results
+
+```{r PlotStabilityResults, eval=FALSE, message=FALSE, warning=TRUE}
+
+#
+#
+ggplot(stability_results, aes(x = selfDamping, y = QSS)) +
+  geom_line(aes(group = site), color = "gray70") +
+  geom_point(aes(color = QSS), size = 2) +
+  facet_wrap(~ site, scales = "free_y") +
+  scale_color_viridis_c(option = "C", end = 0.9) +
+  scale_x_continuous(trans = "reverse") +  # reverse axis so -1 is rightmost
+  labs(
+    title = "QSS vs Self-Damping by Site",
+    x = "Self-Damping",
+    y = "QSS"
+  ) +
+  theme_bw(base_size = 13) +
+  theme(
+    strip.text = element_text(face = "bold"),
+    legend.position = "bottom"
+  )
+
+# Filter around the QSS ≈ 0.05 threshold (e.g., between 0.03 and 0.07)
+near_qss <- stability_results %>%
+  filter(QSS >= 0.00 & QSS <= 0.1)
+
+# Plot MEing_stable vs selfDamping
+ggplot(near_qss, aes(x = selfDamping, y = MEing_stable)) +
+  geom_line(aes(group = site), color = "gray60") +
+  geom_point(aes(color = QSS), size = 2.5) +
+  facet_wrap(~ site, scales = "free_y") +
+  scale_color_viridis_c(option = "B", end = 0.9) +
+  scale_x_continuous(trans = "reverse") +
+  labs(
+    title = "Mean Real Part of Max Eigenvalue vs Self-Damping",
+    subtitle = "Filtered near QSS ≈ 0.05",
+    x = "Self-Damping",
+    y = "MEing (stable matrices only)"
+  ) +
+  theme_bw(base_size = 13) +
+  theme(
+    strip.text = element_text(face = "bold"),
+    legend.position = "bottom"
+  )
+
+threshold_qss <- 0.05
+
+first_above_qss <- stability_results %>%
+  filter(QSS >= threshold_qss) %>%
+  group_by(site) %>%
+  slice_min(QSS, with_ties = FALSE) %>%
+  ungroup()
+
+# stability_results <- readRDS("Data/stability_results.rds") 
+# stability_results %>% knitr::kable()
+# unique(stability_results$site)
+# 
+# network_info[c(3,5,7),]
+# 
+# (wqss <- calc_QSS(network_info$igraph[7],ncores=8,selfDamping = -40))
+# (wqss <- calc_QSS(network_info$igraph[5],ncores=8,selfDamping = -40))
+
+
+```
+
+# Interpolate Self-Damping at QSS = 0.05
+
+```{r InterpolateSelfDamping, eval=FALSE, message=FALSE, warning=TRUE}
+
+stability_results <- readRDS("Data/stability_results.rds") %>% filter( !(site %in% c("SouthernScotia","NorthernScotia")))
+unique(stability_results$site)
+
+# Function to perform interpolation for one site
+
+# Function to perform interpolation for one site
+interpolate_selfDamping <- function(df_site, target_qss = 0.05) {
+  df_site <- df_site %>% arrange(selfDamping)
+  
+  # Find pairs of rows where QSS crosses the threshold
+  i <- which(diff(df_site$QSS > target_qss) != 0)
+  
+  if (length(i) == 0) return(tibble(site = df_site$site[1], selfDamping_interp = NA_real_))
+  
+  # Use the first crossing
+  i <- i[1]
+  x0 <- df_site$QSS[i]
+  x1 <- df_site$QSS[i + 1]
+  y0 <- df_site$selfDamping[i]
+  y1 <- df_site$selfDamping[i + 1]
+  
+  # Linear interpolation formula
+  slope <- (y1 - y0) / (x1 - x0)
+  y_interp <- y0 + slope * (target_qss - x0)
+  
+  tibble(site = df_site$site[1], selfDamping = y_interp)
+}
+
+# Apply interpolation per site
+selfDamping_at_qss05 <- stability_results %>%
+  group_by(site) %>%
+  group_split() %>%
+  map_dfr(~ interpolate_selfDamping(.x, target_qss = 0.05))
+
+selfDamping_at_qss05
+network_info <- network_info %>% inner_join(selfDamping_at_qss05)
+saveRDS(network_info, "Data/network_info.rds")
+
+```
+
+# Calc Max eigenvalues for Self-Damping at QSS = 0.05
+
+```{r calcEigenSelfDamping, eval=TRUE, message=FALSE, warning=TRUE}
+
+#network_info <- readRDS("Data/network_info.rds") 
+
+require(future)
+num_cores <- future::availableCores()
+plan(multisession, workers = num_cores)  # or your preferred plan
+
+stability_results_meig <- simulate_qss_fixed_selfDamping(
+  networks = network_info$igraph,
+  sites = network_info$site,
+  selfDamping_values = network_info$selfDamping,
+  nsim = 10000
+)
+plan(sequential)  # Reset to sequential plan after parallel processing
+
+saveRDS(stability_results_meig, "Data/stability_results_meig.rds")
+
+```
+
+```{r PlotStability, eval=FALSE, message=FALSE, warning=TRUE}
+stability_results_meig <- readRDS("Data/stability_results_meig.rds")
+str(stability_results_meig)
+
+plot_list <- plot_metric_vs_latitude_ci(network_info, stability_results_meig, 
+                                         metrics = "MEing_stable")
+
+plot_list1 <- plot_metric_vs_latitude_ci(network_info, stability_results_meig, 
+                                        metrics = "MEing_stable", xvar = "log_area")
+
+combined_plot <- wrap_plots(c(plot_list$plots,plot_list1$plots), ncol = 2, guides = "collect", axes="collect") &
+  theme(legend.position = "bottom")
+ggsave("Figures/metric_MEig_vs_Latitude_area_ci.png", 
+          plot = combined_plot, 
+          height = 6, 
+          width = 10,
+          bg = "white")
+
+
+# From qr_models
+qr_models <- readRDS("Data/qr_models.rds")
+qr_models <- c(qr_models, plot_list$models)
+knitr::kable( summarize_quantreg_models(qr_models,variables = c("latitude","log(area_km2)","log_area")),digits=4)
+saveRDS(qr_models, "Data/qr_models.rds")
+
+```
+
+
+```{r PlotStabilityVsC, eval=FALSE, message=FALSE, warning=TRUE}
+# Plot
+metric <- "MEing_stable"
+ci_data <- stability_results_meig %>%
+  group_by(site) %>%
+  summarise(
+    q2.5 = quantile(.data[[metric]], 0.025, na.rm = TRUE),
+    q97.5 = quantile(.data[[metric]], 0.975, na.rm = TRUE),
+    mean = mean(.data[[metric]], na.rm = TRUE),
+    .groups = "drop"
+  ) 
+
+# Join with empirical predictors
+df_plot <- network_info %>%
+  inner_join(ci_data, by = "site")
+
+p <- ggplot(df_plot, aes(x = C, y = mean)) +
+  geom_linerange(aes(ymin = q2.5, ymax = q97.5, color = site), linewidth = 1) +
+  geom_point(aes(color = site), size = 3) +
+  geom_smooth(method = "rq", formula = y ~ x,
+              method.args = list(tau = 0.5),
+              se = FALSE, color = "black", linetype = "dashed") +
+#      geom_text_repel(aes(label = site, color = site), size = 3.5, max.overlaps = Inf) +
+  scale_color_viridis_d() +
+  labs(
+#        title = paste("Metric vs Latitude:", metric),
+    x = "C",
+    y = metric
+  ) +
+  theme_bw(base_size = 14) +
+  theme(legend.position = "none")
+
+p1 <- ggplot(df_plot, aes(x = Entropy, y = mean)) +
+  geom_linerange(aes(ymin = q2.5, ymax = q97.5, color = site), linewidth = 1) +
+  geom_point(aes(color = site), size = 3) +
+  geom_smooth(method = "rq", formula = y ~ x,
+              method.args = list(tau = 0.5),
+              se = FALSE, color = "black", linetype = "dashed") +
+#      geom_text_repel(aes(label = site, color = site), size = 3.5, max.overlaps = Inf) +
+  scale_color_viridis_d() +
+  labs(
+#        title = paste("Metric vs Latitude:", metric),
+    x = "Entropy",
+    y = metric
+  ) +
+  theme_bw(base_size = 14) +
+  theme(legend.position = "none")
+
+
+combined_plot <- wrap_plots(p,p1, ncol = 2, guides = "collect", axes="collect") &
+  theme(legend.position = "bottom")
+ggsave("Figures/MEig_stable_vs_C_Entropy_ci.png", 
+          plot = combined_plot, 
+          height = 6, 
+          width = 10,
+          bg = "white")
+
+
+```
+

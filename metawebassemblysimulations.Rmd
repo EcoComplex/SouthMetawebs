@@ -1,0 +1,390 @@
+---
+title: "Metaweb Assembly Simulations"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+## Setup
+
+```{r setup, echo = FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+
+# Check and install required packages
+required_packages <- c(
+  "lhs", "dplyr", "purrr", "igraph", "ggplot2", "tibble", "doFuture","devtools","abc", "tidyverse"
+)
+for (pkg in required_packages) {
+  if (!requireNamespace(pkg, quietly = TRUE)) {
+    install.packages(pkg, repos = "https://cloud.r-project.org")
+  }
+  require(pkg, character.only = TRUE)
+}
+
+
+# Install meweasmo from GitHub if not installed
+if (!requireNamespace("meweasmo", quietly = TRUE)) {
+  devtools::install_github("lsaravia/meweasmo")
+}
+library(meweasmo)
+
+# Install multiweb from GitHub if not installed
+if (!requireNamespace("multiweb", quietly = TRUE)) {
+  devtools::install_github("lsaravia/multiweb")
+}
+library(multiweb)
+
+source("R/network_fun.r")
+
+# load network_info
+network_info <- readRDS("Data/network_info.rds")
+```
+
+## Parameter Ranges and Simulation Settings and Run Simulations
+
+```{r simulMetaWeb_NS, eval=FALSE, message=TRUE, warning=TRUE}
+
+# Parameter ranges (adjust as needed)
+
+par_ranges <- matrix(c(0.01, 0.3, 0.001, 0.5, 0.1, 0.9), nrow=3, byrow=TRUE)
+nsims <- 10000
+model_type <- 1 # or as needed for your function
+
+if(FALSE) {
+# Remove networks with "std" in the site name
+  network_info <- network_info %>% filter(!grepl("std", site, ignore.case = TRUE))
+} else {
+# Only networks with "std" in the site name
+  # network_info <- network_info %>% filter(grepl("std", site, ignore.case = TRUE))
+  # network_info <- network_info[10:11,]
+}  
+# Function to run simulations for a single igraph object
+run_simulation_for_network <- function(g, net_name) {
+  A <- igraph::as_adjacency_matrix(g, sparse=FALSE)
+  sim <- sim_metaWebAssembly_lhs(3, nsims, par_ranges, A, model_type) %>%
+    mutate(model_type="Continuous", model="Prob", Metaweb=net_name)
+  return(sim)
+}
+
+## Run Simulations for All Networks
+
+# Assuming network_info has columns 'site' and 'igraph'
+require(tictoc)
+tic("Running simulations for all networks")
+simMetaWebAssembly <- purrr::map2_dfr(
+    network_info$igraph,
+    network_info$site,
+    run_simulation_for_network
+  )
+toc()
+
+# Save results and add it to already simulated data
+#
+if (file.exists("Data/simulations_metaWebAssembly_all_networks.rds")) {
+  simMetaWebAssembly <- bind_rows(simMetaWebAssembly, readRDS("Data/simulations_metaWebAssembly_all_networks.rds"))
+  message("Add simulations to simMetaWebAssembly from RDS file.")
+}
+
+saveRDS(simMetaWebAssembly, "Data/simulations_metaWebAssembly_all_networks.rds")
+```
+
+## Fit Metaweb Assembly Model
+
+```{r FitMetaWebAssembly, eval=FALSE, message=TRUE, warning=TRUE}
+# if the file not exist load it
+if (file.exists("Data/simulations_metaWebAssembly_all_networks.rds")) {
+  simMetaWebAssembly <- readRDS("Data/simulations_metaWebAssembly_all_networks.rds")
+  message("Loaded simMetaWebAssembly from RDS file.")
+}
+
+all_results_list <- purrr::pmap(
+  list(
+    emp_S = network_info$S,
+    emp_C = network_info$C,
+    web_name = network_info$site
+  ),
+  function(emp_S, emp_C, web_name) {
+    #fit_metaWebAssembly_model(emp_S, emp_C, web_name, simMetaWebAssembly)
+    CI_metaWebAssembly_model(emp_S, emp_C, web_name, simMetaWebAssembly)
+  }
+)
+
+# and then row-binds them into a single data frame.
+fittedMetaWeb <- purrr::map_dfr(all_results_list, "sel")
+
+# Extract and combine the 'gof_rej_data' components into another data frame
+gof_rej_df <- purrr::map_dfr(all_results_list, "gof")
+
+
+## Save Fitted Results
+if (file.exists("Data/fittedMetaWeb_all_networks.rds")) {
+  f_MetaWeb <- readRDS("Data/fittedMetaWeb_all_networks.rds")
+  fittedMetaWeb <- bind_rows(fittedMetaWeb, f_MetaWeb)
+  message("Loaded simMetaWebAssembly from RDS file.")
+}
+if (file.exists("Data/gof_all_networks.rds")) {
+  g_rej_all <- readRDS("Data/gof_all_networks.rds")
+  gof_rej_df <- bind_rows(gof_rej_df, g_rej_all)
+  message("Loaded gof_all_networks from RDS file.")
+}
+
+saveRDS(fittedMetaWeb, "Data/fittedMetaWeb_all_networks.rds")
+saveRDS(gof_rej_df, "Data/gof_all_networks.rds")
+
+fittedMetaWeb %>% filter(min_dist)
+```
+## Plot simulation ranges of parameters to check fit
+
+```{r plotParRange, eval=FALSE, message=TRUE, warning=TRUE}
+
+fittedMetaWeb <- readRDS("Data/fittedMetaWeb_all_networks.rds")
+
+# Crear un data frame con los límites para facilitar el ploteo con facet_wrap
+parameter_limits <- tibble::tibble(
+  parameter = c("a", "m", "se"),
+  min_val = par_ranges[, 1],
+  max_val = par_ranges[, 2]
+)
+
+# --- Transformar fittedMetaWeb a formato largo para los parámetros m, a, se ---
+fitted_long <- fittedMetaWeb %>%
+  pivot_longer(
+    cols = c(m, a, se), # Seleccionar las columnas de los parámetros a pivotar
+    names_to = "parameter", # Nombre de la nueva columna que contendrá los nombres de los parámetros
+    values_to = "value" # Nombre de la nueva columna que contendrá los valores de los parámetros
+  )
+
+# --- Graficar las distribuciones ---
+plots <- list()
+for (i in seq_along(network_info$site)) {
+  net_name <- network_info$site[i]
+  fl <- fitted_long %>% filter(Metaweb == net_name)
+  p <- ggplot(fitted_long, aes(x = value)) +
+    geom_density(fill = "steelblue", alpha = 0.7) + # O geom_histogram(bins = 30, fill = "steelblue", alpha = 0.7)
+    facet_wrap(vars( parameter), scales = "free_x", ncol = 1) + # Un facet por parámetro, con escala x libre
+    geom_vline(data = parameter_limits, aes(xintercept = min_val),
+               linetype = "dashed", color = "red", size = 0.8) +
+    geom_vline(data = parameter_limits, aes(xintercept = max_val),
+               linetype = "dashed", color = "red", size = 0.8) +
+    labs(
+      title = net_name,
+      x = "Valor del Parámetro",
+      y = "Densidad"
+    ) +
+    theme_bw(base_size = 14) +
+    theme(plot.title = element_text(hjust = 0.5))  # Centrar el título
+
+
+  print(p)
+}
+# Opcional: Guardar el gráfico
+# ggsave("parameter_distributions.png", plot = p, width = 8, height = 10, units = "in", dpi = 300)
+
+```
+
+## Plot a vs m for Each Network
+
+```{r plotSvsC, eval=FALSE, message=TRUE, warning=TRUE}
+library(ggplot2)
+
+# Ensure simMetaWebAssembly has columns S, C, and Metaweb
+
+# Loop over each network/site
+plots <- list()
+for (i in seq_along(network_info$site)) {
+  net_name <- network_info$site[i]
+  sim_data <- fittedMetaWeb %>% filter(Metaweb == net_name)
+  
+  p <- ggplot(sim_data, aes(x = a, y = m)) +
+    geom_point(alpha = 0.3, color = "blue") +
+    labs(
+      title = paste( net_name),
+      x = "a parameter",
+      y = "m parameter"
+    ) +
+    theme_minimal()
+  
+    plots[[i]] <- p
+}
+plots
+
+```
+
+## Simulate for each network and calculate metrics
+
+```{r simMetaWebMetrics_NS, eval=TRUE, message=TRUE, warning=TRUE}
+# Load the fittedMetaWeb data
+fittedMetaWeb <- readRDS("Data/fittedMetaWeb_all_networks.rds")
+
+# Only networks with "std" in the site name
+# network_info <- network_info %>% filter(!(site %in% c("WeddellSea","BeagleChannel")))
+network_info <- network_info[10:11,]
+
+if (file.exists("Data/simulations_metaWebAssembly_all_networks.rds")) {
+  simMetaWebMetrics <- readRDS("Data/simulations_metaWeb_metrics.rds")
+  message("Loaded simMetaWebAssembly from RDS file.")
+} else {
+  simMetaWebMetrics <- tibble::tibble()
+}
+
+require(tictoc)
+tic()
+simulated_metaweb_metrics <- lapply(seq_along(network_info$site), function(i) {
+  message("Simulating for site: ", network_info$site[i])
+
+  # Simulate metaweb metrics
+  sim <- simulate_metaweb_metrics(as_adjacency_matrix(network_info$igraph[i][[1]],sparse=FALSE),
+                                                      fittedMetaWeb, 
+                          network_info$site[i], nsim=1000)
+
+  return(sim)
+})
+simulated_metaweb_metrics <- bind_rows(simulated_metaweb_metrics)
+toc()
+
+simMetaWebMetrics <- bind_rows(simMetaWebMetrics, simulated_metaweb_metrics)
+
+# Calculate Rank/S 
+
+simMetaWebMetrics <- simMetaWebMetrics %>% mutate(relRank = Rank/S)
+
+saveRDS(simMetaWebMetrics,"Data/simulations_metaWeb_metrics.rds")
+```
+
+# Plot Metaweb metrics vs empirical
+
+```{r plotMetaWebMetrics, eval=FALSE, message=TRUE, warning=TRUE}
+simMetaWebMetrics <- readRDS("Data/simulations_metaWeb_metrics.rds")
+require(patchwork)
+network_info <- filter(network_info, !(site %in% c("WeddellSea","BeagleChannel","NorthernScotia","SouthernScotia")))
+network_info <- network_info %>% mutate(relRank=Rank/S)
+
+plot_list <- plot_empirical_vs_simulated_metrics(network_info,simMetaWebMetrics, metrics=c("S", "C","relRank", "Entropy", "Modularity"))
+
+combined_plot <- wrap_plots(plot_list, ncol = 2, guides = "collect", axes="collect_x") &
+  theme(legend.position = "bottom")
+
+ggsave("Figures/empirical_vs_simulated_metrics.png", 
+          plot = combined_plot, 
+          height = 6, 
+          width = 10,
+          bg = "white")
+
+plot_list <- plot_empirical_vs_simulated_metrics(network_info,simMetaWebMetrics, metrics=c("LD", "TLmean","Vulnerability","Generality"))
+
+combined_plot <- wrap_plots(plot_list, ncol = 2, guides = "collect", axes="collect_x") &
+  theme(legend.position = "bottom")
+
+ggsave("Figures/empirical_vs_simulated_metrics_LD_TL.png", 
+          plot = combined_plot, 
+          height = 6, 
+          width = 10,
+          bg = "white")
+```
+
+# Plot Metaweb metrics vs empirical
+
+
+```{r plotMetaWebMetrics1, eval=FALSE, message=TRUE, warning=TRUE}
+# plot_metric_densities_with_empirical(network_info,simulated_metaweb_metrics)
+# plot_empirical_vs_simulated_ci(network_info,simMetaWebMetrics)
+
+#
+## Metrics vs Latitude and Area
+#
+ 
+plot_list <- plot_metric_vs_latitude_ci(network_info, simMetaWebMetrics,fit_model = TRUE, metrics = c( "C", "Entropy", "Modularity"))
+qr_models <- plot_list$models
+
+plots  <- plot_list$plots
+# combined_plot <- wrap_plots(plot_list$plots, ncol = 2, guides = "collect", axes="collect_x") &
+#   theme(legend.position = "bottom")
+# 
+# # Show plot
+# ggsave("Figures/metric_Entropy_vs_latitude_ci.png", 
+#           plot = combined_plot, 
+#           height = 6, 
+#           width = 10,
+#           bg = "white")
+
+plot_list <- plot_metric_vs_latitude_ci(network_info, simMetaWebMetrics,fit_model = FALSE, metrics = c( "C", "Entropy", "Modularity"),xvar = "log_area")
+
+plots <- c(plots,plot_list$plots)
+
+### I need to arrange the list to show two columns 
+plots_grouped <- unlist(split(plots, names(plots)), recursive = FALSE)
+
+combined_plot <- wrap_plots(plots_grouped, ncol = 2, guides = "collect", axes="collect") &
+  theme(legend.position = "bottom")
+ggsave("Figures/metric_Entropy_vs_lat_area_ci.png", 
+          plot = combined_plot, 
+          height = 6, 
+          width = 10,
+          bg = "white")
+
+
+#
+# Relative Rank Rank/S
+# LD and TLmean
+#
+plot_list <- plot_metric_vs_latitude_ci(network_info, simMetaWebMetrics, metrics = c("LD", "TLmean","relRank") , fit_model = TRUE)
+qr_models <- append(qr_models,plot_list$models)
+plots <- c(plot_list$plots)
+
+# combined_plot <- wrap_plots(plot_list$plots, ncol = 2, guides = "collect", axes="collect_x") &
+#   theme(legend.position = "bottom")
+# 
+# ggsave("Figures/metric_LD_TL_vs_latitude_ci.png", 
+#           plot = combined_plot, 
+#           height = 6, 
+#           width = 10,
+#           bg = "white")
+# 
+plot_list <- plot_metric_vs_latitude_ci(network_info, simMetaWebMetrics, metrics = c("LD", "TLmean", "relRank"), 
+                                        xvar = "log_area",fit_model=TRUE)
+plots <- c(plots,plot_list$plots)
+plots_grouped <- unlist(split(plots, names(plots)), recursive = FALSE)
+names(plots_grouped)
+
+# Add p1 p2
+combined_plot <- wrap_plots(plots_grouped[[1]],
+                            plots_grouped[[2]],
+                            plots_grouped[[5]],
+                            plots_grouped[[6]],
+                            plots_grouped[[3]],
+                            plots_grouped[[4]],
+        ncol = 2, guides = "collect", axes="collect") &
+        theme(legend.position = "bottom")
+
+ggsave("Figures/metric_LD_TL_vs_lat_area_ci.png", 
+          plot = combined_plot, 
+          height = 6, 
+          width = 10,
+          bg = "white")
+
+#qr_models <- c(qr_models, plot_list$models)
+saveRDS(qr_models, "Data/qr_models.rds")
+knitr::kable( summarize_quantreg_models(qr_models,variables = c("latitude","log(area_km2)","log_area")),digits=4)
+```
+
+|metric       |term          | estimate| p_value|
+|:------------|:-------------|--------:|-------:|
+|S            |latitude      |  -6.5533|  0.0000|
+|S            |log(area_km2) |  17.1379|  0.0000|
+|C            |latitude      |  -0.0006|  0.3833|
+|C            |log(area_km2) |   0.0005|  0.8699|
+|Rank         |latitude      |  -0.0568|  0.0454|
+|Rank         |log(area_km2) |   6.0151|  0.0000|
+|relRank      |latitude      |   0.0103|  0.0000|
+|relRank      |log_area      |  -0.0066|  0.0000|
+|Entropy      |latitude      |   0.0020|  0.0000|
+|Entropy      |log(area_km2) |  -0.0044|  0.0000|
+|Modularity   |latitude      |  -0.0047|  0.0000|
+|Modularity   |log(area_km2) |  -0.0035|  0.0000|
+|LD           |latitude      |  -0.5174|  0.0000|
+|LD           |log(area_km2) |   1.3487|  0.0000|
+|TLmean       |latitude      |  -0.0102|  0.0000|
+|TLmean       |log(area_km2) |   0.1158|  0.0000|
+|MEing_stable |latitude      |   0.0024|  0.0000|
+|MEing_stable |log_area      |  -0.0080|  0.0000|
