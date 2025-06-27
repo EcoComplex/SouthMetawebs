@@ -39,6 +39,7 @@ source("R/network_fun.r")
 
 # load network_info
 network_info <- readRDS("Data/network_info.rds")
+
 ```
 
 ## Parameter Ranges and Simulation Settings and Run Simulations
@@ -386,5 +387,20 @@ knitr::kable( summarize_quantreg_models(qr_models,variables = c("latitude","log(
 |LD           |log(area_km2) |   1.3487|  0.0000|
 |TLmean       |latitude      |  -0.0102|  0.0000|
 |TLmean       |log(area_km2) |   0.1158|  0.0000|
-|MEing_stable |latitude      |   0.0024|  0.0000|
+
+|metric     |term     | estimate| p_value|
+|:----------|:--------|--------:|-------:|
+|C          |latitude |   0.0006|  0.3990|
+|C          |log_area |   0.0005|  0.8746|
+|Entropy    |latitude |  -0.0020|  0.0000|
+|Entropy    |log_area |  -0.0044|  0.0000|
+|Modularity |latitude |   0.0047|  0.0000|
+|Modularity |log_area |  -0.0035|  0.0000|
+|LD         |latitude |   0.5174|  0.0000|
+|LD         |log_area |   1.3487|  0.0000|
+|TLmean     |latitude |   0.0102|  0.0000|
+|TLmean     |log_area |   0.1158|  0.0000|
+|relRank    |latitude |  -0.0103|  0.0000|
+|relRank    |log_area |  -0.0066|  0.0000|
+|MEing_stable |latitude      |  -0.0024|  0.0000|
 |MEing_stable |log_area      |  -0.0080|  0.0000|

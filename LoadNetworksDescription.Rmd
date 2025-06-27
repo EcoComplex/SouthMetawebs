@@ -18,7 +18,7 @@ network_info <- tibble::tibble(
   file = list.files("Data", full.names = TRUE, pattern = "_links_original_"),
   site = c("BeagleChannel", "BurdwoodBank", "GulfSanJorge",
            "NorthernScotia", "PotterCove", "SouthernScotia", "WeddellSea"),
-  latitude = c(-54.5, -54.5, -46, -51.0, -62.2, -56.5, -76.0),
+  latitude = c(54.5, 54.5, 46, 51.0, 62.2, 56.5, 76.0),
     area_km2 = c(1200, 32000, 34000, 1500000, 9, 1500000, 200400),
   depth_m = c(140, 200, 100, 3000, 200, 3000, 500),
 )
@@ -29,7 +29,7 @@ network_info <- network_info %>%
     tibble(
       file = c("Data/BeagleChannel_links_standarized.csv", "Data/WeddellSea_links_standarized.csv"),
       site = c("Std BeagleChannel", "Std Weddell Sea"),
-      latitude = c(-54.5, -76.0),
+      latitude = c(54.5, 76.0),
       area_km2 = c(1200,200400),
       depth_m = c(140, 500)
       )
@@ -41,7 +41,7 @@ network_info <- network_info %>%
     tibble(
       file = c("Data/NorthernScotia_links_standardized.csv", "Data/SouthernScotia_links_standardized.csv"),
       site = c("Std NorthernScotia", "Std SouthernScotia"),
-      latitude = c(-51.0, -56.5),
+      latitude = c(51.0, 56.5),
       area_km2 = c(1500000,1500000),
       depth_m = c(3000, 3000)
       )
