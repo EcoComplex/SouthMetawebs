@@ -949,7 +949,7 @@ plot_metric_vs_latitude_ci <- function(network_info,
   obs <- network_info %>%
     mutate(site = as.character(site),
            log_area = log(area_km2)) %>%
-    dplyr::select(site, latitude, log_area)
+    dplyr::select(site, latitude, log_area,depth_m)
   
   # Match x-axis label
   x_label <- if (xvar == "log_area") "Log Area (km²)" else "Latitude"
@@ -981,10 +981,34 @@ plot_metric_vs_latitude_ci <- function(network_info,
       mutate(color = site_colors[site],
              xval = if (xvar == "log_area") log_area else latitude)
     
-    # Start plot
+    # Always fit the Quantile regression model
+    df_test <- sim %>% dplyr::select(site, value = !!sym(metric)) %>%
+      left_join(obs, by = "site") 
+    mod_qr <- rq(value ~ latitude+log_area, data = df_test, tau = 0.5)
+    
+    # Optional calculate significance and return the model
+    if (fit_model) {
+      sum_qr <- summary(mod_qr, se = "boot")
+      model_list[[metric]] <- sum_qr
+    }
+    
+    # Predicción parcial ajustada para variable xvar
+    x_seq <- seq(min(df_plot$xval, na.rm = TRUE), max(df_plot$xval, na.rm = TRUE), length.out = 100)
+    if (xvar == "latitude") {
+      newdata <- data.frame(latitude = x_seq,
+                            log_area = mean(df_plot$log_area, na.rm = TRUE))
+    } else {
+      newdata <- data.frame(latitude = mean(df_plot$latitude, na.rm = TRUE),
+                            log_area = x_seq)
+    }
+    pred <- predict(mod_qr, newdata = newdata)
+    
+    df_line <- tibble(xval = x_seq, pred = pred)
+    
     p <- ggplot(df_plot, aes(x = xval, y = mean)) +
       geom_linerange(aes(ymin = q2.5, ymax = q97.5, color = site), linewidth = 1) +
       geom_point(aes(color = site), size = 3) +
+      geom_line(data = df_line, aes(x = xval, y = pred), linetype = "dashed") +
       scale_color_manual(values = site_colors) +
       labs(
         x = x_label,
@@ -992,46 +1016,6 @@ plot_metric_vs_latitude_ci <- function(network_info,
       ) +
       theme_bw(base_size = 14) +
       theme(legend.position = "none")
-    
-    # Optional quantile regression
-    if (fit_model) {
-      # Quantile regression model
-      df_test <- sim %>% dplyr::select(site, value = !!sym(metric)) %>%
-        left_join(obs, by = "site") 
-      mod_qr <- rq(value ~ latitude+log_area, data = df_test, tau = 0.5)
-      sum_qr <- summary(mod_qr, se = "boot")
-      
-      
-      model_list[[metric]] <- sum_qr
-    }
-    
-    # Add regression line
-    p <- p + geom_smooth(
-      method = "rq",
-      formula = y ~ x,
-      method.args = list(tau = 0.5),
-      se = FALSE,
-      color = "black",
-      linetype = "dashed"
-    )
-    
-    
-#     # Plot
-#     p <- ggplot(df_plot, aes(x = latitude, y = mean)) +
-#       geom_linerange(aes(ymin = q2.5, ymax = q97.5, color = site), linewidth = 1) +
-#       geom_point(aes(color = site), size = 3) +
-#       geom_smooth(method = "rq", formula = y ~ x,
-#                   method.args = list(tau = 0.5),
-#                   se = FALSE, color = "black", linetype = "dashed") +
-# #      geom_text_repel(aes(label = site, color = site), size = 3.5, max.overlaps = Inf) +
-#       scale_color_manual(values = site_colors) +
-#       labs(
-# #        title = paste("Metric vs Latitude:", metric),
-#         x = "Latitude",
-#         y = metric
-#       ) +
-#       theme_bw(base_size = 14) +
-#       theme(legend.position = "none")
     
     plot_list[[metric]] <- p
   }
