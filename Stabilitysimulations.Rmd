@@ -217,10 +217,11 @@ plot_list <- plot_metric_vs_latitude_ci(network_info, stability_results_meig,
                                          metrics = "MEing_stable")
 
 plot_list1 <- plot_metric_vs_latitude_ci(network_info, stability_results_meig, 
-                                        metrics = "MEing_stable", xvar = "log_area")
+                                        metrics = "MEing_stable", xvar = "log_area") 
 
 combined_plot <- wrap_plots(c(plot_list$plots,plot_list1$plots), ncol = 2, guides = "collect", axes="collect") &
-  theme(legend.position = "bottom")
+  theme(legend.position = "bottom") & ylab("Max eigenvalue")
+
 ggsave("Figures/metric_MEig_vs_Latitude_area_ci.png", 
           plot = combined_plot, 
           height = 6, 
