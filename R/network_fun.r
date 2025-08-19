@@ -949,10 +949,10 @@ plot_metric_vs_latitude_ci <- function(network_info,
   obs <- network_info %>%
     mutate(site = as.character(site),
            log_area = log(area_km2)) %>%
-    dplyr::select(site, latitude, log_area,depth_m)
+    dplyr::select(site, latitude, log_area,depth_m,impact_mean)
   
   # Match x-axis label
-  x_label <- if (xvar == "log_area") "Log Area (km²)" else "Latitude"
+  x_label <- if (xvar == "log_area") "Log Area (km²)" else if( xvar=="latitude") "Latitude" else "Human impact" 
   
   # Color palette by site
   site_order <- obs %>% arrange(latitude) %>% pull(site)
@@ -979,12 +979,12 @@ plot_metric_vs_latitude_ci <- function(network_info,
     df_plot <- obs %>%
       left_join(ci_data, by = "site") %>%
       mutate(color = site_colors[site],
-             xval = if (xvar == "log_area") log_area else latitude)
+             xval = if (xvar == "log_area") log_area else if( xvar=="latitude") latitude else impact_mean) 
     
     # Always fit the Quantile regression model
     df_test <- sim %>% dplyr::select(site, value = !!sym(metric)) %>%
       left_join(obs, by = "site") 
-    mod_qr <- rq(value ~ latitude+log_area, data = df_test, tau = 0.5)
+    mod_qr <- rq(value ~ latitude+log_area+impact_mean, data = df_test, tau = 0.5)
     
     # Optional calculate significance and return the model
     if (fit_model) {
@@ -996,11 +996,19 @@ plot_metric_vs_latitude_ci <- function(network_info,
     x_seq <- seq(min(df_plot$xval, na.rm = TRUE), max(df_plot$xval, na.rm = TRUE), length.out = 100)
     if (xvar == "latitude") {
       newdata <- data.frame(latitude = x_seq,
-                            log_area = mean(df_plot$log_area, na.rm = TRUE))
+                            log_area = mean(df_plot$log_area, na.rm = TRUE),
+                            impact_mean = mean(df_plot$impact_mean, na.rm = TRUE))
+    } else if( xvar== "log_area") {
+      newdata <- data.frame(latitude = mean(df_plot$latitude, na.rm = TRUE),
+                            impact_mean = mean(df_plot$impact_mean, na.rm = TRUE),
+                            log_area = x_seq)
     } else {
       newdata <- data.frame(latitude = mean(df_plot$latitude, na.rm = TRUE),
-                            log_area = x_seq)
+                            impact_mean = x_seq,
+                            log_area = mean(df_plot$log_area, na.rm = TRUE)
+      )
     }
+      
     pred <- predict(mod_qr, newdata = newdata)
     
     df_line <- tibble(xval = x_seq, pred = pred)

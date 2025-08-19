@@ -219,7 +219,10 @@ plot_list <- plot_metric_vs_latitude_ci(network_info, stability_results_meig,
 plot_list1 <- plot_metric_vs_latitude_ci(network_info, stability_results_meig, 
                                         metrics = "MEing_stable", xvar = "log_area") 
 
-combined_plot <- wrap_plots(c(plot_list$plots,plot_list1$plots), ncol = 2, guides = "collect", axes="collect") &
+plot_list2 <- plot_metric_vs_latitude_ci(network_info, stability_results_meig, metrics = c("MEing_stable"), 
+                                        xvar = "impact_mean",fit_model=FALSE)
+
+combined_plot <- wrap_plots(c(plot_list$plots,plot_list1$plots,plot_list2$plots), ncol = 3, guides = "collect", axes="collect") &
   theme(legend.position = "bottom") & ylab("Max eigenvalue")
 
 ggsave("Figures/metric_MEig_vs_Latitude_area_ci.png", 
@@ -232,7 +235,7 @@ ggsave("Figures/metric_MEig_vs_Latitude_area_ci.png",
 # From qr_models
 qr_models <- readRDS("Data/qr_models.rds")
 qr_models <- c(qr_models, plot_list$models)
-knitr::kable( summarize_quantreg_models(qr_models,variables = c("latitude","log(area_km2)","log_area")),digits=4)
+knitr::kable( summarize_quantreg_models(qr_models,variables = c("latitude","impact_mean","log_area")),digits=4)
 saveRDS(qr_models, "Data/qr_models.rds")
 
 ```
@@ -270,7 +273,24 @@ p <- ggplot(df_plot, aes(x = C, y = mean)) +
   theme_bw(base_size = 14) +
   theme(legend.position = "none")
 
-p1 <- ggplot(df_plot, aes(x = Entropy, y = mean)) +
+p1 <- ggplot(df_plot, aes(x = Modularity, y = mean)) +
+  geom_linerange(aes(ymin = q2.5, ymax = q97.5, color = site), linewidth = 1) +
+  geom_point(aes(color = site), size = 3) +
+  geom_smooth(method = "rq", formula = y ~ x,
+              method.args = list(tau = 0.5),
+              se = FALSE, color = "black", linetype = "dashed") +
+#      geom_text_repel(aes(label = site, color = site), size = 3.5, max.overlaps = Inf) +
+  scale_color_viridis_d() +
+  labs(
+#        title = paste("Metric vs Latitude:", metric),
+    x = "Modularity",
+    y = metric
+  ) +
+  theme_bw(base_size = 14) +
+  theme(legend.position = "none")
+
+
+p2 <- ggplot(df_plot, aes(x = Entropy, y = mean)) +
   geom_linerange(aes(ymin = q2.5, ymax = q97.5, color = site), linewidth = 1) +
   geom_point(aes(color = site), size = 3) +
   geom_smooth(method = "rq", formula = y ~ x,
@@ -286,14 +306,15 @@ p1 <- ggplot(df_plot, aes(x = Entropy, y = mean)) +
   theme_bw(base_size = 14) +
   theme(legend.position = "none")
 
+combined_plot <- wrap_plots(p,p1,p2, ncol = 2, guides = "collect", axes="collect") &
+  theme(legend.position = "bottom") & ylab("Max eigenvalue")
 
-combined_plot <- wrap_plots(p,p1, ncol = 2, guides = "collect", axes="collect") &
-  theme(legend.position = "bottom")
-ggsave("Figures/MEig_stable_vs_C_Entropy_ci.png", 
+ggsave("Figures/MEig_stable_vs_C_Modularity_ci.png", 
           plot = combined_plot, 
           height = 6, 
           width = 10,
           bg = "white")
+
 
 
 ```

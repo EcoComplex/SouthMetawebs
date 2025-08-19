@@ -220,7 +220,7 @@ fittedMetaWeb <- readRDS("Data/fittedMetaWeb_all_networks.rds")
 
 # Only networks with "std" in the site name
 # network_info <- network_info %>% filter(!(site %in% c("WeddellSea","BeagleChannel")))
-network_info <- network_info[10:11,]
+# network_info <- network_info[10:11,]
 
 if (file.exists("Data/simulations_metaWebAssembly_all_networks.rds")) {
   simMetaWebMetrics <- readRDS("Data/simulations_metaWeb_metrics.rds")
@@ -258,6 +258,7 @@ saveRDS(simMetaWebMetrics,"Data/simulations_metaWeb_metrics.rds")
 ```{r plotMetaWebMetrics, eval=FALSE, message=TRUE, warning=TRUE}
 simMetaWebMetrics <- readRDS("Data/simulations_metaWeb_metrics.rds")
 require(patchwork)
+network_info$site
 network_info <- filter(network_info, !(site %in% c("WeddellSea","BeagleChannel","NorthernScotia","SouthernScotia")))
 network_info <- network_info %>% mutate(relRank=Rank/S,relRankDef=1 - relRank)
 
@@ -282,6 +283,8 @@ ggsave("Figures/empirical_vs_simulated_metrics_LD_TL.png",
           height = 6, 
           width = 10,
           bg = "white")
+
+
 ```
 
 # Plot Metaweb metrics vs empirical
@@ -313,10 +316,14 @@ plot_list <- plot_metric_vs_latitude_ci(network_info, simMetaWebMetrics,fit_mode
 
 plots <- c(plots,plot_list$plots)
 
+plot_list <- plot_metric_vs_latitude_ci(network_info, simMetaWebMetrics,fit_model = FALSE, metrics = c( "C", "Entropy", "Modularity"),xvar = "impact_mean")
+plot_list$plots
+plots <- c(plots,plot_list$plots)
+
 ### I need to arrange the list to show two columns 
 plots_grouped <- unlist(split(plots, names(plots)), recursive = FALSE)
 
-combined_plot <- wrap_plots(plots_grouped, ncol = 2, guides = "collect", axes="collect") &
+combined_plot <- wrap_plots(plots_grouped, ncol = 3, guides = "collect", axes="collect") &
   theme(legend.position = "bottom")
 ggsave("Figures/metric_Entropy_vs_lat_area_ci.png", 
           plot = combined_plot, 
@@ -343,20 +350,29 @@ plots <- c(plot_list$plots)
 #           bg = "white")
 # 
 plot_list <- plot_metric_vs_latitude_ci(network_info, simMetaWebMetrics, metrics = c("LD", "TLmean", "relRank"), 
-                                        xvar = "log_area",fit_model=TRUE)
+                                        xvar = "log_area",fit_model=FALSE)
 plots <- c(plots,plot_list$plots)
+
+plot_list <- plot_metric_vs_latitude_ci(network_info, simMetaWebMetrics, metrics = c("LD", "TLmean", "relRank"), 
+                                        xvar = "impact_mean",fit_model=FALSE)
+plots <- c(plots,plot_list$plots)
+
+
 plots_grouped <- unlist(split(plots, names(plots)), recursive = FALSE)
 names(plots_grouped)
 
+combined_plot <- wrap_plots(plots_grouped, ncol = 3, guides = "collect", axes="collect") &
+  theme(legend.position = "bottom")
+
 # Add p1 p2
-combined_plot <- wrap_plots(plots_grouped[[1]],
-                            plots_grouped[[2]],
-                            plots_grouped[[5]],
-                            plots_grouped[[6]],
-                            plots_grouped[[3]],
-                            plots_grouped[[4]],
-        ncol = 2, guides = "collect", axes="collect") &
-        theme(legend.position = "bottom")
+# combined_plot <- wrap_plots(plots_grouped[[1]],
+#                             plots_grouped[[2]],
+#                             plots_grouped[[5]],
+#                             plots_grouped[[6]],
+#                             plots_grouped[[3]],
+#                             plots_grouped[[4]],
+#         ncol = 2, guides = "collect", axes="collect") &
+#         theme(legend.position = "bottom")
 
 ggsave("Figures/metric_LD_TL_vs_lat_area_ci.png", 
           plot = combined_plot, 
@@ -366,8 +382,9 @@ ggsave("Figures/metric_LD_TL_vs_lat_area_ci.png",
 
 #qr_models <- c(qr_models, plot_list$models)
 saveRDS(qr_models, "Data/qr_models.rds")
-knitr::kable( summarize_quantreg_models(qr_models,variables = c("latitude","log(area_km2)","log_area")),digits=4)
+knitr::kable( summarize_quantreg_models(qr_models,variables = c("latitude","impact_mean","log_area")),digits=4)
 ```
+
 
 |metric       |term     | estimate| p_value|
 |:------------|:--------|--------:|-------:|
@@ -387,4 +404,26 @@ knitr::kable( summarize_quantreg_models(qr_models,variables = c("latitude","log(
 |MEing_stable |log_area |  -0.0080|  0.0000|
 
 
-
+|metric     |term        | estimate| p_value|
+|:----------|:-----------|--------:|-------:|
+|C          |latitude    |  -0.0004|   0e+00|
+|C          |log_area    |   0.0195|   0e+00|
+|C          |impact_mean |   0.1493|   0e+00|
+|Entropy    |latitude    |  -0.0018|   0e+00|
+|Entropy    |log_area    |  -0.0116|   0e+00|
+|Entropy    |impact_mean |  -0.0698|   0e+00|
+|Modularity |latitude    |   0.0033|   0e+00|
+|Modularity |log_area    |  -0.0041|   0e+00|
+|Modularity |impact_mean |  -0.1411|   0e+00|
+|LD         |latitude    |   0.4273|   0e+00|
+|LD         |log_area    |   3.6071|   0e+00|
+|LD         |impact_mean |  19.4866|   0e+00|
+|TLmean     |latitude    |   0.0104|   0e+00|
+|TLmean     |log_area    |   0.1144|   0e+00|
+|TLmean     |impact_mean |   0.0295|   6e-04|
+|relRank    |latitude    |  -0.0082|   0e+00|
+|relRank    |log_area    |  -0.0076|   0e+00|
+|relRank    |impact_mean |   0.1676|   0e+00|
+|MEing_stable |latitude    |  -0.0034|   0e+00|
+|MEing_stable |log_area    |  -0.0067|   0e+00|
+|MEing_stable |impact_mean |  -0.1552|   0e+00|

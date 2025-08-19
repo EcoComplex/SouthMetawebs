@@ -1,0 +1,128 @@
+---
+title: "Get Halpern Human Impact Index"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup}
+
+
+
+library(sf)
+library(raster)
+library(tidyverse)
+library(tmap)
+library(terra)
+library(exactextractr)
+# Check and install required packages
+required_packages <- c(
+  "sf", "raster", "terra", "tmap", "exactextractr", "tidyverse"
+)
+for (pkg in required_packages) {
+  if (!requireNamespace(pkg, quietly = TRUE)) {
+    install.packages(pkg, repos = "https://cloud.r-project.org")
+  }
+  require(pkg, character.only = TRUE)
+}
+
+
+
+regions <- tibble::tibble(
+  name = c("San Jorge Gulf", "Beagle Channel", "Burdwood Bank", "North Scotia Sea", "South Scotia Sea", "Potter Cove", "Weddell Sea"),
+  lon_min = c(-67.7, -68.58, -62, -45 , -53,  -58.73, -35),
+  lon_max = c(-65.5, -68.19, -56, -38 , -46 , -58.62, -25),
+  lat_min = c(-47. , -54.89, -55, -55 , -62 , -62.21, -78),
+  lat_max = c(-45. , -54.79, -53, -48 , -55 , -62.25, -74)
+)
+
+# Create sf polygons
+region_sf <- regions %>%
+  rowwise() %>%
+  mutate(geometry = list(st_polygon(list(matrix(
+    c(lon_min, lat_min,
+      lon_max, lat_min,
+      lon_max, lat_max,
+      lon_min, lat_max,
+      lon_min, lat_min),
+    ncol = 2, byrow = TRUE))))) %>%
+  st_as_sf(crs = 4326)
+
+r <- rast("~/Academicos/GitProjects/Networks/SouthMetawebs/Data/cumulative_impact_2013.tif")
+impact_means <- exact_extract(r, region_sf, 'mean')
+
+region_sf$impact_mean <- impact_means
+
+
+# --- Reproject to Antarctic Polar Stereographic (EPSG:3031) ---
+region_sf_proj <- st_transform(region_sf, 3031)
+#r_proj <- project(r, "EPSG:3031")
+#writeRaster(r_proj, "~/Academicos/GitProjects/Networks/SouthMetawebs/Data/cumulative_impact_2013_proj.tif")
+r_proj <- rast("~/Academicos/GitProjects/Networks/SouthMetawebs/Data/cumulative_impact_2013_proj.tif")
+  
+
+# --- Mask raster to polygon union ---
+poly_union <- st_union(region_sf) %>% st_transform(3031)
+r_mask <- mask(crop(r_proj, vect(poly_union)), vect(poly_union))
+
+
+# --- tmap plot ---
+tmap_mode("view")
+
+tmap_mode("plot")
+tm_shape(r_mask) +
+  tm_raster(style = "cont", palette = "viridis", title = "Impact Index") +
+  # Uncomment if bathymetry available:
+  # tm_shape(bathy_proj) +
+  # tm_raster(style = "cont", palette = "-Blues", alpha = 0.5, title = "Bathymetry") +
+  tm_shape(region_sf_proj) +
+  tm_borders(lwd = 2, col = "black") +
+  tm_basemap("Esri.WorldTopoMap") +
+  tm_layout(
+    main.title = "Mean Cumulative Human Impact by Region",
+    main.title.size = 1.2,
+    legend.outside = TRUE
+  )
+
+#
+#
+#
+
+# Impact values without geometry
+impact_tbl <- region_sf %>%
+  st_drop_geometry() %>%
+  dplyr::select(name, impact_mean)
+
+# Manual mapping between network_info$site and descriptive names
+name_map <- tibble::tibble(
+  site = c(
+    "BurdwoodBank",
+    "GulfSanJorge",
+    "PotterCove",
+    "Std BeagleChannel",
+    "Std Weddell Sea",
+    "Std NorthernScotia",
+    "Std SouthernScotia"
+  ),
+  name = c(
+    "Burdwood Bank",
+    "San Jorge Gulf",
+    "Potter Cove",
+    "Beagle Channel",
+    "Weddell Sea",
+    "North Scotia Sea",
+    "South Scotia Sea"
+  )
+)
+
+network_info <- readRDS("Data/network_info.rds")
+network_info <- filter(network_info, !(site %in% c("WeddellSea","BeagleChannel","NorthernScotia","SouthernScotia")))
+
+# Join descriptive names and impact values to network_info
+network_info <- network_info %>%
+  left_join(name_map, by = "site") %>%        # Add descriptive name
+  left_join(impact_tbl, by = "name")         
+
+# Save the networks
+saveRDS(network_info, "Data/network_info.rds")
+```
