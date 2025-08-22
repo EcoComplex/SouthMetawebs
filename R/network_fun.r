@@ -949,7 +949,7 @@ plot_metric_vs_latitude_ci <- function(network_info,
   obs <- network_info %>%
     mutate(site = as.character(site),
            log_area = log(area_km2)) %>%
-    dplyr::select(site, latitude, log_area,depth_m,impact_mean)
+    dplyr::select(site, C, latitude, log_area,depth_m,impact_mean)
   
   # Match x-axis label
   x_label <- if (xvar == "log_area") "Log Area (km²)" else if( xvar=="latitude") "Latitude" else "Human impact" 
@@ -984,8 +984,11 @@ plot_metric_vs_latitude_ci <- function(network_info,
     # Always fit the Quantile regression model
     df_test <- sim %>% dplyr::select(site, value = !!sym(metric)) %>%
       left_join(obs, by = "site") 
-    mod_qr <- rq(value ~ latitude+log_area+impact_mean, data = df_test, tau = 0.5)
-    
+    if(metric == "C") {
+      mod_qr <- rq(value ~ latitude+log_area+impact_mean, data = df_test, tau = 0.5)
+    } else {
+      mod_qr <- rq(value ~ C+latitude+log_area+impact_mean, data = df_test, tau = 0.5)
+    }
     # Optional calculate significance and return the model
     if (fit_model) {
       sum_qr <- summary(mod_qr, se = "boot")
@@ -994,20 +997,41 @@ plot_metric_vs_latitude_ci <- function(network_info,
     
     # Predicción parcial ajustada para variable xvar
     x_seq <- seq(min(df_plot$xval, na.rm = TRUE), max(df_plot$xval, na.rm = TRUE), length.out = 100)
-    if (xvar == "latitude") {
-      newdata <- data.frame(latitude = x_seq,
-                            log_area = mean(df_plot$log_area, na.rm = TRUE),
-                            impact_mean = mean(df_plot$impact_mean, na.rm = TRUE))
-    } else if( xvar== "log_area") {
-      newdata <- data.frame(latitude = mean(df_plot$latitude, na.rm = TRUE),
-                            impact_mean = mean(df_plot$impact_mean, na.rm = TRUE),
-                            log_area = x_seq)
+    if(metric == "C") {
+      
+      if (xvar == "latitude") {
+        newdata <- data.frame(latitude = x_seq,
+                              log_area = mean(df_plot$log_area, na.rm = TRUE),
+                              impact_mean = mean(df_plot$impact_mean, na.rm = TRUE))
+      } else if( xvar== "log_area") {
+        newdata <- data.frame(latitude = mean(df_plot$latitude, na.rm = TRUE),
+                              impact_mean = mean(df_plot$impact_mean, na.rm = TRUE),
+                              log_area = x_seq)
+      } else {
+        newdata <- data.frame(latitude = mean(df_plot$latitude, na.rm = TRUE),
+                              impact_mean = x_seq,
+                              log_area = mean(df_plot$log_area, na.rm = TRUE)
+        )
+      }
     } else {
-      newdata <- data.frame(latitude = mean(df_plot$latitude, na.rm = TRUE),
-                            impact_mean = x_seq,
-                            log_area = mean(df_plot$log_area, na.rm = TRUE)
-      )
-    }
+      if (xvar == "latitude") {
+        newdata <- data.frame(latitude = x_seq,
+                              log_area = mean(df_plot$log_area, na.rm = TRUE),
+                              C = mean(df_plot$C, na.rm = TRUE),
+                              impact_mean = mean(df_plot$impact_mean, na.rm = TRUE))
+      } else if( xvar== "log_area") {
+        newdata <- data.frame(latitude = mean(df_plot$latitude, na.rm = TRUE),
+                              impact_mean = mean(df_plot$impact_mean, na.rm = TRUE),
+                              C = mean(df_plot$C, na.rm = TRUE),
+                              log_area = x_seq)
+      } else {
+        newdata <- data.frame(latitude = mean(df_plot$latitude, na.rm = TRUE),
+                              impact_mean = x_seq,
+                              C = mean(df_plot$C, na.rm = TRUE),
+                              log_area = mean(df_plot$log_area, na.rm = TRUE)
+        )
+      }
+    }      
       
     pred <- predict(mod_qr, newdata = newdata)
     

@@ -123,24 +123,7 @@ ggplot(near_qss, aes(x = selfDamping, y = MEing_stable)) +
     legend.position = "bottom"
   )
 
-threshold_qss <- 0.05
-
-first_above_qss <- stability_results %>%
-  filter(QSS >= threshold_qss) %>%
-  group_by(site) %>%
-  slice_min(QSS, with_ties = FALSE) %>%
-  ungroup()
-
-# stability_results <- readRDS("Data/stability_results.rds") 
-# stability_results %>% knitr::kable()
-# unique(stability_results$site)
-# 
-# network_info[c(3,5,7),]
-# 
-# (wqss <- calc_QSS(network_info$igraph[7],ncores=8,selfDamping = -40))
-# (wqss <- calc_QSS(network_info$igraph[5],ncores=8,selfDamping = -40))
-
-
+# Save the plot 
 ```
 
 # Interpolate Self-Damping at QSS = 0.05
@@ -253,25 +236,25 @@ ci_data <- stability_results_meig %>%
     .groups = "drop"
   ) 
 
+require(quantreg)
 # Join with empirical predictors
 df_plot <- network_info %>%
   inner_join(ci_data, by = "site")
-
+metric <- "Dynamic Stability"
 p <- ggplot(df_plot, aes(x = C, y = mean)) +
   geom_linerange(aes(ymin = q2.5, ymax = q97.5, color = site), linewidth = 1) +
   geom_point(aes(color = site), size = 3) +
   geom_smooth(method = "rq", formula = y ~ x,
               method.args = list(tau = 0.5),
               se = FALSE, color = "black", linetype = "dashed") +
-#      geom_text_repel(aes(label = site, color = site), size = 3.5, max.overlaps = Inf) +
   scale_color_viridis_d() +
   labs(
-#        title = paste("Metric vs Latitude:", metric),
     x = "C",
     y = metric
   ) +
   theme_bw(base_size = 14) +
   theme(legend.position = "none")
+p
 
 p1 <- ggplot(df_plot, aes(x = Modularity, y = mean)) +
   geom_linerange(aes(ymin = q2.5, ymax = q97.5, color = site), linewidth = 1) +
@@ -279,16 +262,14 @@ p1 <- ggplot(df_plot, aes(x = Modularity, y = mean)) +
   geom_smooth(method = "rq", formula = y ~ x,
               method.args = list(tau = 0.5),
               se = FALSE, color = "black", linetype = "dashed") +
-#      geom_text_repel(aes(label = site, color = site), size = 3.5, max.overlaps = Inf) +
   scale_color_viridis_d() +
   labs(
-#        title = paste("Metric vs Latitude:", metric),
     x = "Modularity",
     y = metric
   ) +
   theme_bw(base_size = 14) +
   theme(legend.position = "none")
-
+p1
 
 p2 <- ggplot(df_plot, aes(x = Entropy, y = mean)) +
   geom_linerange(aes(ymin = q2.5, ymax = q97.5, color = site), linewidth = 1) +
@@ -296,15 +277,29 @@ p2 <- ggplot(df_plot, aes(x = Entropy, y = mean)) +
   geom_smooth(method = "rq", formula = y ~ x,
               method.args = list(tau = 0.5),
               se = FALSE, color = "black", linetype = "dashed") +
-#      geom_text_repel(aes(label = site, color = site), size = 3.5, max.overlaps = Inf) +
   scale_color_viridis_d() +
   labs(
-#        title = paste("Metric vs Latitude:", metric),
     x = "Entropy",
     y = metric
   ) +
   theme_bw(base_size = 14) +
   theme(legend.position = "none")
+p2
+
+p3 <- ggplot(df_plot %>% mutate(RankDeficiency = 1 - Rank/S), aes(x = RankDeficiency, y = mean)) +
+  geom_linerange(aes(ymin = q2.5, ymax = q97.5, color = site), linewidth = 1) +
+  geom_point(aes(color = site), size = 3) +
+  geom_smooth(method = "rq", formula = y ~ x,
+              method.args = list(tau = 0.5),
+              se = FALSE, color = "black", linetype = "dashed") +
+  scale_color_viridis_d() +
+  labs(
+    x = "Rank Deficiency",
+    y = metric
+  ) +
+  theme_bw(base_size = 14) +
+  theme(legend.position = "none")
+
 
 combined_plot <- wrap_plots(p,p1,p2, ncol = 2, guides = "collect", axes="collect") &
   theme(legend.position = "bottom") & ylab("Max eigenvalue")
