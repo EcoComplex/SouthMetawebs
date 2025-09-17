@@ -1,4 +1,41 @@
-# Supplementary Materials
+---
+title: Supplementary Materials Gradientes latitudinales en la estructura y estabilidad de redes tróficas marinas
+  del Atlántico Sudoccidental
+bibliography: SouthMarineFoodWebs.bib
+csl: "functional-ecology.csl"
+output:
+  pdf_document:
+    latex_engine: lualatex
+    keep_tex: true
+    includes:
+---
+
+
+|metric         |term        | estimate| p_value|
+|:--------------|:-----------|--------:|-------:|
+|C             |latitude    |  -0.0004|       0|
+|C             |log_area    |   0.0195|       0|
+|C             |impact_mean |   0.1493|       0|
+|SVDComplexity |latitude    |   0.0019|       0|
+|SVDComplexity |log_area    |   0.0032|       0|
+|SVDComplexity |impact_mean |   0.0063|       0|
+|Modularity    |latitude    |   0.0013|       0|
+|Modularity    |log_area    |   0.0059|       0|
+|Modularity    |impact_mean |  -0.1134|       0|
+|LD             |latitude    |   0.3913|   0e+00|
+|LD             |log_area    |   1.1366|   0e+00|
+|LD             |impact_mean |   0.7398|   0e+00|
+|TLmean         |latitude    |   0.0133|   0e+00|
+|TLmean         |log_area    |   0.0947|   0e+00|
+|TLmean         |impact_mean |   0.0652|   3e-04|
+|RankDeficiency |latitude    |   0.0083|   0e+00|
+|RankDeficiency |log_area    |   0.0122|   0e+00|
+|RankDeficiency |impact_mean |  -0.1394|   0e+00|
+|MEing_stable   |latitude    |  -0.0018|  0.0000|
+|MEing_stable   |log_area    |  -0.0009|  0.2227|
+|MEing_stable   |impact_mean |  -0.0288|  0.0460|
+
+Table S1. Results from linear models testing the effects of latitude, log-transformed area, and mean human impact on food web structural metrics. Significant p-values (<0.05) are highlighted in bold.
 
 ## Metric Formulas
 

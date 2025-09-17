@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = FALSE)
 
 # Check and install required packages
 required_packages <- c(
-  "lhs", "dplyr", "purrr", "igraph", "ggplot2", "tibble", "doFuture","devtools","abc", "tidyverse"
+  "lhs", "dplyr", "purrr", "igraph", "ggplot2", "tibble", "doFuture","devtools","abc", "tidyverse", "viridisLite"
 )
 for (pkg in required_packages) {
   if (!requireNamespace(pkg, quietly = TRUE)) {
@@ -255,14 +255,17 @@ saveRDS(simMetaWebMetrics,"Data/simulations_metaWeb_metrics.rds")
 
 # Plot Metaweb metrics vs empirical
 
+## UPDATED Entropy = 1 - Entropy
+
 ```{r plotMetaWebMetrics, eval=FALSE, message=TRUE, warning=TRUE}
-simMetaWebMetrics <- readRDS("Data/simulations_metaWeb_metrics.rds")
+simMetaWebMetrics <- readRDS("Data/simulations_metaWeb_metrics.rds") %>% mutate(SVDComplexity= 1 - Entropy,
+                                                                                RankDeficiency = 1 - relRank)
 require(patchwork)
 network_info$site
 network_info <- filter(network_info, !(site %in% c("WeddellSea","BeagleChannel","NorthernScotia","SouthernScotia")))
-network_info <- network_info %>% mutate(relRank=Rank/S,relRankDef=1 - relRank)
+network_info <- network_info %>% mutate(relRank=Rank/S,RankDeficiency=1 - relRank, SVDComplexity= 1 - Entropy)
 
-plot_list <- plot_empirical_vs_simulated_metrics(network_info,simMetaWebMetrics, metrics=c("S", "C","relRank", "Entropy", "Modularity"))
+plot_list <- plot_empirical_vs_simulated_metrics(network_info,simMetaWebMetrics, metrics=c("S", "C","RankDeficiency", "SVDComplexity", "Modularity"))
 
 combined_plot <- wrap_plots(plot_list, ncol = 2, guides = "collect", axes="collect_x") &
   theme(legend.position = "bottom")
@@ -291,34 +294,29 @@ ggsave("Figures/empirical_vs_simulated_metrics_LD_TL.png",
 
 
 ```{r plotMetaWebMetrics1, eval=FALSE, message=TRUE, warning=TRUE}
-# plot_metric_densities_with_empirical(network_info,simulated_metaweb_metrics)
-# plot_empirical_vs_simulated_ci(network_info,simMetaWebMetrics)
 
 #
 ## Metrics vs Latitude and Area
 #
- 
-plot_list <- plot_metric_vs_latitude_ci(network_info, simMetaWebMetrics,fit_model = TRUE, metrics = c( "C", "Entropy", "Modularity"))
+
+plot_list <- plot_metric_vs_latitude_ci(network_info, simMetaWebMetrics,fit_model = TRUE, metrics = c( "C", "SVDComplexity", "Modularity"))
 qr_models <- plot_list$models
 
 plots  <- plot_list$plots
-# combined_plot <- wrap_plots(plot_list$plots, ncol = 2, guides = "collect", axes="collect_x") &
-#   theme(legend.position = "bottom")
-# 
-# # Show plot
-# ggsave("Figures/metric_Entropy_vs_latitude_ci.png", 
-#           plot = combined_plot, 
-#           height = 6, 
-#           width = 10,
-#           bg = "white")
+#plots$Entropy <- plots$Entropy + ylab("SVD Complexity")
 
-plot_list <- plot_metric_vs_latitude_ci(network_info, simMetaWebMetrics,fit_model = FALSE, metrics = c( "C", "Entropy", "Modularity"),xvar = "log_area")
+plot_list <- plot_metric_vs_latitude_ci(network_info, simMetaWebMetrics,fit_model = FALSE, metrics = c( "C", "SVDComplexity", "Modularity"),xvar = "log_area")
+plots1 <- plot_list$plots
+#plots1$Entropy <- plots1$Entropy + ylab("SVD Complexity")
 
-plots <- c(plots,plot_list$plots)
+plots <- c(plots,plots1)
 
-plot_list <- plot_metric_vs_latitude_ci(network_info, simMetaWebMetrics,fit_model = FALSE, metrics = c( "C", "Entropy", "Modularity"),xvar = "impact_mean")
+plot_list <- plot_metric_vs_latitude_ci(network_info, simMetaWebMetrics,fit_model = FALSE, metrics = c( "C", "SVDComplexity", "Modularity"),xvar = "impact_mean")
 plot_list$plots
-plots <- c(plots,plot_list$plots)
+plots1 <- plot_list$plots
+#plots1$Entropy <- plots1$Entropy + ylab("SVD Complexity")
+
+plots <- c(plots,plots1)
 
 ### I need to arrange the list to show two columns 
 plots_grouped <- unlist(split(plots, names(plots)), recursive = FALSE)
@@ -336,24 +334,17 @@ ggsave("Figures/metric_Entropy_vs_lat_area_ci.png",
 # Relative Rank Rank/S
 # LD and TLmean
 #
-plot_list <- plot_metric_vs_latitude_ci(network_info, simMetaWebMetrics, metrics = c("LD", "TLmean","relRank") , fit_model = TRUE)
+simMetaWebMetrics <- simMetaWebMetrics %>% mutate( RankDeficiency = 1 - relRank)
+plot_list <- plot_metric_vs_latitude_ci(network_info, simMetaWebMetrics, metrics = c("LD", "TLmean","RankDeficiency") , fit_model = TRUE)
 qr_models <- append(qr_models,plot_list$models)
 plots <- c(plot_list$plots)
 
-# combined_plot <- wrap_plots(plot_list$plots, ncol = 2, guides = "collect", axes="collect_x") &
-#   theme(legend.position = "bottom")
-# 
-# ggsave("Figures/metric_LD_TL_vs_latitude_ci.png", 
-#           plot = combined_plot, 
-#           height = 6, 
-#           width = 10,
-#           bg = "white")
-# 
-plot_list <- plot_metric_vs_latitude_ci(network_info, simMetaWebMetrics, metrics = c("LD", "TLmean", "relRank"), 
+
+plot_list <- plot_metric_vs_latitude_ci(network_info, simMetaWebMetrics, metrics = c("LD", "TLmean", "RankDeficiency"), 
                                         xvar = "log_area",fit_model=FALSE)
 plots <- c(plots,plot_list$plots)
 
-plot_list <- plot_metric_vs_latitude_ci(network_info, simMetaWebMetrics, metrics = c("LD", "TLmean", "relRank"), 
+plot_list <- plot_metric_vs_latitude_ci(network_info, simMetaWebMetrics, metrics = c("LD", "TLmean", "RankDeficiency"), 
                                         xvar = "impact_mean",fit_model=FALSE)
 plots <- c(plots,plot_list$plots)
 
@@ -364,16 +355,6 @@ names(plots_grouped)
 combined_plot <- wrap_plots(plots_grouped, ncol = 3, guides = "collect", axes="collect") &
   theme(legend.position = "bottom")
 
-# Add p1 p2
-# combined_plot <- wrap_plots(plots_grouped[[1]],
-#                             plots_grouped[[2]],
-#                             plots_grouped[[5]],
-#                             plots_grouped[[6]],
-#                             plots_grouped[[3]],
-#                             plots_grouped[[4]],
-#         ncol = 2, guides = "collect", axes="collect") &
-#         theme(legend.position = "bottom")
-
 ggsave("Figures/metric_LD_TL_vs_lat_area_ci.png", 
           plot = combined_plot, 
           height = 6, 
@@ -382,48 +363,223 @@ ggsave("Figures/metric_LD_TL_vs_lat_area_ci.png",
 
 #qr_models <- c(qr_models, plot_list$models)
 saveRDS(qr_models, "Data/qr_models.rds")
-knitr::kable( summarize_quantreg_models(qr_models,variables = c("latitude","impact_mean","log_area")),digits=4)
+knitr::kable( summarize_gam_summaries(qr_models),digits=4)
 ```
 
+### Quantil models S Added
 
-|metric       |term     | estimate| p_value|
-|:------------|:--------|--------:|-------:|
-|C            |latitude |   0.0006|  0.1084|
-|C            |log_area |   0.0005|  0.7630|
-|Entropy      |latitude |  -0.0020|  0.0000|
-|Entropy      |log_area |  -0.0044|  0.0000|
-|Modularity   |latitude |   0.0047|  0.0000|
-|Modularity   |log_area |  -0.0035|  0.0000|
-|LD           |latitude |   0.5174|  0.0000|
-|LD           |log_area |   1.3487|  0.0000|
-|TLmean       |latitude |   0.0102|  0.0000|
-|TLmean       |log_area |   0.1158|  0.0000|
-|relRank      |latitude |  -0.0103|  0.0000|
-|relRank      |log_area |  -0.0066|  0.0000|
-|MEing_stable |latitude |  -0.0024|  0.0000|
-|MEing_stable |log_area |  -0.0080|  0.0000|
+|metric         |term        | estimate| p_value|
+|:--------------|:-----------|--------:|-------:|
+|C              |latitude    |   0.0025|  0.0000|
+|C              |log_area    |   0.0155|  0.0000|
+|C              |impact_mean |  -0.0494|  0.0000|
+|SVDComplexity  |latitude    |   0.0035|  0.0000|
+|SVDComplexity  |log_area    |   0.0103|  0.0000|
+|SVDComplexity  |impact_mean |  -0.0066|  0.0000|
+|Modularity     |latitude    |  -0.0054|  0.0000|
+|Modularity     |log_area    |  -0.0194|  0.0000|
+|Modularity     |impact_mean |  -0.1011|  0.0000|
+|LD             |latitude    |   0.8998|  0.0000|
+|LD             |log_area    |   3.3127|  0.0000|
+|LD             |impact_mean |  -4.0007|  0.0000|
+|TLmean         |latitude    |   0.0362|  0.0000|
+|TLmean         |log_area    |   0.1774|  0.0000|
+|TLmean         |impact_mean |  -0.0074|  0.0802|
+|RankDeficiency |latitude    |   0.0011|  0.0000|
+|RankDeficiency |log_area    |  -0.0099|  0.0000|
+|RankDeficiency |impact_mean |  -0.1372|  0.0000|
+|MEing_stable   |latitude    |  -0.0073|  0.0000|
+|MEing_stable   |log_area    |  -0.0204|  0.0000|
+|MEing_stable   |impact_mean |  -0.0554|  0.0007|
+
+### Quantil models C added
+
+|metric         |term        | estimate| p_value|
+|:--------------|:-----------|--------:|-------:|
+|C             |latitude    |  -0.0004|       0|
+|C             |log_area    |   0.0195|       0|
+|C             |impact_mean |   0.1493|       0|
+|SVDComplexity |latitude    |   0.0019|       0|
+|SVDComplexity |log_area    |   0.0032|       0|
+|SVDComplexity |impact_mean |   0.0063|       0|
+|Modularity    |latitude    |   0.0013|       0|
+|Modularity    |log_area    |   0.0059|       0|
+|Modularity    |impact_mean |  -0.1134|       0|
+|LD             |latitude    |   0.3913|   0e+00|
+|LD             |log_area    |   1.1366|   0e+00|
+|LD             |impact_mean |   0.7398|   0e+00|
+|TLmean         |latitude    |   0.0133|   0e+00|
+|TLmean         |log_area    |   0.0947|   0e+00|
+|TLmean         |impact_mean |   0.0652|   3e-04|
+|RankDeficiency |latitude    |   0.0083|   0e+00|
+|RankDeficiency |log_area    |   0.0122|   0e+00|
+|RankDeficiency |impact_mean |  -0.1394|   0e+00|
+|MEing_stable   |latitude    |  -0.0018|  0.0000|
+|MEing_stable   |log_area    |  -0.0009|  0.2227|
+|MEing_stable   |impact_mean |  -0.0288|  0.0460|
+
+### GAM models - S added
+
+|Metric         |Term        |    edf| p-value| DevianceExplained|
+|:--------------|:-----------|------:|-------:|-----------------:|
+|C              |log_area    | 1.0001|  0.0000|              89.4|
+|C              |latitude    | 2.9998|  0.0000|              89.4|
+|C              |impact_mean | 1.0001|  0.6052|              89.4|
+|SVDComplexity  |log_area    | 2.0598|  0.0734|              94.2|
+|SVDComplexity  |latitude    | 1.9397|  0.0000|              94.2|
+|SVDComplexity  |impact_mean | 1.0004|  0.0355|              94.2|
+|Modularity     |log_area    | 1.9400|  0.0000|              74.0|
+|Modularity     |latitude    | 2.0560|  0.0000|              74.0|
+|Modularity     |impact_mean | 1.0028|  0.0002|              74.0|
+|LD             |log_area    | 2.0439|  0.7582|              90.6|
+|LD             |latitude    | 1.9534|  0.0715|              90.6|
+|LD             |impact_mean | 1.0014|  0.0506|              90.6|
+|TLmean         |log_area    | 1.0000|  0.0191|              86.5|
+|TLmean         |latitude    | 1.8786|  0.1852|              86.5|
+|TLmean         |impact_mean | 1.0025|  0.3691|              86.5|
+|RankDeficiency |log_area    | 1.9224|  0.0000|              83.4|
+|RankDeficiency |latitude    | 2.0751|  0.0538|              83.4|
+|RankDeficiency |impact_mean | 1.0012|  0.0000|              83.4|
+|MEing_stable   |log_area    | 2.0040|  0.1158|               8.6|
+|MEing_stable   |latitude    | 1.8904|  0.0000|               8.6|
+|MEing_stable   |impact_mean | 1.0004|  0.0237|               8.6|
+
+# Plot Metaweb metrics vs empirical GAM
 
 
-|metric     |term        | estimate| p_value|
-|:----------|:-----------|--------:|-------:|
-|C          |latitude    |  -0.0004|   0e+00|
-|C          |log_area    |   0.0195|   0e+00|
-|C          |impact_mean |   0.1493|   0e+00|
-|Entropy    |latitude    |  -0.0018|   0e+00|
-|Entropy    |log_area    |  -0.0116|   0e+00|
-|Entropy    |impact_mean |  -0.0698|   0e+00|
-|Modularity |latitude    |   0.0033|   0e+00|
-|Modularity |log_area    |  -0.0041|   0e+00|
-|Modularity |impact_mean |  -0.1411|   0e+00|
-|LD         |latitude    |   0.4273|   0e+00|
-|LD         |log_area    |   3.6071|   0e+00|
-|LD         |impact_mean |  19.4866|   0e+00|
-|TLmean     |latitude    |   0.0104|   0e+00|
-|TLmean     |log_area    |   0.1144|   0e+00|
-|TLmean     |impact_mean |   0.0295|   6e-04|
-|relRank    |latitude    |  -0.0082|   0e+00|
-|relRank    |log_area    |  -0.0076|   0e+00|
-|relRank    |impact_mean |   0.1676|   0e+00|
-|MEing_stable |latitude    |  -0.0034|   0e+00|
-|MEing_stable |log_area    |  -0.0067|   0e+00|
-|MEing_stable |impact_mean |  -0.1552|   0e+00|
+```{r plotMetaWebMetricsGam, eval=FALSE, message=TRUE, warning=TRUE}
+
+#
+## Metrics vs Latitude and Area
+#
+
+plot_list <- plot_metric_vs_latitude_ci_gam(network_info, simMetaWebMetrics,fit_model = TRUE, metrics = c( "C", "SVDComplexity", "Modularity"))
+qr_models <- plot_list$models
+
+plots  <- plot_list$plots
+
+plot_list <- plot_metric_vs_latitude_ci_gam(network_info, simMetaWebMetrics,fit_model = FALSE, metrics = c( "C", "SVDComplexity", "Modularity"),xvar = "log_area")
+plots1 <- plot_list$plots
+#plots1$Entropy <- plots1$Entropy + ylab("SVD Complexity")
+
+plots <- c(plots,plots1)
+
+plot_list <- plot_metric_vs_latitude_ci_gam(network_info, simMetaWebMetrics,fit_model = FALSE, metrics = c( "C", "SVDComplexity", "Modularity"),xvar = "impact_mean")
+plot_list$plots
+plots1 <- plot_list$plots
+
+plots <- c(plots,plots1)
+
+### I need to arrange the list to show two columns 
+plots_grouped <- unlist(split(plots, names(plots)), recursive = FALSE)
+
+combined_plot <- wrap_plots(plots_grouped, ncol = 3, guides = "collect", axes="collect") &
+  theme(legend.position = "bottom")
+ggsave("Figures/metric_Entropy_vs_lat_area_ci_gam.png", 
+          plot = combined_plot, 
+          height = 6, 
+          width = 10,
+          bg = "white")
+
+
+#
+# Relative Rank Rank/S
+# LD and TLmean
+#
+simMetaWebMetrics <- simMetaWebMetrics %>% mutate( RankDeficiency = 1 - relRank)
+plot_list <- plot_metric_vs_latitude_ci_gam(network_info, simMetaWebMetrics, metrics = c("LD", "TLmean","RankDeficiency") , fit_model = TRUE)
+qr_models <- append(qr_models,plot_list$models)
+plots <- c(plot_list$plots)
+
+
+plot_list <- plot_metric_vs_latitude_ci_gam(network_info, simMetaWebMetrics, metrics = c("LD", "TLmean", "RankDeficiency"), 
+                                        xvar = "log_area",fit_model=FALSE)
+plots <- c(plots,plot_list$plots)
+
+plot_list <- plot_metric_vs_latitude_ci_gam(network_info, simMetaWebMetrics, metrics = c("LD", "TLmean", "RankDeficiency"), 
+                                        xvar = "impact_mean",fit_model=FALSE)
+plots <- c(plots,plot_list$plots)
+
+
+plots_grouped <- unlist(split(plots, names(plots)), recursive = FALSE)
+names(plots_grouped)
+
+combined_plot <- wrap_plots(plots_grouped, ncol = 3, guides = "collect", axes="collect") &
+  theme(legend.position = "bottom")
+
+ggsave("Figures/metric_LD_TL_vs_lat_area_ci_gam.png", 
+          plot = combined_plot, 
+          height = 6, 
+          width = 10,
+          bg = "white")
+
+#qr_models <- readRDS("Data/qr_models_gam.rds")
+saveRDS(qr_models, "Data/qr_models_gam.rds")
+knitr::kable( summarize_gam_models(qr_models,variables = c("latitude","impact_mean","log_area")),digits=4)
+```
+
+```{r CheckCorrelation_createTables, eval=FALSE, message=TRUE, warning=TRUE}
+
+library(ggplot2)
+library(GGally)
+library(dplyr)
+
+# Select relevant columns
+network_info %>%
+  dplyr::select(S,latitude, area_km2, impact_mean) %>%
+  ggpairs(
+    upper = list(continuous = wrap("cor", size = 4)),  # correlation in upper panels
+    lower = list(continuous = wrap("points", alpha = 0.7, size = 3)), # scatterplots
+    diag = list(continuous = wrap("densityDiag", alpha = 0.5))        # density plots on diagonal
+  ) +
+  theme_bw()
+
+
+
+# Create RankDeficiency
+simMetaWebMetrics <- simMetaWebMetrics %>%
+  mutate(RankDeficiency = 1 - relRank)
+
+# Function to compute mean and 95% interval
+# Function to compute mean and 95% interval, stacked inside a single cell
+summarize_metric <- function(x, digits = 3) {
+  m   <- mean(x, na.rm = TRUE)
+  lwr <- quantile(x, 0.025, na.rm = TRUE)
+  upr <- quantile(x, 0.975, na.rm = TRUE)
+  # Use \shortstack{ ... \\ {\tiny(...)} } to keep the linebreak INSIDE the cell
+  sprintf("\\shortstack{%0.*f \\\\ {\\tiny(%0.*f--%0.*f)}}",
+          digits, m, digits, lwr, digits, upr)
+}
+
+# Summarize by Metaweb
+network_info <- 
+
+summary_table <- simMetaWebMetrics %>% rename(Network = Metaweb ) %>% filter(!(Network %in% c("WeddellSea","BeagleChannel","NorthernScotia","SouthernScotia"))) %>%
+  group_by(Network) %>%
+  summarise(
+    C = summarize_metric(C),
+    LD = summarize_metric(LD),
+    TLmean = summarize_metric(TLmean),
+    SVDComplexity = summarize_metric(SVDComplexity),
+    RankDeficiency = summarize_metric(RankDeficiency),
+    Modularity = summarize_metric(Modularity),
+    .groups = "drop"
+  )
+
+summary_table
+
+library(xtable)
+
+# Convert to LaTeX table
+print(
+  xtable(summary_table,
+         caption = "Summary of network metrics across 1000 simulations for each metaweb. Values are means with 95\\% intervals in parentheses.",
+         label = "tab:metaweb_metrics",
+         align = c("l","l","c","c","c","c","c","c")),
+  include.rownames = FALSE,
+  sanitize.text.function = identity,  # keeps the formatted mean (lwr–upr)
+  booktabs = TRUE
+)
+
+```
+

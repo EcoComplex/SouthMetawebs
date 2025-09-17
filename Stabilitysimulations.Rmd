@@ -195,7 +195,32 @@ saveRDS(stability_results_meig, "Data/stability_results_meig.rds")
 ```{r PlotStability, eval=FALSE, message=FALSE, warning=TRUE}
 stability_results_meig <- readRDS("Data/stability_results_meig.rds")
 str(stability_results_meig)
+# 
 
+network_info <- network_info %>% inner_join(stability_results_meig %>% group_by(site) %>%
+  summarise(
+    MEing_stable= median(MEing_stable, na.rm = TRUE),
+    .groups = "drop"
+  ))
+saveRDS(network_info, "Data/network_info.rds")
+
+ggplot(stability_results_meig, aes(x = MEing_stable)) +
+  geom_density( fill = "skyblue", color = "black") +
+  facet_wrap(~ site, scales = "free") +
+  labs(
+    title = "Distribution of Max Eigenvalue (Stable Matrices)",
+    x = "Max Eigenvalue",
+    y = "Count"
+  ) +
+  theme_bw(base_size = 13) +
+  theme(
+    strip.text = element_text(face = "bold"),
+    legend.position = "bottom"
+  )
+
+#
+## Plot trends and make quantile regression models
+#
 plot_list <- plot_metric_vs_latitude_ci(network_info, stability_results_meig, 
                                          metrics = "MEing_stable")
 
@@ -222,6 +247,42 @@ knitr::kable( summarize_quantreg_models(qr_models,variables = c("latitude","impa
 saveRDS(qr_models, "Data/qr_models.rds")
 
 ```
+
+# Stability vs Latitude GAM
+
+```{r PlotStability, eval=FALSE, message=FALSE, warning=TRUE}
+stability_results_meig <- readRDS("Data/stability_results_meig.rds")
+str(stability_results_meig)
+
+
+plot_list <- plot_metric_vs_latitude_ci_gam(network_info, stability_results_meig, 
+                                         metrics = "MEing_stable")
+
+plot_list1 <- plot_metric_vs_latitude_ci_gam(network_info, stability_results_meig, 
+                                        metrics = "MEing_stable", xvar = "log_area") 
+
+plot_list2 <- plot_metric_vs_latitude_ci_gam(network_info, stability_results_meig, metrics = c("MEing_stable"), 
+                                        xvar = "impact_mean",fit_model=FALSE)
+
+combined_plot <- wrap_plots(c(plot_list$plots,plot_list1$plots,plot_list2$plots), ncol = 3, guides = "collect", axes="collect") &
+  theme(legend.position = "bottom") & ylab("Max eigenvalue")
+
+ggsave("Figures/metric_MEig_vs_Latitude_area_ci_gam.png", 
+          plot = combined_plot, 
+          height = 6, 
+          width = 10,
+          bg = "white")
+
+
+# From qr_models
+qr_models <- readRDS("Data/qr_models_gam.rds")
+qr_models <- c(qr_models, plot_list$models)
+knitr::kable( summarize_quantreg_models(qr_models,variables = c("latitude","impact_mean","log_area")),digits=4)
+saveRDS(qr_models, "Data/qr_models_gam.rds")
+
+```
+
+# Plot Stability vs C and Modularity
 
 
 ```{r PlotStabilityVsC, eval=FALSE, message=FALSE, warning=TRUE}
@@ -271,7 +332,7 @@ p1 <- ggplot(df_plot, aes(x = Modularity, y = mean)) +
   theme(legend.position = "none")
 p1
 
-p2 <- ggplot(df_plot, aes(x = Entropy, y = mean)) +
+p2 <- ggplot(df_plot, aes(x = SVDComplexity, y = mean)) +
   geom_linerange(aes(ymin = q2.5, ymax = q97.5, color = site), linewidth = 1) +
   geom_point(aes(color = site), size = 3) +
   geom_smooth(method = "rq", formula = y ~ x,
@@ -279,7 +340,7 @@ p2 <- ggplot(df_plot, aes(x = Entropy, y = mean)) +
               se = FALSE, color = "black", linetype = "dashed") +
   scale_color_viridis_d() +
   labs(
-    x = "Entropy",
+    x = "SVD Complexity",
     y = metric
   ) +
   theme_bw(base_size = 14) +
@@ -301,7 +362,7 @@ p3 <- ggplot(df_plot %>% mutate(RankDeficiency = 1 - Rank/S), aes(x = RankDefici
   theme(legend.position = "none")
 
 
-combined_plot <- wrap_plots(p,p1,p2, ncol = 2, guides = "collect", axes="collect") &
+combined_plot <- wrap_plots(p,p1,p2,p3, ncol = 2, guides = "collect", axes="collect") &
   theme(legend.position = "bottom") & ylab("Max eigenvalue")
 
 ggsave("Figures/MEig_stable_vs_C_Modularity_ci.png", 
