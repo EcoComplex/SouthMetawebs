@@ -10,32 +10,38 @@ output:
     includes:
 ---
 
+|Metric         |Term           |    edf| p-value| PartialDeviance| TotalDevianceExplained|
+|:--------------|:--------------|------:|-------:|---------------:|----------------------:|
+|C              |s(S)           | 1.0000|  0.1321|          0.0440|                   89.4|
+|C              |s(log_area)    | 1.0002|  0.0000|          0.7472|                   89.4|
+|C              |s(latitude)    | 2.9996|  0.0000|         99.2037|                   89.4|
+|C              |s(impact_mean) | 1.0001|  0.6048|          0.0052|                   89.4|
+|SVDComplexity  |s(S)           | 1.0002|  0.8332|          0.1146|                   94.9|
+|SVDComplexity  |s(log_area)    | 2.0623|  0.0778|         16.9324|                   94.9|
+|SVDComplexity  |s(latitude)    | 1.9368|  0.0000|         71.8385|                   94.9|
+|SVDComplexity  |s(impact_mean) | 1.0006|  0.0378|         11.1144|                   94.9|
+|Modularity     |s(S)           | 1.0001|  0.0000|         52.4972|                   74.5|
+|Modularity     |s(log_area)    | 1.9384|  0.0000|         20.2582|                   74.5|
+|Modularity     |s(latitude)    | 2.0542|  0.0001|         17.6223|                   74.5|
+|Modularity     |s(impact_mean) | 1.0051|  0.0002|          9.6223|                   74.5|
+|LD             |s(S)           | 1.0023|  0.1170|         18.0881|                   90.6|
+|LD             |s(log_area)    | 2.0435|  0.3747|         12.7398|                   90.6|
+|LD             |s(latitude)    | 1.9499|  0.0632|         41.5093|                   90.6|
+|LD             |s(impact_mean) | 1.0042|  0.0518|         27.6628|                   90.6|
+|TLmean         |s(S)           | 1.0068|  0.0367|         24.4954|                   86.6|
+|TLmean         |s(log_area)    | 1.0000|  0.0202|         30.2805|                   86.6|
+|TLmean         |s(latitude)    | 1.8901|  0.0538|         34.0190|                   86.6|
+|TLmean         |s(impact_mean) | 2.1028|  0.4346|         11.2051|                   86.6|
+|RankDeficiency |s(S)           | 1.0002|  0.0000|         68.1208|                   84.3|
+|RankDeficiency |s(log_area)    | 1.9171|  0.0000|         25.5057|                   84.3|
+|RankDeficiency |s(latitude)    | 2.0776|  0.0503|          0.9691|                   84.3|
+|RankDeficiency |s(impact_mean) | 1.0025|  0.0000|          5.4044|                   84.3|
+|MEing_stable   |s(S)           | 1.0122|  0.0000|         56.2627|                   19.2|
+|MEing_stable   |s(log_area)    | 1.2684|  0.0129|         16.5487|                   19.2|
+|MEing_stable   |s(latitude)    | 1.0001|  0.0000|         26.6094|                   19.2|
+|MEing_stable   |s(impact_mean) | 2.6914|  0.5414|          0.5792|                   19.2|
 
-|metric         |term        | estimate| p_value|
-|:--------------|:-----------|--------:|-------:|
-|C             |latitude    |  -0.0004|       0|
-|C             |log_area    |   0.0195|       0|
-|C             |impact_mean |   0.1493|       0|
-|SVDComplexity |latitude    |   0.0019|       0|
-|SVDComplexity |log_area    |   0.0032|       0|
-|SVDComplexity |impact_mean |   0.0063|       0|
-|Modularity    |latitude    |   0.0013|       0|
-|Modularity    |log_area    |   0.0059|       0|
-|Modularity    |impact_mean |  -0.1134|       0|
-|LD             |latitude    |   0.3913|   0e+00|
-|LD             |log_area    |   1.1366|   0e+00|
-|LD             |impact_mean |   0.7398|   0e+00|
-|TLmean         |latitude    |   0.0133|   0e+00|
-|TLmean         |log_area    |   0.0947|   0e+00|
-|TLmean         |impact_mean |   0.0652|   3e-04|
-|RankDeficiency |latitude    |   0.0083|   0e+00|
-|RankDeficiency |log_area    |   0.0122|   0e+00|
-|RankDeficiency |impact_mean |  -0.1394|   0e+00|
-|MEing_stable   |latitude    |  -0.0018|  0.0000|
-|MEing_stable   |log_area    |  -0.0009|  0.2227|
-|MEing_stable   |impact_mean |  -0.0288|  0.0460|
-
-Table S1. Results from linear models testing the effects of latitude, log-transformed area, and mean human impact on food web structural metrics. Significant p-values (<0.05) are highlighted in bold.
+Table S1. Results from generalized additive models (GAMs) testing the effects of latitude, log-transformed area, and mean human impact on food web structural metrics. Reported are estimated degrees of freedom (edf), approximate p-values, approximate partial deviance contributions of each smooth term, and the total deviance explained by the model.
 
 ## Metric Formulas
 

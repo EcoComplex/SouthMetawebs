@@ -294,6 +294,8 @@ ggsave("Figures/empirical_vs_simulated_metrics_LD_TL.png",
 
 
 ```{r plotMetaWebMetrics1, eval=FALSE, message=TRUE, warning=TRUE}
+simMetaWebMetrics <- readRDS("Data/simulations_metaWeb_metrics.rds") %>% mutate(SVDComplexity= 1 - Entropy,
+                                                                                RankDeficiency = 1 - relRank)
 
 #
 ## Metrics vs Latitude and Area
@@ -320,6 +322,8 @@ plots <- c(plots,plots1)
 
 ### I need to arrange the list to show two columns 
 plots_grouped <- unlist(split(plots, names(plots)), recursive = FALSE)
+
+require(patchwork)
 
 combined_plot <- wrap_plots(plots_grouped, ncol = 3, guides = "collect", axes="collect") &
   theme(legend.position = "bottom")
@@ -448,13 +452,16 @@ knitr::kable( summarize_gam_summaries(qr_models),digits=4)
 
 
 ```{r plotMetaWebMetricsGam, eval=FALSE, message=TRUE, warning=TRUE}
+simMetaWebMetrics <- readRDS("Data/simulations_metaWeb_metrics.rds") %>% mutate(SVDComplexity= 1 - Entropy,
+                                                                                RankDeficiency = 1 - relRank) %>%
+  filter( !(Metaweb %in% c("WeddellSea","BeagleChannel","NorthernScotia","SouthernScotia")))
 
 #
 ## Metrics vs Latitude and Area
 #
 
 plot_list <- plot_metric_vs_latitude_ci_gam(network_info, simMetaWebMetrics,fit_model = TRUE, metrics = c( "C", "SVDComplexity", "Modularity"))
-qr_models <- plot_list$models
+qr_models <- plot_list$deviance
 
 plots  <- plot_list$plots
 
@@ -472,7 +479,7 @@ plots <- c(plots,plots1)
 
 ### I need to arrange the list to show two columns 
 plots_grouped <- unlist(split(plots, names(plots)), recursive = FALSE)
-
+require(patchwork)
 combined_plot <- wrap_plots(plots_grouped, ncol = 3, guides = "collect", axes="collect") &
   theme(legend.position = "bottom")
 ggsave("Figures/metric_Entropy_vs_lat_area_ci_gam.png", 
@@ -486,9 +493,8 @@ ggsave("Figures/metric_Entropy_vs_lat_area_ci_gam.png",
 # Relative Rank Rank/S
 # LD and TLmean
 #
-simMetaWebMetrics <- simMetaWebMetrics %>% mutate( RankDeficiency = 1 - relRank)
 plot_list <- plot_metric_vs_latitude_ci_gam(network_info, simMetaWebMetrics, metrics = c("LD", "TLmean","RankDeficiency") , fit_model = TRUE)
-qr_models <- append(qr_models,plot_list$models)
+qr_models <- bind_rows(qr_models,plot_list$deviance)
 plots <- c(plot_list$plots)
 
 
@@ -515,7 +521,7 @@ ggsave("Figures/metric_LD_TL_vs_lat_area_ci_gam.png",
 
 #qr_models <- readRDS("Data/qr_models_gam.rds")
 saveRDS(qr_models, "Data/qr_models_gam.rds")
-knitr::kable( summarize_gam_models(qr_models,variables = c("latitude","impact_mean","log_area")),digits=4)
+knitr::kable( qr_models,digits=4)
 ```
 
 ```{r CheckCorrelation_createTables, eval=FALSE, message=TRUE, warning=TRUE}
@@ -526,7 +532,7 @@ library(dplyr)
 
 # Select relevant columns
 network_info %>%
-  dplyr::select(S,latitude, area_km2, impact_mean) %>%
+  dplyr::select(C,S,latitude, area_km2, impact_mean) %>%
   ggpairs(
     upper = list(continuous = wrap("cor", size = 4)),  # correlation in upper panels
     lower = list(continuous = wrap("points", alpha = 0.7, size = 3)), # scatterplots

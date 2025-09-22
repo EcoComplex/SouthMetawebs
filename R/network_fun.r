@@ -909,24 +909,24 @@ plot_empirical_vs_simulated_ci <- function(network_info,
   return(plot_list)
 }
 
-#' Plot Network Metrics with Simulated Confidence Intervals
+#' Plot Network Metrics with Simulated Confidence Intervals + Quantile Regression
 #'
-#' This function plots network metrics against a predictor (e.g., latitude or log area),
-#' includes simulated confidence intervals, and optionally fits quantile regression.
+#' Fits quantile regressions (tau = 0.25, 0.5, 0.75) and plots regression lines.
+#' Returns a dataframe with term-level estimates, SE, and p-values.
 #'
 #' @param network_info Data frame with empirical metrics (`site`, `latitude`, `area_km2`, etc).
 #' @param simulated_metrics Simulated metrics from metaweb simulations (`Metaweb`, `S`, `L`, etc).
-#' @param metrics Vector of metric names to plot (default includes S, C, Entropy, Rank, Modularity).
-#' @param xvar Variable for x-axis, either `"latitude"` or `"log_area"` (default: `"latitude"`).
-#' @param fit_model If `TRUE`, fits quantile regression and returns model summaries (default: `TRUE`).
+#' @param metrics Vector of metric names to plot (default: c("C", "SVDComplexity", "Modularity")).
+#' @param xvar Variable for x-axis, either `"latitude"`, `"log_area"`, or `"impact_mean"`.
+#' @param fit_model If TRUE, fits quantile regression and returns tidy dataframe (default: TRUE).
 #'
-#' @return A list with elements:
+#' @return A list with:
 #'   - `plots`: Named list of ggplot objects.
-#'   - `models`: Named list of `summary.rq` objects (if `fit_model = TRUE`).
+#'   - `models`: A tidy dataframe with term estimates, SEs, p-values for each quantile & metric.
 #' @export
 plot_metric_vs_latitude_ci <- function(network_info,
                                        simulated_metrics,
-                                       metrics = c( "C", "SVDComplexity", "Modularity"),
+                                       metrics = c("C", "SVDComplexity", "Modularity"),
                                        xvar = "latitude",
                                        fit_model = TRUE) {
   library(dplyr)
@@ -934,37 +934,40 @@ plot_metric_vs_latitude_ci <- function(network_info,
   library(tidyr)
   library(ggrepel)
   library(viridisLite)
+  library(quantreg)
+  library(broom)   # for tidy()
+  library(purrr)
   
-  # Add simulated connectivity
-  # If Metaweb is present rename it to site
   if ("Metaweb" %in% names(simulated_metrics)) {
-    sim <- simulated_metrics %>%
-      rename(site = Metaweb)
+    sim <- simulated_metrics %>% rename(site = Metaweb)
   } else {
-    # If Metaweb is not present, assume site is already the correct column
     sim <- simulated_metrics
   }
-
-  # Prepare empirical data
+  
   obs <- network_info %>%
     mutate(site = as.character(site),
            log_area = log(area_km2)) %>%
-    dplyr::select(site, name, C,S, latitude, log_area,depth_m,impact_mean)
+    dplyr::select(site, name, C, S, latitude, log_area, depth_m, impact_mean)
   
-  # Match x-axis label
-  x_label <- if (xvar == "log_area") "Log Area (km²)" else if( xvar=="latitude") "Latitude" else "Human impact" 
+  x_label <- case_when(
+    xvar == "log_area" ~ "Log Area (km²)",
+    xvar == "latitude" ~ "Latitude",
+    xvar == "impact_mean" ~ "Human impact",
+    TRUE ~ xvar
+  )
   
-  # Color palette by site
   site_order <- obs %>% arrange(latitude) %>% pull(site)
   site_colors <- setNames(viridis(length(site_order)), site_order)
   
   plot_list <- list()
-  model_list <- list()
-
+  model_df <- tibble()
+  
+  taus <- c(0.25, 0.5, 0.75)
+  
   for (metric in metrics) {
     if (!metric %in% names(sim)) next
     
-    # Confidence intervals
+    # Confidence intervals from simulations
     ci_data <- sim %>%
       filter(!is.na(.data[[metric]])) %>%
       group_by(site) %>%
@@ -975,87 +978,72 @@ plot_metric_vs_latitude_ci <- function(network_info,
         .groups = "drop"
       )
     
-    # Join with empirical predictors
     df_plot <- obs %>%
       left_join(ci_data, by = "site") %>%
       mutate(color = site_colors[site],
-             xval = if (xvar == "log_area") log_area else if( xvar=="latitude") latitude else impact_mean) 
+             xval = case_when(
+               xvar == "log_area" ~ log_area,
+               xvar == "latitude" ~ latitude,
+               xvar == "impact_mean" ~ impact_mean,
+               TRUE ~ NA_real_
+             ))
     
-    # Always fit the Quantile regression model
-    df_test <- sim %>% dplyr::select(site, value = !!sym(metric)) %>%
-      left_join(obs, by = "site") 
-#    if(metric == "C") {
-      mod_qr <- rq(value ~ S+latitude+log_area+impact_mean, data = df_test, tau = 0.5)
-#    } else {
-#      mod_qr <- rq(value ~ S+latitude+log_area+impact_mean, data = df_test, tau = 0.5)
-#    }
-    # Optional calculate significance and return the model
+    # Model data
+    df_test <- sim %>%
+      dplyr::select(site, value = !!sym(metric)) %>%
+      left_join(obs, by = "site")
+    
+    # Fit models at 3 quantiles
+    mods <- purrr::map(taus, function(tau) {
+      rq(value ~ S + latitude + log_area + impact_mean,
+         data = df_test, tau = tau)
+    })
+    
     if (fit_model) {
-      sum_qr <- summary(mod_qr, se = "boot")
-      model_list[[metric]] <- sum_qr
+      tidy_mods <- map2_dfr(mods, taus, function(m, tau) {
+        broom::tidy(m, se = "boot") %>%
+          mutate(tau = tau, Metric = metric)
+      })
+      model_df <- bind_rows(model_df, tidy_mods)
     }
     
-    # Predicción parcial ajustada para variable xvar
+    # Prediction grid
     x_seq <- seq(min(df_plot$xval, na.rm = TRUE), max(df_plot$xval, na.rm = TRUE), length.out = 100)
-    # if(metric == "C") {
-    #   
-    #   if (xvar == "latitude") {
-    #     newdata <- data.frame(latitude = x_seq,
-    #                           log_area = mean(df_plot$log_area, na.rm = TRUE),
-    #                           impact_mean = mean(df_plot$impact_mean, na.rm = TRUE))
-    #   } else if( xvar== "log_area") {
-    #     newdata <- data.frame(latitude = mean(df_plot$latitude, na.rm = TRUE),
-    #                           impact_mean = mean(df_plot$impact_mean, na.rm = TRUE),
-    #                           log_area = x_seq)
-    #   } else {
-    #     newdata <- data.frame(latitude = mean(df_plot$latitude, na.rm = TRUE),
-    #                           impact_mean = x_seq,
-    #                           log_area = mean(df_plot$log_area, na.rm = TRUE)
-    #     )
-    #   }
-    # } else {
-      if (xvar == "latitude") {
-        newdata <- data.frame(latitude = x_seq,
-                              log_area = mean(df_plot$log_area, na.rm = TRUE),
-                              S = mean(df_plot$S, na.rm = TRUE),
-                              impact_mean = mean(df_plot$impact_mean, na.rm = TRUE))
-      } else if( xvar== "log_area") {
-        newdata <- data.frame(latitude = mean(df_plot$latitude, na.rm = TRUE),
-                              impact_mean = mean(df_plot$impact_mean, na.rm = TRUE),
-                              S = mean(df_plot$S, na.rm = TRUE),
-                              log_area = x_seq)
-      } else {
-        newdata <- data.frame(latitude = mean(df_plot$latitude, na.rm = TRUE),
-                              impact_mean = x_seq,
-                              S = mean(df_plot$S, na.rm = TRUE),
-                              log_area = mean(df_plot$log_area, na.rm = TRUE)
-        )
-      }
-#    }      
-      
-    pred <- predict(mod_qr, newdata = newdata)
+    newdata <- obs %>%
+      summarise(latitude = mean(latitude, na.rm = TRUE),
+                log_area = mean(log_area, na.rm = TRUE),
+                S = mean(S, na.rm = TRUE),
+                impact_mean = mean(impact_mean, na.rm = TRUE)) %>%
+      slice(rep(1, 100)) %>%
+      mutate(!!xvar := x_seq)
     
-    df_line <- tibble(xval = x_seq, pred = pred)
+    df_lines <- map2_dfr(mods, taus, function(m, tau) {
+      tibble(xval = x_seq,
+             pred = predict(m, newdata = newdata),
+             tau = tau)
+    })
     
     p <- ggplot(df_plot, aes(x = xval, y = mean)) +
       geom_linerange(aes(ymin = q2.5, ymax = q97.5, color = site), linewidth = 1) +
       geom_point(aes(color = site), size = 3) +
-      geom_line(data = df_line, aes(x = xval, y = pred), linetype = "dashed") +
+      geom_line(data = df_lines, aes(x = xval, y = pred, linetype = factor(tau)),
+                linewidth = 0.8, inherit.aes = FALSE) +
+      scale_linetype_manual(values = c("dotted", "dashed", "dotdash"),
+                            name = "Quantile",
+                            labels = c("25%", "50%", "75%")) +
       scale_color_manual(values = site_colors,
                          limits = df_plot$site,
                          labels = df_plot$name) +
-      labs(
-        x = x_label,
-        y = metric
-      ) +
+      labs(x = x_label, y = metric) +
       theme_bw(base_size = 14) +
       theme(legend.position = "none")
     
     plot_list[[metric]] <- p
   }
   
-  return(if (fit_model) list(plots = plot_list, models = model_list) else list(plots = plot_list))
+  return(if (fit_model) list(plots = plot_list, models = model_df) else list(plots = plot_list))
 }
+
 
 #' Parallel QSS Computation Across Networks and Self-Damping Values
 #'
@@ -1306,33 +1294,16 @@ summarize_quantreg_models <- function(model_list, variables = "latitude") {
 
 
 
-#' Plot Network Metrics with Simulated Confidence Intervals (using GAMs)
-#'
-#' This function plots network metrics against a predictor (e.g., latitude or log area),
-#' includes simulated confidence intervals, and optionally fits GAMs.
-#'
-#' @param network_info Data frame with empirical metrics (`site`, `latitude`, `area_km2`, etc).
-#' @param simulated_metrics Simulated metrics from metaweb simulations (`Metaweb`, `S`, `L`, etc).
-#' @param metrics Vector of metric names to plot (default includes S, C, Entropy, Rank, Modularity).
-#' @param xvar Variable for x-axis, either `"latitude"`, `"log_area"`, or `"impact_mean"`.
-#' @param fit_model If `TRUE`, fits GAMs and returns model summaries (default: `TRUE`).
-#'
-#' @return A list with elements:
-#'   - `plots`: Named list of ggplot objects.
-#'   - `models`: Named list of `summary.gam` objects (if `fit_model = TRUE`).
-#' @export
+
 plot_metric_vs_latitude_ci_gam <- function(network_info,
-                                       simulated_metrics,
-                                       metrics = c("S", "C", "Rank", "Entropy", "Modularity"),
-                                       xvar = "latitude",
-                                       fit_model = TRUE) {
-  library(dplyr)
-  library(ggplot2)
-  library(tidyr)
-  library(ggrepel)
-  library(viridisLite)
-  library(mgcv)
+                                           simulated_metrics,
+                                           metrics = c("S", "C", "Rank", "Entropy", "Modularity", "MEing_stable"),
+                                           xvar = "latitude",
+                                           fit_model = TRUE) {
+  library(dplyr); library(ggplot2); library(tidyr); library(ggrepel)
+  library(viridisLite); library(mgcv); library(tibble)
   
+  # rename Metaweb -> site if present
   if ("Metaweb" %in% names(simulated_metrics)) {
     sim <- simulated_metrics %>% rename(site = Metaweb)
   } else {
@@ -1344,7 +1315,7 @@ plot_metric_vs_latitude_ci_gam <- function(network_info,
            log_area = log(area_km2)) %>%
     dplyr::select(site, name, C, S, latitude, log_area, depth_m, impact_mean)
   
-  x_label <- case_when(
+  x_label <- dplyr::case_when(
     xvar == "log_area" ~ "Log Area (km²)",
     xvar == "latitude" ~ "Latitude",
     xvar == "impact_mean" ~ "Human impact",
@@ -1356,19 +1327,40 @@ plot_metric_vs_latitude_ci_gam <- function(network_info,
   
   plot_list <- list()
   model_list <- list()
+  deviance_list <- list()
   
   for (metric in metrics) {
     if (!metric %in% names(sim)) next
     
-    ci_data <- sim %>%
-      filter(!is.na(.data[[metric]])) %>%
+    # Work on a local copy so we don't mutate sim across metrics
+    sim2 <- sim
+    
+    # If this metric is MEing_stable we transform to positive for Gamma fitting:
+    is_transformed <- identical(metric, "MEing_stable")
+    if (is_transformed) {
+      # create a transformed column with positive values for modelling
+      # do not overwrite the original column in sim; create metric_tmp
+      sim2 <- sim2 %>% mutate(metric_tmp = - .data[[metric]])
+      model_value_name <- "metric_tmp"
+    } else {
+      sim2 <- sim2 %>% mutate(metric_tmp = .data[[metric]])
+      model_value_name <- "metric_tmp"
+    }
+    
+    # compute empirical "intervals" (from the simulations) for plotting
+    ci_data <- sim2 %>%
+      filter(!is.na(.data[[model_value_name]])) %>%
       group_by(site) %>%
       summarise(
-        q2.5 = quantile(.data[[metric]], 0.025, na.rm = TRUE),
-        q97.5 = quantile(.data[[metric]], 0.975, na.rm = TRUE),
-        mean = mean(.data[[metric]], na.rm = TRUE),
+        q2.5 = quantile(.data[[model_value_name]], 0.025, na.rm = TRUE),
+        q97.5 = quantile(.data[[model_value_name]], 0.975, na.rm = TRUE),
+        mean = mean(.data[[model_value_name]], na.rm = TRUE),
         .groups = "drop"
       )
+    # flip back for display if transformed
+    if (is_transformed) {
+      ci_data <- ci_data %>% mutate(across(c(q2.5, q97.5, mean), ~ - .x))
+    }
     
     df_plot <- obs %>%
       left_join(ci_data, by = "site") %>%
@@ -1380,22 +1372,52 @@ plot_metric_vs_latitude_ci_gam <- function(network_info,
                TRUE ~ NA_real_
              ))
     
-    # build model dataset
-    df_test <- sim %>%
-      dplyr::select(site, value = !!sym(metric)) %>%
-      left_join(obs, by = "site")
+    # build model dataset (using the transformed positive column when needed)
+    df_test <- sim2 %>%
+      dplyr::select(site, value = !!sym(model_value_name)) %>%
+      left_join(obs, by = "site") %>%
+      drop_na(value, S, latitude, log_area, impact_mean)
     
-    # GAM fit
-    formula_gam <- as.formula(paste0(
-      "value ~ s(S, k = 5) + s(log_area, k = 5) + s(latitude, k = 5) + s(impact_mean, k = 5)"
-    ))
-    
-    mod_gam <- gam(formula_gam, data = df_test, method = "REML", family = scat()) # student-t error
-    
-    if (fit_model) {
-      model_list[[metric]] <- summary(mod_gam)
+    # optionally subsample to limit compute (as you did before)
+    if (nrow(df_test) > 1000) {
+      df_test <- df_test %>% group_by(site) %>% slice_sample(n = 500) %>% ungroup()
     }
     
+    # GAM formula (same for MEing_stable but family differs)
+    formula_gam <- as.formula("value ~ s(S, k = 5) + s(log_area, k = 5) + s(latitude, k = 5) + s(impact_mean, k = 5)")
+    
+    if (is_transformed) {
+      # value is positive (we made it so), fit Gamma with log link
+      mod_gam <- gam(formula_gam, data = df_test, method = "REML", family = Gamma(link = "log"))
+    } else {
+      # use Student-t family for robustness (scat())
+      mod_gam <- gam(formula_gam, data = df_test, method = "REML", family = scat())
+    }
+    
+    if (fit_model) {
+      model_list[[metric]] <- mod_gam
+      
+      s <- summary(mod_gam)
+      # s$s.table exists for smooth terms; if not, create empty tibble
+      if (!is.null(s$s.table)) {
+        s_tab <- as.data.frame(s$s.table) %>% tibble::rownames_to_column("Term")
+        contrib <- s_tab %>%
+          mutate(
+            Metric = metric,
+            contrib_raw = if ("Chi.sq" %in% names(s_tab)) Chi.sq else F,
+            PartialDeviance = contrib_raw / sum(contrib_raw, na.rm = TRUE) * 100,
+            TotalDevianceExplained = round(100 * s$dev.expl, 1)
+          ) %>%
+          dplyr::select(Metric, Term, edf, `p-value`, PartialDeviance, TotalDevianceExplained)
+      } else {
+        contrib <- tibble(Metric = metric, Term = NA_character_, edf = NA_real_, `p-value` = NA_real_,
+                          PartialDeviance = NA_real_, TotalDevianceExplained = round(100 * s$dev.expl, 1),
+                          Transformed = is_transformed)
+      }
+      deviance_list[[metric]] <- contrib
+    }
+    
+    # Build newdata for partial prediction (holding others at mean)
     x_seq <- seq(min(df_plot$xval, na.rm = TRUE), max(df_plot$xval, na.rm = TRUE), length.out = 100)
     newdata <- obs %>%
       summarise(
@@ -1407,20 +1429,42 @@ plot_metric_vs_latitude_ci_gam <- function(network_info,
       slice(rep(1, 100)) %>%
       mutate(!!xvar := x_seq)
     
-    pred <- predict(mod_gam, newdata = newdata, se.fit = TRUE)
+    # Predict on link scale, get se on link scale, back-transform using family$linkinv
+    pred_obj <- predict(mod_gam, newdata = newdata, se.fit = TRUE, type = "link")
+    eta <- pred_obj$fit
+    se_eta <- pred_obj$se.fit
+    linkinv <- mod_gam$family$linkinv
+    
+    resp <- linkinv(eta)
+    lwr_resp <- linkinv(eta - 2 * se_eta)
+    upr_resp <- linkinv(eta + 2 * se_eta)
+    
+    # if metric was transformed (we fit on -MEing_stable), flip sign back
+    if (is_transformed) {
+      resp <- -resp
+      # careful with upper/lower ordering after sign flip
+      lwr_resp <- -lwr_resp
+      upr_resp <- -upr_resp
+      # ensure lwr <= upr
+      tmp_min <- pmin(lwr_resp, upr_resp)
+      tmp_max <- pmax(lwr_resp, upr_resp)
+      lwr_resp <- tmp_min
+      upr_resp <- tmp_max
+    }
+    
     df_line <- data.frame(
       xval = x_seq,
-      pred = pred$fit,
-      lwr = pred$fit - 2 * pred$se.fit,
-      upr = pred$fit + 2 * pred$se.fit
+      pred = resp,
+      lwr = lwr_resp,
+      upr = upr_resp
     )
     
     p <- ggplot(df_plot, aes(x = xval, y = mean)) +
       geom_linerange(aes(ymin = q2.5, ymax = q97.5, color = site), linewidth = 1) +
       geom_point(aes(color = site), size = 3) +
       geom_line(data = df_line, aes(x = xval, y = pred), linetype = "dashed") +
-      geom_ribbon(data = df_line, aes(x = xval, ymin = lwr, ymax = upr),
-                  fill = "grey70", alpha = 0.3, inherit.aes = FALSE) +
+      geom_ribbon(data = df_line, aes(x = xval, ymin = lwr, ymax = upr), inherit.aes = FALSE,
+                  fill = "grey70", alpha = 0.3) +
       scale_color_manual(values = site_colors,
                          limits = df_plot$site,
                          labels = df_plot$name) +
@@ -1431,42 +1475,8 @@ plot_metric_vs_latitude_ci_gam <- function(network_info,
     plot_list[[metric]] <- p
   }
   
-  return(if (fit_model) list(plots = plot_list, models = model_list) else list(plots = plot_list))
+  return(list(plots = plot_list,
+              models = model_list,
+              deviance = bind_rows(deviance_list)))
 }
-
-#' Summarize GAM model summaries (clean version, no duplicated columns)
-#'
-#' Extracts significance of smooth terms, edf, p-values,
-#' and deviance explained from a list of GAM summaries.
-#'
-#' @param gam_summaries A named list of GAM summaries (from summary(mod_gam)).
-#' @return A tibble with Metric, Term, edf, p-value, and DevianceExplained.
-#' @export
-summarize_gam_summaries <- function(gam_summaries) {
-  library(dplyr)
-  library(tibble)
-  library(purrr)
-  
-  out <- imap_dfr(gam_summaries, function(s, name) {
-    if (is.null(s$s.table)) {
-      warning(glue::glue("Skipping {name}: no smooth terms in summary"))
-      return(tibble())
-    }
-    
-    s_tab <- as.data.frame(s$s.table)
-    
-    s_tab <- tibble::rownames_to_column(s_tab, "Term") %>%
-      mutate(
-        Term = gsub("^s\\((.*)\\)$", "\\1", Term),  # clean term names
-        Metric = name,
-        DevianceExplained = round(100 * s$dev.expl, 1)  # add once per model
-      ) %>%
-      dplyr::select(Metric, Term, edf, `p-value`, DevianceExplained)
-    
-    s_tab
-  })
-  
-  out
-}
-
 

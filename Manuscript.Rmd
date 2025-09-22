@@ -1,0 +1,166 @@
+---
+title: Gradientes latitudinales en la estructura y estabilidad de redes tróficas marinas
+  del Atlántico Sudoccidental
+bibliography: SouthMarineFoodWebs.bib
+csl: "functional-ecology.csl"
+output:
+  pdf_document:
+    keep_tex: true
+    includes:
+      in_header: margins.sty
+---
+
+Leonardo A. Saravia ^1^^2^, Tomás I. Marina, Iara D. Rodriguez , Manuela Funes, Georgina Cordone, Santiago R. Doyle, David E. Galván, Susanne Kortsch, and Fernando Momo^3^^4^
+
+1. Centro Austral de Investigaciones Científicas (CADIC-CONICET). Houssay 200 (9410), Ushuaia, Argentina.
+
+2. Universidad Nacional de Tierra del Fuego (UNTDF), Yrigoyen 879 (9410), Ushuaia, Argentina
+
+3. Instituto de Ciencias. Universidad Nacional de General Sarmiento. J.M. Gutierrez 1159 (1613), Los Polvorines, Argentina.
+
+4. Departamento de Ciencias Básicas. Universidad Nacional de Luján. Rutas 5 y 7, (6700) Luján. Argentina.
+        
+
+---
+
+## Introduction
+
+#### Entropy (parrafo para la introducción)
+
+Ecological networks can be analyzed using Singular Value Decomposition (SVD), which provides complementary measures of complexity [@Riva2023a]. The rank of the adjacency matrix reflects the diversity of interaction strategies, while the distribution of singular values can be used to compute an entropy measure. Since random networks maximize this entropy, we instead use $1 -$ SVD entropy to capture the organized heterogeneity that characterizes ecological systems.
+
+Ecological networks are often represented by adjacency matrices, where each entry indicates whether a pair of species interact (1) or not (0). These matrices can be factorized using Singular Value Decomposition (SVD) [@Golub1971], a mathematical tool that provides complementary measures of network complexity. The first is the rank of the adjacency matrix, which reflects the number of linearly independent interaction patterns. Ecologically, this can be interpreted as the number of distinct interaction “strategies” present in the system. The second measure applies Shannon’s entropy [@Shannon1948] to the distribution of non-zero singular values obtained from the SVD. While this “SVD entropy” has been proposed as an indicator of internal informational balance [@Strydom2021], empirical comparisons with randomized networks show that random structures tend to maximize entropy, whereas ecological networks exhibit lower entropy due to their organized heterogeneity. For this reason, we interpret ecological complexity in terms of $1 -$ SVD entropy, which highlights the departure from randomness and captures the non-random organization characteristic of ecological systems. 
+
+
+## Methods 
+
+### Human Impact Index
+
+To asses the impact of antropogenic stressors including climatic change we use the The cumulative human impact on the world's ocean, alread used in network studies [@Mestre2022]. The cumulative human impact on the world's ocean considers the following impacts on global marine ecosystems: land-based stressors (nutrient pollution, organic and inorganic pollution, direct human light pollution); fishing-related stressors (demersal destructive, demersal non-destructive high and low bycatch, pelagic high and low bycatch, artisanal); climate change stressors (sea surface temperature anomalies, ultraviolet anomalies, ocean acidification) and ocean-based stressors (sea level rise, commercial shipping, invasive species, ocean-based pollution, benthic structures) [@Halpern2015]. We estimate the cumulative human impact index using the last version of the index [@Halpern2015] and getting the mean over the area of each network. 
+
+### Network metrics
+
+We described the network structure and complexity with metrics that are widely used in food web studies [@Delmas2018; @Landi2018; @Montoya2006], such as link density, connectance,  mean trophic level, modularity, dynamic stability (maximal eigenvalue), complexity (Entropy, rank Deficiency) (Table 1).
+
+\tiny
+
+| Network Metric         | Definition                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | Ecological Meaning                                                                                                                                                                                                                                                                           | Reference                                              |
+|------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------|
+| Mean trophic level     | The trophic level (TL) of a species represents the number of links that separates it from the base of the food web and indicates the position the species occupies in the network.                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | Mean TL of a food web shows the efficiency of the energy transfer from basal assemblages to top predators, and is related to stability. See Eq. (2) in Supplementary Material.                                                                                                              | @Borrelli2014; @Thompson2007   |
+| Connectance            | Proportion of established interactions between species relative to all possible ones.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | Estimator of food web robustness to perturbations and ecosystem stability. See Eq. (1) in Supplementary Material.                                                                                                                                                                           | @Delmas2018; @Dunne2002; @May1972 |
+| Link density           | Mean number of trophic interactions (links) per species.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | The average number of links per species informs about how connected species are within the food web.                                                                                                                                                                                         | @Dunne2002                                    |
+| Modularity             | Modularity describes how densely sub-groups of species interact with one another compared to species from other sub-groups.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | Modularity is positively associated with robustness, because perturbations can be retained within modules, preventing them from spreading to the whole network.                                                                                                                              | @May1972; @Stouffer2011              |
+| Maximal Eigenvalue     | The maximal real part of the eigenvalues of the community matrix Jacobian for randomly parametrized systems, maintaining predator–prey structure. This indicates the tendency of the system to return to equilibrium after a perturbation.                                                                                                                                                                                                                                                                                                                                                                     | A measure of dynamic stability: if the maximal real part is negative, the system returns to equilibrium after a perturbation. The distribution of this value across simulations provides insight into the network’s resilience to dynamic perturbations.                                       | @Allesina2008a                                   |
+| SVD Complexity      | Entropy computed from the normalized singular values of the adjacency matrix obtained through Singular Value Decomposition (SVD). While entropy traditionally measures how evenly structural information is distributed across dimensions, randomized networks often show higher values than empirical food webs. We therefore use $1 -$ SVD entropy for complexity to emphasize deviation from randomness. | Ecological complexity arises from organized heterogeneity, not from randomness. Lower entropy (and thus higher $1 -$ entropy) indicates stronger structural constraints and non-random organization of interactions, consistent with ecological assembly processes. | @Shannon1948; @Loke2022; @Strydom2021; @Huaylla2024 |
+| Rank Deficiency        | The relative rank deficiency is calculated as $D = 1 - (r / M)$, where $r$ is the adjacency matrix rank and $M$ is the maximum possible rank (number of species). It quantifies how many rows/columns in the adjacency matrix are linearly dependent.                                                                                                                                                                                                                                                                                                                                 | Provides an estimate of external structural complexity: higher deficiency implies more redundancy in interactions (less unique strategies), while lower deficiency implies a more structurally unique and diverse network.                                                                  | @Strydom2021    |
+
+Table 1: Network metrics used to describe the structure and complexity of food webs. The ecological meaning of each metric is also provided, along with references for further reading.
+
+\normalsize
+
+### Estimating variability of metrics using a metaweb model
+
+We consider that the compiled food webs are a representation of all possible interactions, and at any given time if a species is not present in the local site the interaction do not realize, so the number of species and interactions can fluctuate over time. To represent this network variability we used a metaweb assembly model [@Saravia2022], assuming that each compiled food web represent the metaweb for each region.
+
+In this model species migrate from the metaweb to a local site with a probability $c$, and become extinct from the local site with probability $e$; a reminiscence of the theory of island biogeography [@MacArthur1967], but with the addition of network structure. Species migrate with their potential network links from the metaweb, then in the local site only the interactions with the present species are realized. Species have a probability of secondary extinction $se$ if none of its preys are present, which only applies to non-basal species. When a species goes extinct locally it may produce secondary extinctions modulated by $se$ .
+
+The model is implemented in R using the package `meweasmo` [@Saravia2022b]. The 3 parameters of the model are fitted for each compiled food web using approximate Bayesian computation (ABC) [@Beaumont2010]. The ABC algorithm is implemented in the package `abc` [@Beaumont2010] using the `abc` function with the `rejection` method. The distance function used is the euclidean distance between the observed and simulated number of species and connectance. The prior distributions for the parameters are uniform: $c \sim U(0.01,0.3)$, $e \sim U(0.001,0.5)$, and $se \sim U(0.1,0.9)$. The number of simulations is set to 10000, and the tolerance is set to 0.05.
+
+### Dynamic stability
+
+We use the maximal real part of the eigenvalues of the community matrix jacobian [@Allesina2015a] for randomly parametrized systems, keeping fixed the predator–prey (sign) structure and assuming the system is stable [@Barabas2017]. This is a measure of the dynamic stability of the system, which is defined as the ability of the system to return to equilibrium after a perturbation. The values of the entries of the jacobian are sampled from a uniform distribution, assuming that the positive effect of preys on predators have a maximal value of 1 and the negative effect of predators on preys have a minimal value of -10. The diagonal entries of the jacobian that represent the self-regulation of the species are sampled from a uniform distribution between *-SelfReg* and 0, with the value of *SelfReg* determined by simulations given that the 5% of the time the network is stable (That means that the maximal real part of the eigenvalues is negative).  To find the value of *SelfReg* we perform a grid search over the range of values from -7 to -60 in steps of 1, and for each value we sample 10000 jacobians and calculate the proportion of stable systems. Then we interpolate the results to find the value of *SelfReg* that gives a proportion of stable systems of 0.05. Finally for the value of *SelfReg* that we found we perform 10000 simulations and select only the stable ones to obtain a distribution of the maximal real part of the eigenvalues for each network. 
+
+
+#### Estimating Network Complexity with SVD 
+
+Singular Value Decomposition (SVD) factorizes a matrix $\mathbf{A}$ into the form
+$$
+\mathbf{A} = \mathbf{U} \, \boldsymbol{\Sigma} \, \mathbf{V}^T,
+$$
+where $\mathbf{U}$ and $\mathbf{V}$ are orthogonal matrices, the columns in these matrices are, respectively, the left- and right-singular vectors of $\mathbf{A}$. $\boldsymbol{\Sigma}$ is a diagonal matrix containing the non-negative singular values $\sigma_i$ of $\mathbf{A}$ in descending order. The singular values indicate the relative weight of each structural dimension represented in the matrix. 
+
+When SVD is applied to a mean-centered data matrix or a covariance matrix, the squared singular values are equal to the eigenvalues of the covariance matrix and thus quantify the proportion of total variance explained by each principal component [@Jolliffe2002; @Golub2013]. In the context of ecological networks, the singular values measure how strongly each independent dimension contributes to the overall network structure .
+
+We used the normalized singular values to compute the SVD entropy, following @Shannon1948. The normalized singular values are:
+$$
+s_i = \frac{\sigma_i}{\sum_{j=1}^{k} \sigma_j},
+$$
+where $k$ is the number of non-zero singular values.
+
+The SVD entropy $J$ is then defined as:
+$$
+J = - \frac{1}{\ln(k)} \sum_{i=1}^{k} s_i \ln(s_i),
+$$
+where the normalization by $\ln(k)$ ensures that the maximum entropy is 1, equivalent to Pielou's evenness index [@Pielou1975].
+
+Shannon entropy, when applied to the normalized singular values of the adjacency matrix, quantifies how evenly structural information is distributed across independent dimensions of the network. Randomized networks with fixed connectance tend to have higher SVD entropy than empirical ecological networks (See Supplementary Material), because their structure is more homogeneous and information is spread evenly across many dimensions. In contrast, ecological networks typically display lower entropy, as a few dominant singular values capture most of the structure due to non-random ecological constraints such as trophic hierarchy, body-size scaling, or modularity.
+
+This apparent paradox reflects a fundamental distinction: SVD entropy quantifies statistical uniformity (maximal disorder), whereas ecological complexity arises from organized heterogeneity. Random networks therefore tend to display higher entropy, but ecological networks exhibit lower-entropy structures that are more functionally meaningful. To better capture this, we define
+
+$$
+E = 1 - J
+$$
+
+and refer to it as SVD Complexity. 
+
+#### Estimating Complexity With Relative Rank Deficiency
+
+In addition to the SVD complexity, we also estimate the complexity of ecological networks using the rank deficiency of the adjacency matrix. The rank deficiency is a measure of how many rows/columns in a matrix are not linearly independent, and therefore how many rows/columns can be expressed as linear combinations of others. In ecological terms, this means that some species or interactions can be described as a combination of others, which reduces the complexity of the network.
+
+The rank of $A$ (noted as $k$) is the dimension of the vector space spanned by the matrix and corresponds to the number of linearly independent rows or columns; therefore, the maximum rank of a matrix $M$ will always be equal to the dimension of A, in the case of trophic networks A is square,  which ecologically speaking is the richness. A matrix is “full-ranked” when $k = M$, i.e., all of its rows/columns are unique. Matrices that are not full-ranked are called rank deficient, and we can measure rank deficiency using the relative rank deficiency to control for the difference in number of trophic species of the different networks, expressing it as:
+
+$D  = 1 - (r/M )$
+
+where D = 0 means that the matrix is full-ranked, and D = 1 means that the matrix is rank deficient. This serves as a coarse estimate of complexity, as the more unique columns/rows are in the matrix, the larger this value will be.
+
+
+#### Relationships between variables
+
+<!-- We performed quantile regressions at the 50% quantile (the median) to examine the relationships between network metrics and latitude, the logarithm of the network area, and the human impact index. Connectance ($C$) is known to influence most other network metrics because it captures the density of realized interactions relative to potential ones. From a causal perspective, $C$ acts as a common cause (a “parent node” in a directed acyclic graph, DAG) of multiple topological and stability-related properties. To account for this confounding influence and avoid spurious associations, we included $C$ as a covariate in the regression models. Quantile regressions were implemented using the `rq` function from the quantreg package [@Koenker2023]. -->
+
+
+We modeled the relationships between network metrics and latitude, the logarithm of the network area, and the human impact index using generalized additive models (GAMs) fitted with the **mgcv** package \[@Wood2017]. Thin plate regression splines with $k = 5$ were used to allow flexible but parsimonious functional forms. To account for non-Gaussian residuals, models were fitted with a robust Student-$t$ error distribution, which reduces the influence of outliers and heavy-tailed residuals. The metric **MEing\_stable**, whose values are strictly negative and truncated, was instead modeled with a Gamma error distribution after transformation to positive values. As a covariate, we included the number of trophic species ($S$), which reflects the set of trophic groups represented in each network. However, $S$ should not be interpreted as a true estimate of the number of biological species in the area, because the construction of the networks emphasized documenting interactions rather than conducting exhaustive species inventories. Because the metrics were derived from model simulations, each network was represented by 500 replicates. For each model, we report estimated degrees of freedom (edf), approximate p-values, the partial deviance explained by each smooth, and the total deviance explained. Following recommendations from Wood (2006) and Zuur et al. (2009), we emphasize that p-values close to 0.05 may be unreliable, whereas very small ($< 0.001$) or large (e.g., 0.2–0.8) values can be interpreted with more confidence (See Supplementary Table S1).
+
+
+ <!--To account for this large effective sample size and reduce the likelihood of spurious significance, we adopted a conservative threshold of $p = 0.001$. -->
+
+
+## Results
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{lcccccc}
+  \toprule
+Network & C & LD & TLmean & SVDComplexity & RankDeficiency & Modularity \\ 
+  \midrule
+BurdwoodBank & \shortstack{0.014 \\ {\tiny(0.012--0.018)}} & \shortstack{4.463 \\ {\tiny(3.937--4.810)}} & \shortstack{2.470 \\ {\tiny(2.377--2.551)}} & \shortstack{0.079 \\ {\tiny(0.075--0.082)}} & \shortstack{0.635 \\ {\tiny(0.572--0.660)}} & \shortstack{0.334 \\ {\tiny(0.301--0.371)}} \\ 
+  GulfSanJorge & \shortstack{0.038 \\ {\tiny(0.035--0.042)}} & \shortstack{5.590 \\ {\tiny(4.750--6.121)}} & \shortstack{2.906 \\ {\tiny(2.653--3.025)}} & \shortstack{0.080 \\ {\tiny(0.075--0.084)}} & \shortstack{0.447 \\ {\tiny(0.419--0.481)}} & \shortstack{0.137 \\ {\tiny(0.074--0.212)}} \\ 
+  PotterCove & \shortstack{0.055 \\ {\tiny(0.050--0.060)}} & \shortstack{5.461 \\ {\tiny(4.639--5.935)}} & \shortstack{2.233 \\ {\tiny(2.094--2.530)}} & \shortstack{0.091 \\ {\tiny(0.085--0.096)}} & \shortstack{0.493 \\ {\tiny(0.451--0.533)}} & \shortstack{0.164 \\ {\tiny(0.054--0.243)}} \\ 
+  Std BeagleChannel & \shortstack{0.048 \\ {\tiny(0.045--0.052)}} & \shortstack{7.256 \\ {\tiny(6.433--7.855)}} & \shortstack{2.607 \\ {\tiny(2.480--2.798)}} & \shortstack{0.092 \\ {\tiny(0.088--0.096)}} & \shortstack{0.411 \\ {\tiny(0.386--0.439)}} & \shortstack{0.119 \\ {\tiny(0.058--0.180)}} \\ 
+  Std NorthernScotia & \shortstack{0.165 \\ {\tiny(0.157--0.174)}} & \shortstack{38.458 \\ {\tiny(34.339--41.574)}} & \shortstack{3.549 \\ {\tiny(3.431--3.683)}} & \shortstack{0.172 \\ {\tiny(0.167--0.175)}} & \shortstack{0.455 \\ {\tiny(0.434--0.476)}} & \shortstack{0.076 \\ {\tiny(0.001--0.113)}} \\ 
+  Std SouthernScotia & \shortstack{0.151 \\ {\tiny(0.143--0.158)}} & \shortstack{31.339 \\ {\tiny(27.805--33.969)}} & \shortstack{3.513 \\ {\tiny(3.374--3.649)}} & \shortstack{0.167 \\ {\tiny(0.162--0.171)}} & \shortstack{0.424 \\ {\tiny(0.400--0.447)}} & \shortstack{0.071 \\ {\tiny(0.049--0.120)}} \\ 
+  Std Weddell Sea & \shortstack{0.063 \\ {\tiny(0.059--0.075)}} & \shortstack{24.084 \\ {\tiny(21.360--26.175)}} & \shortstack{3.443 \\ {\tiny(3.170--3.757)}} & \shortstack{0.155 \\ {\tiny(0.148--0.159)}} & \shortstack{0.707 \\ {\tiny(0.669--0.724)}} & \shortstack{0.219 \\ {\tiny(0.171--0.245)}} \\ 
+   \bottomrule
+\end{tabular}
+\caption{Summary of network metrics across 1000 simulations for each metaweb. Values are means with 95\% intervals in parentheses.} 
+\label{tab:metaweb_metrics}
+\end{table}
+
+Quantile regression revealed systematic relationships between network metrics and latitude, ecosystem area, and human impact (Table X, Fig. X). Connectance ($C$) declined slightly with latitude (–0.0004 per degree) but increased strongly with area (0.0195 per log km²) and with human impact (0.1493 per unit of the impact index). For example, the North Scotia Sea, which has one of the highest human impact values, exhibited the highest connectance ($C = 0.165$), whereas Burdwood Bank, a low-impact and intermediate-latitude shelf system, showed the lowest connectance ($C = 0.013$).
+
+SVD Complexity ($E = 1 - J$) increased with both latitude (0.0019 per degree) and area (0.0032 per log km²), and also showed a positive, though weaker, association with human impact (0.0063 per unit). This indicates that larger and more polar systems, such as the Weddell Sea, tend to sustain more structurally heterogeneous networks compared to smaller coastal systems like Potter Cove.
+
+Modularity increased with latitude (0.0013 per degree) and area (0.0059 per log km²), but declined sharply with human impact (–0.1134 per unit). For instance, the Beagle Channel (moderate latitude, high impact) displayed relatively low modularity compared with the Weddell Sea, where higher latitude and lower cumulative impacts allow for a stronger compartmentalization of the network.
+
+![Relationships between food-web structural metrics and environmental drivers across seven Southern Ocean and sub-Antarctic marine ecosystems. Each row shows one network metric: (top) connectance ($C$), (middle) SVD Complexity, and (bottom) modularity. Each column shows the predictor variable: (left) latitude, (center) log-transformed ecosystem area, and (right) human impact index. Colored points represent empirical networks, vertical bars indicate 95% intervals derived from model simulations of temporal network variability. Black dashed lines are fitted quantile regressions (median, 50%). Connectance tends to decrease with latitude and increase with human impact, while SVD Complexity shows positive associations with both latitude and ecosystem area. Modularity exhibits weaker but generally positive relationships with latitude and area, and a slight negative trend with human impact. Together, these results suggest that both geographic and anthropogenic factors shape the structural complexity of marine food webs.](Figures/metric_Entropy_vs_lat_area_ci_gam.png)
+
+![Relationships between food-web structural metrics and environmental drivers across seven Southern Ocean and sub-Antarctic marine ecosystems. Each row shows one network metric: (top) connectance ($C$), (middle) SVD Complexity, and (bottom) modularity. Each column shows the predictor variable: (left) latitude, (center) log-transformed ecosystem area, and (right) human impact index. Colored points represent empirical networks, vertical bars indicate 95% intervals derived from model simulations of temporal network variability. Black dashed lines are fitted quantile regressions (median, 50%). Connectance tends to decrease with latitude and increase with human impact, while SVD Complexity shows positive associations with both latitude and ecosystem area. Modularity exhibits weaker but generally positive relationships with latitude and area, and a slight negative trend with human impact. Together, these results suggest that both geographic and anthropogenic factors shape the structural complexity of marine food webs.](Figures/metric_LD_TL_vs_lat_area_ci_gam.png)
+
+## discussion
+
+While SVD entropy has been proposed as a measure of network complexity-—with high values interpreted as greater complexity due to evenly distributed information [@Strydom2021]—-our results suggest caution with this view. In ecological networks, lower entropy often reflects organized heterogeneity (e.g., trophic hierarchies, modularity), which we argue is a hallmark of ecological complexity rather than its absence.
+
+## References
+
+
+

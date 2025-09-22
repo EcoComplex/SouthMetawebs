@@ -276,11 +276,21 @@ ggsave("Figures/metric_MEig_vs_Latitude_area_ci_gam.png",
 
 # From qr_models
 qr_models <- readRDS("Data/qr_models_gam.rds")
-qr_models <- c(qr_models, plot_list$models)
-knitr::kable( summarize_quantreg_models(qr_models,variables = c("latitude","impact_mean","log_area")),digits=4)
+qr_models <- bind_rows(qr_models, plot_list$deviance)
+#knitr::kable( summarize_quantreg_models(qr_models,variables = c("latitude","impact_mean","log_area")),digits=4)
+knitr::kable(qr_models,digits=4)
 saveRDS(qr_models, "Data/qr_models_gam.rds")
 
 ```
+
+
+|Metric       |Term           |    edf| p-value| PartialDeviance| TotalDevianceExplained|Transformed |
+|:------------|:--------------|------:|-------:|---------------:|----------------------:|:-----------|
+|MEing_stable |s(S)           | 1.0122|  0.0000|         55.1043|                     19|TRUE        |
+|MEing_stable |s(log_area)    | 1.2428|  0.0123|         16.5113|                     19|TRUE        |
+|MEing_stable |s(latitude)    | 1.0002|  0.0000|         27.8043|                     19|TRUE        |
+|MEing_stable |s(impact_mean) | 2.7187|  0.5495|          0.5801|                     19|TRUE        |
+
 
 # Plot Stability vs C and Modularity
 
