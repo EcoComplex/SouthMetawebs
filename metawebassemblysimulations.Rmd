@@ -292,6 +292,8 @@ ggsave("Figures/empirical_vs_simulated_metrics_LD_TL.png",
 
 # Plot Metaweb metrics vs empirical
 
+## Metrics vs Latitude and Area
+
 
 ```{r plotMetaWebMetrics1, eval=FALSE, message=TRUE, warning=TRUE}
 simMetaWebMetrics <- readRDS("Data/simulations_metaWeb_metrics.rds") %>% mutate(SVDComplexity= 1 - Entropy,
@@ -523,6 +525,43 @@ ggsave("Figures/metric_LD_TL_vs_lat_area_ci_gam.png",
 saveRDS(qr_models, "Data/qr_models_gam.rds")
 knitr::kable( qr_models,digits=4)
 ```
+
+
+# Plot Metaweb metrics vs S - GAM
+
+
+```{r plotMetaWebMetricsSGam, eval=FALSE, message=TRUE, warning=TRUE}
+
+#
+# Relative Rank Rank/S
+# LD and TLmean
+#
+plot_list <- plot_metric_vs_latitude_ci_gam(network_info, simMetaWebMetrics, metrics = c("LD", "TLmean", "RankDeficiency") , fit_model = FALSE, xvar = "S")
+plots <- c(plot_list$plots)
+
+
+plot_list <- plot_metric_vs_latitude_ci_gam(network_info, simMetaWebMetrics, metrics = c("LD", "TLmean", "RankDeficiency"), 
+                                        xvar = "log_area",fit_model=FALSE)
+plots <- c(plots,plot_list$plots)
+
+plot_list <- plot_metric_vs_latitude_ci_gam(network_info, simMetaWebMetrics, metrics = c("LD", "TLmean", "RankDeficiency"), 
+                                        xvar = "impact_mean",fit_model=FALSE)
+plots <- c(plots,plot_list$plots)
+
+
+plots_grouped <- unlist(split(plots, names(plots)), recursive = FALSE)
+names(plots_grouped)
+
+combined_plot <- wrap_plots(plots_grouped, ncol = 3, guides = "collect", axes="collect") &
+  theme(legend.position = "bottom")
+
+ggsave("Figures/metric_LD_TL_vs_lat_area_ci_gam.png", 
+          plot = combined_plot, 
+          height = 6, 
+          width = 10,
+          bg = "white")
+```
+
 
 ```{r CheckCorrelation_createTables, eval=FALSE, message=TRUE, warning=TRUE}
 

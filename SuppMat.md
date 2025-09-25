@@ -10,7 +10,7 @@ output:
     includes:
 ---
 
-|Metric         |Term           |    edf| p-value| PartialDeviance| TotalDevianceExplained|
+|Metric         |Term           |    edf| p-value| Partial Deviance| Total Deviance Explained|
 |:--------------|:--------------|------:|-------:|---------------:|----------------------:|
 |C              |s(S)           | 1.0000|  0.1321|          0.0440|                   89.4|
 |C              |s(log_area)    | 1.0002|  0.0000|          0.7472|                   89.4|
@@ -43,6 +43,8 @@ output:
 
 Table S1. Results from generalized additive models (GAMs) testing the effects of latitude, log-transformed area, and mean human impact on food web structural metrics. Reported are estimated degrees of freedom (edf), approximate p-values, approximate partial deviance contributions of each smooth term, and the total deviance explained by the model.
 
+\newpage
+
 ## Metric Formulas
 
 The food web is represented by an **adjacency matrix** $\mathbf{A} = [a_{ij}]$, where each element is defined as:
@@ -58,7 +60,8 @@ $$
 Here, rows represent **predators**, and columns represent **prey**. This directed binary matrix forms the basis for computing all structural metrics.
 
 
-**1️⃣ Mean Trophic Level (MTL)**
+### Mean Trophic Level (MTL)
+
 The trophic level of species *i* is defined recursively as:
 
 $$
@@ -72,9 +75,8 @@ $$
 MTL = \frac{1}{S} \sum_{i=1}^{S} TL_i.
 $$
 
----
 
-**2️⃣ Connectance (C)**
+### Connectance (C)
 
 Connectance quantifies the proportion of realized trophic interactions relative to all possible ones:
 
@@ -82,9 +84,9 @@ $$
 C = \frac{L}{S^2}, \quad L = \sum_{i,j} a_{ij}.
 $$
 
----
 
-**3️⃣ Link Density (LD)**
+### Link Density (LD)
+
 Link density measures the average number of trophic links per species:
 
 $$
@@ -92,9 +94,8 @@ LD = \frac{L}{S}.
 $$
 
 
----
 
-**4️⃣ Modularity (Q)**
+###  Modularity (Q)
 
 Modularity describes the extent to which the network is organized into modules with dense intra-module links and sparse inter-module links.
 We detect modules using the **Infomap algorithm**, which minimizes the description length of a random walker’s trajectory to reveal community structure (Rosvall and Bergstrom, 2008).
@@ -116,7 +117,7 @@ where:
 
 (This is the standard Newman-Girvan modularity.)
 
-**References:**
+### References
 
 * Infomap: Rosvall M., Bergstrom C.T. (2008). Maps of random walks on complex networks reveal community structure. *PNAS* 105(4): 1118–1123.
 

@@ -1,6 +1,5 @@
 ---
-title: Gradientes latitudinales en la estructura y estabilidad de redes tróficas marinas
-  del Atlántico Sudoccidental
+title: Latitudinal gradients in the structure and stability of marine food webs in the Southwest Atlantic
 bibliography: SouthMarineFoodWebs.bib
 csl: "functional-ecology.csl"
 output:
@@ -20,6 +19,15 @@ Leonardo A. Saravia ^1^^2^, Tomás I. Marina, Iara D. Rodriguez , Manuela Funes,
 
 4. Departamento de Ciencias Básicas. Universidad Nacional de Luján. Rutas 5 y 7, (6700) Luján. Argentina.
         
+
+## Abstract
+
+Understanding how ecological network structure varies across broad spatial gradients is key to revealing general principles of ecosystem organization. We analyzed a latitudinal gradient of marine food webs (48°S–78°S) spanning from San Jorge Gulf to the Weddell Sea (Antarctica) in the Southwestern Atlantic, comprising seven empirical networks. We characterized these food webs using a suite of structural and dynamical metrics: connectance, mean trophic level, SVD complexity, modularity, link density, mean Trophic level, rank deficiency a measure of redundancy, and dynamic stability. To account for variability, we generated stochastic simulations from a metaweb-based model and fitted generalized additive models (GAMs) to assess the effects of latitude, ecosystem area, and human impact.
+
+Our analyses revealed distinct patterns across metrics. Connectance increased with both latitude and area, consistent with theoretical expectations that larger and more poleward systems sustain proportionally more realized interactions. SVD complexity increased significantly with latitude, suggesting greater internal organization toward polar regions, whereas human impact showed no effect. Modularity declined with latitude, area, and human impact, indicating reduced compartmentalization in larger and more disturbed systems. Link density and mean trophic level showed no significant trends. Rank deficiency decreased with both area and human impact, pointing to greater redundancy in smaller and less disturbed systems. Finally, dynamic stability increased with latitude, supporting the view that high-latitude food webs may achieve stability through higher complexity.
+
+Taken together, these findings reveal that food web structure and stability vary systematically across a latitudinal gradient in the Southwestern Atlantic, but not always in ways anticipated by simple theoretical expectations. The contrasting responses of connectance, modularity, redundancy, and dynamical stability suggest that different aspects of network organization are shaped by distinct ecological drivers.
+
 
 ---
 
@@ -119,11 +127,11 @@ where D = 0 means that the matrix is full-ranked, and D = 1 means that the matri
 <!-- We performed quantile regressions at the 50% quantile (the median) to examine the relationships between network metrics and latitude, the logarithm of the network area, and the human impact index. Connectance ($C$) is known to influence most other network metrics because it captures the density of realized interactions relative to potential ones. From a causal perspective, $C$ acts as a common cause (a “parent node” in a directed acyclic graph, DAG) of multiple topological and stability-related properties. To account for this confounding influence and avoid spurious associations, we included $C$ as a covariate in the regression models. Quantile regressions were implemented using the `rq` function from the quantreg package [@Koenker2023]. -->
 
 
-We modeled the relationships between network metrics and latitude, the logarithm of the network area, and the human impact index using generalized additive models (GAMs) fitted with the **mgcv** package \[@Wood2017]. Thin plate regression splines with $k = 5$ were used to allow flexible but parsimonious functional forms. To account for non-Gaussian residuals, models were fitted with a robust Student-$t$ error distribution, which reduces the influence of outliers and heavy-tailed residuals. The metric **MEing\_stable**, whose values are strictly negative and truncated, was instead modeled with a Gamma error distribution after transformation to positive values. As a covariate, we included the number of trophic species ($S$), which reflects the set of trophic groups represented in each network. However, $S$ should not be interpreted as a true estimate of the number of biological species in the area, because the construction of the networks emphasized documenting interactions rather than conducting exhaustive species inventories. Because the metrics were derived from model simulations, each network was represented by 500 replicates. For each model, we report estimated degrees of freedom (edf), approximate p-values, the partial deviance explained by each smooth, and the total deviance explained. Following recommendations from Wood (2006) and Zuur et al. (2009), we emphasize that p-values close to 0.05 may be unreliable, whereas very small ($< 0.001$) or large (e.g., 0.2–0.8) values can be interpreted with more confidence (See Supplementary Table S1).
+We modeled the relationships between network metrics and latitude, the logarithm of network area, and the human impact index using generalized additive models (GAMs) fitted with the mgcv package [@Wood2017]. Thin plate regression splines with $k = 5$ were used to allow flexible but parsimonious functional forms. To account for non-Gaussian residuals, models were fitted with a robust Student-$t$ error distribution, which reduces the influence of outliers and heavy-tailed residuals. The metric of dynamic stability, which takes strictly negative values, was instead modeled with a Gamma error distribution after transformation to positive values.
 
+We included the number of trophic species ($S$) as a covariate, since variation in the number of nodes can strongly influence network metrics. Here, $S$ represents the set of trophic groups documented in each web, not a complete census of biological species in the region, as the networks were assembled to capture interactions rather than to provide exhaustive inventories. Including $S$ allows us to account for its potential influence and to identify broader patterns in network structure that are not solely driven by species richness.
 
- <!--To account for this large effective sample size and reduce the likelihood of spurious significance, we adopted a conservative threshold of $p = 0.001$. -->
-
+Each network was represented by 500 replicates generated from the metaweb-based model. For each GAM, we report the estimated degrees of freedom (edf), approximate p-values, the partial deviance explained by each smooth, and the total deviance explained. Following recommendations from Wood [@Wood2005] and Zuur et al. [@Zuur2009], we caution that p-values near 0.05 may be unreliable, whereas very small ($<0.001$) or large (0.2–0.8) values provide more robust evidence (see Supplementary Table S1).
 
 ## Results
 
@@ -146,11 +154,10 @@ BurdwoodBank & \shortstack{0.014 \\ {\tiny(0.012--0.018)}} & \shortstack{4.463 \
 \label{tab:metaweb_metrics}
 \end{table}
 
-Quantile regression revealed systematic relationships between network metrics and latitude, ecosystem area, and human impact (Table X, Fig. X). Connectance ($C$) declined slightly with latitude (–0.0004 per degree) but increased strongly with area (0.0195 per log km²) and with human impact (0.1493 per unit of the impact index). For example, the North Scotia Sea, which has one of the highest human impact values, exhibited the highest connectance ($C = 0.165$), whereas Burdwood Bank, a low-impact and intermediate-latitude shelf system, showed the lowest connectance ($C = 0.013$).
+Generalized additive models revealed systematic relationships between food web metrics and latitude, area, and human impact (Table S1, Fig. 1 & 2). Connectance (C) increased significantly with both latitude and ecosystem area, indicating that larger and more poleward systems sustain proportionally more realized interactions, while no effect of human impact was detected. SVD complexity also increased with latitude and showed a weaker but significant positive association with human impact, suggesting that more polar and more impacted systems sustain networks with greater internal organization.
 
-SVD Complexity ($E = 1 - J$) increased with both latitude (0.0019 per degree) and area (0.0032 per log km²), and also showed a positive, though weaker, association with human impact (0.0063 per unit). This indicates that larger and more polar systems, such as the Weddell Sea, tend to sustain more structurally heterogeneous networks compared to smaller coastal systems like Potter Cove.
+Modularity declined significantly with latitude, area, and human impact, and increased with species richness, indicating that larger and more disturbed systems exhibit reduced compartmentalization. Link density and mean trophic level showed no consistent trends across latitude, though mean trophic level increased weakly with area. Rank deficiency, a measure of redundancy, decreased with area and human impact, pointing to greater functional overlap in smaller and less disturbed systems. Finally, dynamic stability increased with latitude and area, consistent with the view that polar systems may achieve stability through higher complexity, but showed no detectable association with human impact.
 
-Modularity increased with latitude (0.0013 per degree) and area (0.0059 per log km²), but declined sharply with human impact (–0.1134 per unit). For instance, the Beagle Channel (moderate latitude, high impact) displayed relatively low modularity compared with the Weddell Sea, where higher latitude and lower cumulative impacts allow for a stronger compartmentalization of the network.
 
 ![Relationships between food-web structural metrics and environmental drivers across seven Southern Ocean and sub-Antarctic marine ecosystems. Each row shows one network metric: (top) connectance ($C$), (middle) SVD Complexity, and (bottom) modularity. Each column shows the predictor variable: (left) latitude, (center) log-transformed ecosystem area, and (right) human impact index. Colored points represent empirical networks, vertical bars indicate 95% intervals derived from model simulations of temporal network variability. Black dashed lines are fitted quantile regressions (median, 50%). Connectance tends to decrease with latitude and increase with human impact, while SVD Complexity shows positive associations with both latitude and ecosystem area. Modularity exhibits weaker but generally positive relationships with latitude and area, and a slight negative trend with human impact. Together, these results suggest that both geographic and anthropogenic factors shape the structural complexity of marine food webs.](Figures/metric_Entropy_vs_lat_area_ci_gam.png)
 
@@ -159,6 +166,8 @@ Modularity increased with latitude (0.0013 per degree) and area (0.0059 per log 
 ## discussion
 
 While SVD entropy has been proposed as a measure of network complexity-—with high values interpreted as greater complexity due to evenly distributed information [@Strydom2021]—-our results suggest caution with this view. In ecological networks, lower entropy often reflects organized heterogeneity (e.g., trophic hierarchies, modularity), which we argue is a hallmark of ecological complexity rather than its absence.
+
+Clearly, despite the consensus that modularity acts to stabilise food webs [@Eskuche-Keith2023], we expected a positive relationship between modularity and human impact index, but we found the opposite. A possible explanation is that human impacts tend to homogenize ecosystems by removing sensitive species and interactions, thereby reducing compartmentalization. This aligns with findings from @Mestre2022, who observed that fishing pressure can erode modular structure in marine food webs.
 
 ## References
 

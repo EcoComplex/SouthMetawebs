@@ -995,8 +995,13 @@ plot_metric_vs_latitude_ci <- function(network_info,
     
     # Fit models at 3 quantiles
     mods <- purrr::map(taus, function(tau) {
-      rq(value ~ S + latitude + log_area + impact_mean,
-         data = df_test, tau = tau)
+      if(metric == "C") {
+        rq(value ~ S + latitude + log_area + impact_mean,
+           data = df_test, tau = tau)
+      } else {
+        rq(value ~ S + C + latitude + log_area + impact_mean,
+           data = df_test, tau = tau)
+      }
     })
     
     if (fit_model) {
@@ -1013,6 +1018,7 @@ plot_metric_vs_latitude_ci <- function(network_info,
       summarise(latitude = mean(latitude, na.rm = TRUE),
                 log_area = mean(log_area, na.rm = TRUE),
                 S = mean(S, na.rm = TRUE),
+                C = mean(C, na.rm = TRUE),
                 impact_mean = mean(impact_mean, na.rm = TRUE)) %>%
       slice(rep(1, 100)) %>%
       mutate(!!xvar := x_seq)
@@ -1384,7 +1390,11 @@ plot_metric_vs_latitude_ci_gam <- function(network_info,
     }
     
     # GAM formula (same for MEing_stable but family differs)
-    formula_gam <- as.formula("value ~ s(S, k = 5) + s(log_area, k = 5) + s(latitude, k = 5) + s(impact_mean, k = 5)")
+    if(metric=="C") { 
+      formula_gam <- as.formula("value ~ s(S, k = 5) + s(log_area, k = 5) + s(latitude, k = 5) + s(impact_mean, k = 5)")
+    } else { 
+      formula_gam <- as.formula("value ~ s(S, k = 5) + s(C, k = 5) + s(log_area, k = 5) + s(latitude, k = 5) + s(impact_mean, k = 5)")
+    }
     
     if (is_transformed) {
       # value is positive (we made it so), fit Gamma with log link
@@ -1424,6 +1434,7 @@ plot_metric_vs_latitude_ci_gam <- function(network_info,
         latitude = mean(latitude, na.rm = TRUE),
         log_area = mean(log_area, na.rm = TRUE),
         S = mean(S, na.rm = TRUE),
+        C = mean(C, na.rm = TRUE),
         impact_mean = mean(impact_mean, na.rm = TRUE)
       ) %>%
       slice(rep(1, 100)) %>%
