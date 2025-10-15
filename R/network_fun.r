@@ -1274,29 +1274,6 @@ simulate_qss_fixed_selfDamping <- function(networks,
 }
 
 
-#' Summarize Coefficients from Quantile Regression Models
-#'
-#' Extracts slope and p-value for `latitude` (and optionally other covariates)
-#' from the summary.rq models returned by `plot_metric_vs_latitude_ci()`.
-#'
-#' @param model_list A named list of `summary.rq` objects.
-#' @param variables Character vector of coefficient names to extract (default: "latitude").
-#'
-#' @return A data frame with `metric`, `term`, `estimate`, `p_value`.
-#' @export
-summarize_quantreg_models <- function(model_list, variables = "latitude") {
-  purrr::imap_dfr(model_list, function(model, metric) {
-    coefs <- model$coefficients
-    
-    tibble::tibble(
-      metric = metric,
-      term = rownames(coefs),
-      estimate = coefs[, "Value"],
-      p_value = coefs[, "Pr(>|t|)"]
-    ) %>%
-      dplyr::filter(term %in% variables)
-  })
-}
 
 
 
@@ -1325,6 +1302,7 @@ plot_metric_vs_latitude_ci_gam <- function(network_info,
     xvar == "log_area" ~ "Log Area (km²)",
     xvar == "latitude" ~ "Latitude",
     xvar == "impact_mean" ~ "Human impact",
+    xvar == "depth_m" ~ "Depth (m)",
     TRUE ~ xvar
   )
   
@@ -1375,6 +1353,8 @@ plot_metric_vs_latitude_ci_gam <- function(network_info,
                xvar == "log_area" ~ log_area,
                xvar == "latitude" ~ latitude,
                xvar == "impact_mean" ~ impact_mean,
+               xvar == "depth_m" ~ depth_m,
+               xvar == "S" ~ S,
                TRUE ~ NA_real_
              ))
     
@@ -1382,7 +1362,8 @@ plot_metric_vs_latitude_ci_gam <- function(network_info,
     df_test <- sim2 %>%
       dplyr::select(site, value = !!sym(model_value_name)) %>%
       left_join(obs, by = "site") %>%
-      drop_na(value, S, latitude, log_area, impact_mean)
+      drop_na(value, S, latitude, log_area, impact_mean) %>%
+      mutate(site = as.factor(site))   # ensure site is a factor for bs="re"
     
     # optionally subsample to limit compute (as you did before)
     if (nrow(df_test) > 1000) {
@@ -1390,11 +1371,11 @@ plot_metric_vs_latitude_ci_gam <- function(network_info,
     }
     
     # GAM formula (same for MEing_stable but family differs)
-    if(metric=="C") { 
-      formula_gam <- as.formula("value ~ s(S, k = 5) + s(log_area, k = 5) + s(latitude, k = 5) + s(impact_mean, k = 5)")
-    } else { 
-      formula_gam <- as.formula("value ~ s(S, k = 5) + s(C, k = 5) + s(log_area, k = 5) + s(latitude, k = 5) + s(impact_mean, k = 5)")
-    }
+#    if(metric=="C") { 
+      formula_gam <- as.formula("value ~ s(S, k = 5) + s(log_area, k = 5) + s(latitude, k = 5) + s(impact_mean, k = 5) + s(depth_m, k=5) + s(site, bs = 're')")
+#    } else { 
+#      formula_gam <- as.formula("value ~ s(S, k = 5) + s(C, k = 5) + s(log_area, k = 5) + s(latitude, k = 5) + s(impact_mean, k = 5) + s(site, bs = "re")")
+#    }
     
     if (is_transformed) {
       # value is positive (we made it so), fit Gamma with log link
@@ -1434,11 +1415,15 @@ plot_metric_vs_latitude_ci_gam <- function(network_info,
         latitude = mean(latitude, na.rm = TRUE),
         log_area = mean(log_area, na.rm = TRUE),
         S = mean(S, na.rm = TRUE),
-        C = mean(C, na.rm = TRUE),
+        depth_m = mean(depth_m, na.rm = TRUE),
         impact_mean = mean(impact_mean, na.rm = TRUE)
       ) %>%
       slice(rep(1, 100)) %>%
       mutate(!!xvar := x_seq)
+    ref_site <- levels(df_test$site)[1]
+    
+    newdata <- newdata %>%
+      mutate(site = factor(ref_site, levels = levels(df_test$site)))
     
     # Predict on link scale, get se on link scale, back-transform using family$linkinv
     pred_obj <- predict(mod_gam, newdata = newdata, se.fit = TRUE, type = "link")
@@ -1491,3 +1476,536 @@ plot_metric_vs_latitude_ci_gam <- function(network_info,
               deviance = bind_rows(deviance_list)))
 }
 
+
+plot_metric_vs_latitude_bayes <- function(network_info,
+                                          simulated_metrics,
+                                          metrics = c("S", "C", "Rank", "Entropy", "Modularity", "MEing_stable"),
+                                          xvar = "latitude",
+                                          fit_model = TRUE,
+                                          iters = 2000, chains = 4, cores = 4) {
+  library(dplyr); library(ggplot2); library(tidyr); library(ggrepel)
+  library(viridisLite); library(tibble); library(brms)
+  
+  if ("Metaweb" %in% names(simulated_metrics)) {
+    sim <- simulated_metrics %>% rename(site = Metaweb)
+  } else {
+    sim <- simulated_metrics
+  }
+  
+  obs <- network_info %>%
+    mutate(site = as.character(site),
+           log_area = log(area_km2)) %>%
+    dplyr::select(site, name, C, S, latitude, log_area, depth_m, impact_mean)
+  
+  x_label <- dplyr::case_when(
+    xvar == "log_area" ~ "Log Area (km²)",
+    xvar == "latitude" ~ "Latitude",
+    xvar == "impact_mean" ~ "Human impact",
+    xvar == "S" ~ "S",
+    TRUE ~ xvar
+  )
+  
+  site_order <- obs %>% arrange(latitude) %>% pull(site)
+  site_colors <- setNames(viridis(length(site_order)), site_order)
+  
+  plot_list <- list()
+  model_list <- list()
+  
+  for (metric in metrics) {
+    if (!metric %in% names(sim)) next
+    
+    sim2 <- sim
+    is_transformed <- identical(metric, "MEing_stable")
+    if (is_transformed) {
+      sim2 <- sim2 %>% mutate(metric_tmp = - .data[[metric]])
+      model_value_name <- "metric_tmp"
+    } else {
+      sim2 <- sim2 %>% mutate(metric_tmp = .data[[metric]])
+      model_value_name <- "metric_tmp"
+    }
+    
+    ci_data <- sim2 %>%
+      filter(!is.na(.data[[model_value_name]])) %>%
+      group_by(site) %>%
+      summarise(
+        q2.5 = quantile(.data[[model_value_name]], 0.025, na.rm = TRUE),
+        q97.5 = quantile(.data[[model_value_name]], 0.975, na.rm = TRUE),
+        mean = mean(.data[[model_value_name]], na.rm = TRUE),
+        .groups = "drop"
+      )
+    if (is_transformed) {
+      ci_data <- ci_data %>% mutate(across(c(q2.5, q97.5, mean), ~ - .x))
+    }
+    
+    df_plot <- obs %>%
+      left_join(ci_data, by = "site") %>%
+      mutate(color = site_colors[site],
+             xval = case_when(
+               xvar == "log_area" ~ log_area,
+               xvar == "latitude" ~ latitude,
+               xvar == "impact_mean" ~ impact_mean,
+               TRUE ~ NA_real_
+             ))
+    
+    df_test <- sim2 %>%
+      dplyr::select(site, value = !!sym(model_value_name)) %>%
+      left_join(obs, by = "site") %>%
+      drop_na(value, S, latitude, log_area, impact_mean)
+    
+    if (nrow(df_test) > 2000) {
+      df_test <- df_test %>% group_by(site) %>% slice_sample(n = 200) %>% ungroup()
+    }
+    
+    if (fit_model) {
+      # standardize predictors for stability
+      df_test <- df_test %>%
+        mutate(across(c(value, S, log_area, latitude, impact_mean), scale))
+      
+      # Student-t likelihood with random intercept by site
+      formula <- bf(
+        value ~ 1 + s(S) + s(log_area) + s(latitude) + s(impact_mean) + (1 | site),
+        family = student()
+      )
+      
+      priors <- c(
+        prior(normal(0, 1), class = "Intercept"),
+        prior(normal(0, 0.5), class = "b"),
+        prior(exponential(1), class = "sigma"),
+        prior(exponential(1), class = "sd"),
+        prior(exponential(1), class = "nu"))
+      
+      m <- brm(formula,
+               data = df_test,
+               prior = priors,
+               chains = chains, cores = cores, iter = iters,
+               backend = "cmdstanr")  # if installed, faster & more stable
+      
+      model_list[[metric]] <- m
+      
+      # Predictions along focal variable
+      newdata <- obs %>%
+        summarise(
+          S = mean(S), log_area = mean(log_area),
+          latitude = mean(latitude), impact_mean = mean(impact_mean)
+        ) %>%
+        slice(rep(1, 100)) %>%
+        mutate(!!xvar := seq(min(obs[[xvar]]), max(obs[[xvar]]), length.out = 100))
+      
+      newdata <- newdata %>% mutate(across(c(S, log_area, latitude, impact_mean), scale))
+      
+      pred <- posterior_epred(m, newdata = newdata, re_formula = NA)
+      mu <- apply(pred, 2, mean)
+      pi <- apply(pred, 2, quantile, probs = c(0.025, 0.975))
+      
+      df_line <- data.frame(
+        xval = seq(min(obs[[xvar]]), max(obs[[xvar]]), length.out = 100),
+        pred = mu,
+        lwr = pi[1,], upr = pi[2,]
+      )
+      
+      if (is_transformed) {
+        df_line <- df_line %>% mutate(across(c(pred, lwr, upr), ~ - .x))
+      }
+      
+      p <- ggplot(df_plot, aes(x = xval, y = mean)) +
+        geom_linerange(aes(ymin = q2.5, ymax = q97.5, color = site), linewidth = 1) +
+        geom_point(aes(color = site), size = 3) +
+        geom_line(data = df_line, aes(x = xval, y = pred), linetype = "dashed") +
+        geom_ribbon(data = df_line, aes(x = xval, ymin = lwr, ymax = upr),
+                    inherit.aes = FALSE, fill = "grey70", alpha = 0.3) +
+        scale_color_manual(values = site_colors, limits = df_plot$site, labels = df_plot$name) +
+        labs(x = x_label, y = metric) +
+        theme_bw(base_size = 14) +
+        theme(legend.position = "none")
+      
+      plot_list[[metric]] <- p
+    }
+
+  }
+  
+  return(list(plots = plot_list, models = model_list))
+}
+
+plot_metric_density <- function(metaweb_metrics, network_info, metric_name) {
+  library(ggplot2)
+  library(dplyr)
+  library(rlang)
+  
+  # Dynamically capture the metric column name
+  metric_sym <- sym(metric_name)
+  
+  # Extract distribution from metaweb replicates
+  df_plot <- metaweb_metrics %>% rename(site = Metaweb) %>% 
+    dplyr::select(site, !!metric_sym) %>%
+    rename(value = !!metric_sym)
+  
+  # Extract empirical values
+  obs_plot <- network_info %>%
+    dplyr::select(site, !!metric_sym) %>%
+    rename(value = !!metric_sym)
+  
+  # Build density plot
+  ggplot(df_plot, aes(x = value)) +
+    geom_density(fill = "skyblue", alpha = 0.5, color = NA, adjust = 1.2) +
+    geom_vline(
+      data = obs_plot,
+      aes(xintercept = value, color = site),
+      linewidth = 1
+    ) +
+    geom_text(
+      data = obs_plot,
+      aes(x = value, y = 0, label = site, color = site),
+      angle = 90, vjust = -0.5, hjust = 0, size = 4
+    ) +
+    labs(
+      x = paste0(metric_name, " (Metaweb-based replicates)"),
+      y = "Density",
+      title = paste("Distribution of", metric_name, "across metaweb replicates"),
+      subtitle = "Vertical lines and labels show empirical network values by site"
+    ) +
+    theme_minimal(base_size = 14) +
+    theme(
+      legend.position = "none",
+      plot.title = element_text(face = "bold")
+    )
+}
+
+
+#' Bayesian hierarchical modeling and visualization of food-web metrics
+#'
+#' Fits a Student-t Bayesian hierarchical model for each network metric
+#' using environmental and structural predictors (S, log_area, latitude,
+#' impact_mean, and depth_m) with a random intercept for site.  
+#' The function plots the empirical mean and 95% intervals (from metaweb simulations)
+#' together with the model posterior mean and 95% credible interval.
+#'
+#' @param network_info Data frame with observed network metrics and predictors.
+#' @param simulated_metrics Data frame with metaweb-based simulated metrics.
+#' @param metrics Character vector of metric names to model (default: c("S","C","Rank","Entropy","Modularity","MEing_stable")).
+#' @param xvar Predictor for the x-axis in plots (e.g. "latitude", "log_area", "impact_mean").
+#' @param fit_model Logical, whether to fit the Bayesian model (default TRUE).
+#' @param iters Number of MCMC iterations (default 2000).
+#' @param chains Number of MCMC chains (default 4).
+#' @param cores Number of CPU cores for parallel computation (default 4).
+#' @param max_samples_per_site Maximum samples per site for model fitting (default 500).
+#'
+#' @return A list with fitted models, posterior samples, and plots for each metric.
+#' @export
+plot_metric_vs_latitude_bayes <- function(network_info,
+                                          simulated_metrics,
+                                          metrics = c("S", "C", "Rank", "Entropy", "Modularity", "MEing_stable"),
+                                          xvar = "latitude",
+                                          fit_model = TRUE,
+                                          iters = 2000, chains = 4, cores = 4,
+                                          max_samples_per_site = 500) {
+  library(dplyr); library(ggplot2); library(tidyr); library(viridisLite)
+  library(tibble); require(rethinking)
+  
+  if ("Metaweb" %in% names(simulated_metrics))
+    simulated_metrics <- simulated_metrics %>% rename(site = Metaweb)
+  
+  obs <- network_info %>%
+    mutate(site = as.character(site),
+           log_area = log(area_km2)) %>%
+    dplyr::select(site, name, C, S, latitude, log_area, depth_m, impact_mean)
+  
+  x_label <- case_when(
+    xvar == "log_area" ~ "Log Area (km²)",
+    xvar == "latitude" ~ "Latitude",
+    xvar == "impact_mean" ~ "Human impact",
+    xvar == "depth_m" ~ "Mean Depth (m)",
+    TRUE ~ xvar
+  )
+  
+  site_order <- obs %>% arrange(latitude) %>% pull(site)
+  site_colors <- setNames(viridis(length(site_order)), site_order)
+  
+  out <- list(plots = list(), models = list(), post = list())
+  
+  for (metric in metrics) {
+    if (!metric %in% names(simulated_metrics)) next
+    
+    sim2 <- simulated_metrics
+    is_transformed <- identical(metric, "MEing_stable")
+    if (is_transformed) {
+      sim2 <- sim2 %>% mutate(metric_tmp = - .data[[metric]])
+    } else {
+      sim2 <- sim2 %>% mutate(metric_tmp = .data[[metric]])
+    }
+    
+    ci_data <- sim2 %>%
+      filter(!is.na(metric_tmp)) %>%
+      group_by(site) %>%
+      summarise(
+        q2.5 = quantile(metric_tmp, 0.025, na.rm = TRUE),
+        q97.5 = quantile(metric_tmp, 0.975, na.rm = TRUE),
+        mean = mean(metric_tmp, na.rm = TRUE),
+        .groups = "drop"
+      )
+    if (is_transformed)
+      ci_data <- ci_data %>% mutate(across(c(q2.5, q97.5, mean), ~ - .x))
+    
+    df_plot <- obs %>%
+      left_join(ci_data, by = "site") %>%
+      mutate(color = site_colors[site],
+             xval = case_when(
+               xvar == "log_area" ~ log_area,
+               xvar == "latitude" ~ latitude,
+               xvar == "impact_mean" ~ impact_mean,
+               xvar == "depth_m" ~ depth_m,
+               TRUE ~ NA_real_
+             ))
+    
+    df_test <- sim2 %>%
+      dplyr::select(site, value = metric_tmp) %>%
+      left_join(obs, by = "site") %>%
+      drop_na(value, S, latitude, log_area, impact_mean, depth_m) %>%
+      mutate(site = as.factor(site))
+    
+    if (nrow(df_test) > max_samples_per_site * length(unique(df_test$site))) {
+      df_test <- df_test %>% group_by(site) %>% slice_sample(n = max_samples_per_site) %>% ungroup()
+    }
+    
+    if (fit_model) {
+      dlist <- list(
+        N = nrow(df_test),
+        site_id = as.integer(df_test$site),
+        n_site = length(unique(df_test$site)),
+        value = df_test$value,
+        S = standardize(df_test$S),
+        log_area = standardize(df_test$log_area),
+        latitude = standardize(df_test$latitude),
+        impact = standardize(df_test$impact_mean),
+        depth = standardize(df_test$depth_m)
+      )
+      
+      m <- ulam(
+        alist(
+          value ~ dstudent(2, mu, sigma),
+          mu <- a[site_id] + bS*S + bA*log_area + bL*latitude + bI*impact + bD*depth,
+          a[site_id] ~ normal(a_bar, sigma_site),
+          a_bar ~ normal(0, 0.5),
+          c(bS, bA, bL, bI, bD) ~ normal(0, 0.2),
+          sigma_site ~ exponential(2),
+          sigma ~ exponential(2)
+        ),
+        data = dlist, chains = chains, cores = cores, iter = iters, log_lik = TRUE
+      )
+      
+      post <- extract.samples(m)
+      out$models[[metric]] <- m
+      out$post[[metric]] <- post
+      
+      # Build standardized newdata for prediction
+      x_seq <- seq(min(df_plot$xval, na.rm = TRUE), max(df_plot$xval, na.rm = TRUE), length.out = 100)
+      dnew <- list(
+        S = rep(mean(dlist$S), 100),
+        log_area = rep(mean(dlist$log_area), 100),
+        latitude = rep(mean(dlist$latitude), 100),
+        impact = rep(mean(dlist$impact), 100),
+        depth = rep(mean(dlist$depth), 100)
+      )
+      dnew[[xvar]] <- seq(-2, 2, length.out = 100)
+      
+      npost <- length(post$a_bar)
+      mu_post <- matrix(NA, nrow = npost, ncol = length(dnew[[xvar]]))
+      for (i in seq_len(npost)) {
+        mu_post[i, ] <- post$a_bar[i] +
+          post$bS[i]*dnew$S + post$bA[i]*dnew$log_area +
+          post$bL[i]*dnew$latitude + post$bI[i]*dnew$impact + post$bD[i]*dnew$depth
+      }
+      mu_mean <- colMeans(mu_post)
+      mu_lwr <- apply(mu_post, 2, quantile, 0.025)
+      mu_upr <- apply(mu_post, 2, quantile, 0.975)
+      if (is_transformed) {
+        mu_mean <- -mu_mean; mu_lwr <- -mu_lwr; mu_upr <- -mu_upr
+      }
+      
+      df_line <- tibble(xval = x_seq, pred = mu_mean, lwr = mu_lwr, upr = mu_upr)
+      
+      p <- ggplot(df_plot, aes(x = xval, y = mean)) +
+        geom_linerange(aes(ymin = q2.5, ymax = q97.5, color = site), linewidth = 1) +
+        geom_point(aes(color = site), size = 3) +
+        geom_line(data = df_line, aes(x = xval, y = pred), linetype = "dashed") +
+        geom_ribbon(data = df_line, aes(x = xval, ymin = lwr, ymax = upr),
+                    fill = "grey70", alpha = 0.3, inherit.aes = FALSE) +
+        scale_color_manual(values = site_colors) +
+        labs(x = x_label, y = metric, title = metric) +
+        theme_bw(base_size = 14) + theme(legend.position = "none")
+      
+      out$plots[[metric]] <- p
+    } else {
+      p <- ggplot(df_plot, aes(x = xval, y = mean)) +
+        geom_linerange(aes(ymin = q2.5, ymax = q97.5, color = site), linewidth = 1) +
+        geom_point(aes(color = site), size = 3) +
+        scale_color_manual(values = site_colors) +
+        labs(x = x_label, y = metric, title = metric) +
+        theme_bw(base_size = 14) + theme(legend.position = "none")
+      
+      out$plots[[metric]] <- p
+    }
+  }
+  
+  return(out)
+}
+
+# Use stan_glmer from rstanarm for Bayesian hierarchical modeling
+#
+plot_metric_vs_latitude_bayes1 <- function(network_info,
+                                          simulated_metrics,
+                                          metrics = c("S", "C", "Rank", "Entropy", "Modularity", "MEing_stable"),
+                                          xvar = "latitude",
+                                          fit_model = TRUE,
+                                          iters = 2000, chains = 4, cores = 4,
+                                          max_samples_per_site = 500) {
+  library(dplyr)
+  library(ggplot2)
+  library(tidyr)
+  library(viridisLite)
+  library(rstanarm)
+  #library(arm)
+  
+  if ("Metaweb" %in% names(simulated_metrics))
+    simulated_metrics <- simulated_metrics %>% rename(site = Metaweb)
+  
+  obs <- network_info %>%
+    mutate(site = as.character(site),
+           log_area = log(area_km2)) %>%
+    dplyr::select(site, name, C, S, latitude, log_area, depth_m, impact_mean)
+  
+  x_label <- case_when(
+    xvar == "log_area" ~ "Log Area (km²)",
+    xvar == "latitude" ~ "Latitude",
+    xvar == "impact_mean" ~ "Human impact",
+    xvar == "depth_m" ~ "Depth (m)",
+    TRUE ~ xvar
+  )
+  
+  site_order <- obs %>% arrange(latitude) %>% pull(site)
+  site_colors <- setNames(viridis(length(site_order)), site_order)
+  
+  out <- list(plots = list(), models = list(), post = list())
+  
+  for (metric in metrics) {
+    if (!metric %in% names(simulated_metrics)) next
+    
+    sim2 <- simulated_metrics
+    is_transformed <- identical(metric, "MEing_stable")
+    if (is_transformed)
+      sim2 <- sim2 %>% mutate(metric_tmp = - .data[[metric]])
+    else
+      sim2 <- sim2 %>% mutate(metric_tmp = .data[[metric]])
+    
+    ci_data <- sim2 %>%
+      filter(!is.na(metric_tmp)) %>%
+      group_by(site) %>%
+      summarise(q2.5 = quantile(metric_tmp, 0.025),
+                q97.5 = quantile(metric_tmp, 0.975),
+                mean = mean(metric_tmp),
+                .groups = "drop")
+    
+    if (is_transformed)
+      ci_data <- ci_data %>% mutate(across(c(q2.5, q97.5, mean), ~ - .x))
+    
+    df_plot <- obs %>%
+      left_join(ci_data, by = "site") %>%
+      mutate(color = site_colors[site],
+             xval = case_when(
+               xvar == "log_area" ~ log_area,
+               xvar == "latitude" ~ latitude,
+               xvar == "impact_mean" ~ impact_mean,
+               xvar == "depth_m" ~ depth_m,
+               TRUE ~ NA_real_
+             ))
+    
+    df_test <- sim2 %>%
+      dplyr::select(site, value = metric_tmp) %>%
+      left_join(obs, by = "site") %>%
+      drop_na(value, S, latitude, log_area, impact_mean, depth_m) %>%
+      mutate(site = factor(site))
+    
+    # Optional subsampling
+    if (nrow(df_test) > max_samples_per_site * length(unique(df_test$site))) {
+      df_test <- df_test %>%
+        group_by(site) %>%
+        slice_sample(n = max_samples_per_site) %>%
+        ungroup()
+    }
+    
+    if (fit_model) {
+      df_std <- df_test %>%
+        mutate(
+          S_z = standardize(S),
+          log_area_z = standardize(log_area),
+          latitude_z = standardize(latitude),
+          impact_z = standardize(impact_mean),
+          depth_z = standardize(depth_m)
+        )
+      
+      formula <- as.formula(
+        "value ~ S_z + log_area_z + latitude_z + impact_z + depth_z + (1 | site)"
+      )
+      
+      m <- stan_glmer(
+        formula,
+        data = df_std,
+        family = gaussian(),#(link= "log"),
+        chains = chains, iter = iters, cores = cores,
+        prior = normal(0, 0.5),
+        prior_intercept = normal(0, 1),
+        prior_aux = exponential(2)
+      )
+      
+      out$models[[metric]] <- m
+      
+      # Prediction line
+      newdata <- tibble(
+        S_z = mean(df_std$S_z),
+        log_area_z = mean(df_std$log_area_z),
+        latitude_z = mean(df_std$latitude_z),
+        impact_z = mean(df_std$impact_z),
+        depth_z = mean(df_std$depth_z)
+      )
+      x_seq <- seq(min(df_plot$xval, na.rm = TRUE),
+                   max(df_plot$xval, na.rm = TRUE),
+                   length.out = 100)
+      newdata <- newdata[rep(1, length(x_seq)), ]
+      newdata[[paste0(xvar, "_z")]] <- standardize(x_seq)
+      
+      mu_post <- posterior_epred(m, newdata = newdata)
+      mu_mean <- colMeans(mu_post)
+      mu_lwr <- apply(mu_post, 2, quantile, 0.025)
+      mu_upr <- apply(mu_post, 2, quantile, 0.975)
+      if (is_transformed) {
+        mu_mean <- -mu_mean; mu_lwr <- -mu_lwr; mu_upr <- -mu_upr
+      }
+      
+      df_line <- tibble(xval = x_seq, pred = mu_mean, lwr = mu_lwr, upr = mu_upr)
+      
+      p <- ggplot(df_plot, aes(x = xval, y = mean)) +
+        geom_linerange(aes(ymin = q2.5, ymax = q97.5, color = site), linewidth = 1) +
+        geom_point(aes(color = site), size = 3) +
+        geom_line(data = df_line, aes(x = xval, y = pred), linetype = "dashed") +
+        geom_ribbon(data = df_line, aes(x = xval, ymin = lwr, ymax = upr),
+                    fill = "grey70", alpha = 0.3, inherit.aes = FALSE) +
+        scale_color_manual(values = site_colors) +
+        labs(x = x_label, y = metric, title = metric) +
+        theme_bw(base_size = 14) +
+        theme(legend.position = "none")
+      
+      out$plots[[metric]] <- p
+    } else {
+      p <- ggplot(df_plot, aes(x = xval, y = mean)) +
+        geom_linerange(aes(ymin = q2.5, ymax = q97.5, color = site), linewidth = 1) +
+        geom_point(aes(color = site), size = 3) +
+        scale_color_manual(values = site_colors) +
+        labs(x = x_label, y = metric, title = metric) +
+        theme_bw(base_size = 14) +
+        theme(legend.position = "none")
+      
+      out$plots[[metric]] <- p
+    }
+  }
+  
+  return(out)
+}

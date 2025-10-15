@@ -258,6 +258,11 @@ str(stability_results_meig)
 plot_list <- plot_metric_vs_latitude_ci_gam(network_info, stability_results_meig, 
                                          metrics = "MEing_stable")
 
+plots7 <- plot_list$plots
+
+
+plots7$MEing_stable <- plots7$MEing_stable + ylab("Max eigenvalue") 
+
 plot_list1 <- plot_metric_vs_latitude_ci_gam(network_info, stability_results_meig, 
                                         metrics = "MEing_stable", xvar = "log_area") 
 
@@ -269,7 +274,7 @@ combined_plot <- wrap_plots(c(plot_list$plots,plot_list1$plots,plot_list2$plots)
 
 ggsave("Figures/metric_MEig_vs_Latitude_area_ci_gam.png", 
           plot = combined_plot, 
-          height = 6, 
+          height = 3, 
           width = 10,
           bg = "white")
 
@@ -281,15 +286,29 @@ qr_models <- bind_rows(qr_models, plot_list$deviance)
 knitr::kable(qr_models,digits=4)
 saveRDS(qr_models, "Data/qr_models_gam.rds")
 
+#
+# Add response to S
+#
+plot_list1 <- plot_metric_vs_latitude_ci_gam(network_info, stability_results_meig, 
+                                        metrics = "MEing_stable", xvar = "S") 
+
+plot_list1$plots
+ggsave("Figures/metric_MEig_vs_Latitude_area_ci_gam.png", 
+          plot = combined_plot, 
+          height = 6, 
+          width = 10,
+          bg = "white")
+
 ```
 
+|Metric         |Term           |    edf| p-value| PartialDeviance| TotalDevianceExplained|
+|:--------------|:--------------|------:|-------:|---------------:|----------------------:|
+|MEing_stable   |s(S)           | 1.0001|  0.0027|         10.5066|                   19.1|
+|MEing_stable   |s(log_area)    | 1.0062|  0.0005|         14.1374|                   19.1|
+|MEing_stable   |s(latitude)    | 1.0003|  0.0015|         11.8058|                   19.1|
+|MEing_stable   |s(impact_mean) | 1.0001|  0.4445|          0.6814|                   19.1|
+|MEing_stable   |s(site)        | 1.9549|  0.0000|         62.8687|                   19.1|
 
-|Metric       |Term           |    edf| p-value| PartialDeviance| TotalDevianceExplained|Transformed |
-|:------------|:--------------|------:|-------:|---------------:|----------------------:|:-----------|
-|MEing_stable |s(S)           | 1.0122|  0.0000|         55.1043|                     19|TRUE        |
-|MEing_stable |s(log_area)    | 1.2428|  0.0123|         16.5113|                     19|TRUE        |
-|MEing_stable |s(latitude)    | 1.0002|  0.0000|         27.8043|                     19|TRUE        |
-|MEing_stable |s(impact_mean) | 2.7187|  0.5495|          0.5801|                     19|TRUE        |
 
 
 # Plot Stability vs C and Modularity

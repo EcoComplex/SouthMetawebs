@@ -6,3 +6,4 @@
 **/_snaps
 *.html
 *.pdf
+.trackdown/

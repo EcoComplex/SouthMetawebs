@@ -1,6 +1,5 @@
 ---
-title: Supplementary Materials Gradientes latitudinales en la estructura y estabilidad de redes tróficas marinas
-  del Atlántico Sudoccidental
+title: Supplementary Materials Latitudinal gradients in the structure and stability of marine food webs in the Southwest Atlantic
 bibliography: SouthMarineFoodWebs.bib
 csl: "functional-ecology.csl"
 output:
@@ -10,38 +9,58 @@ output:
     includes:
 ---
 
-|Metric         |Term           |    edf| p-value| Partial Deviance| Total Deviance Explained|
-|:--------------|:--------------|------:|-------:|---------------:|----------------------:|
-|C              |s(S)           | 1.0000|  0.1321|          0.0440|                   89.4|
-|C              |s(log_area)    | 1.0002|  0.0000|          0.7472|                   89.4|
-|C              |s(latitude)    | 2.9996|  0.0000|         99.2037|                   89.4|
-|C              |s(impact_mean) | 1.0001|  0.6048|          0.0052|                   89.4|
-|SVDComplexity  |s(S)           | 1.0002|  0.8332|          0.1146|                   94.9|
-|SVDComplexity  |s(log_area)    | 2.0623|  0.0778|         16.9324|                   94.9|
-|SVDComplexity  |s(latitude)    | 1.9368|  0.0000|         71.8385|                   94.9|
-|SVDComplexity  |s(impact_mean) | 1.0006|  0.0378|         11.1144|                   94.9|
-|Modularity     |s(S)           | 1.0001|  0.0000|         52.4972|                   74.5|
-|Modularity     |s(log_area)    | 1.9384|  0.0000|         20.2582|                   74.5|
-|Modularity     |s(latitude)    | 2.0542|  0.0001|         17.6223|                   74.5|
-|Modularity     |s(impact_mean) | 1.0051|  0.0002|          9.6223|                   74.5|
-|LD             |s(S)           | 1.0023|  0.1170|         18.0881|                   90.6|
-|LD             |s(log_area)    | 2.0435|  0.3747|         12.7398|                   90.6|
-|LD             |s(latitude)    | 1.9499|  0.0632|         41.5093|                   90.6|
-|LD             |s(impact_mean) | 1.0042|  0.0518|         27.6628|                   90.6|
-|TLmean         |s(S)           | 1.0068|  0.0367|         24.4954|                   86.6|
-|TLmean         |s(log_area)    | 1.0000|  0.0202|         30.2805|                   86.6|
-|TLmean         |s(latitude)    | 1.8901|  0.0538|         34.0190|                   86.6|
-|TLmean         |s(impact_mean) | 2.1028|  0.4346|         11.2051|                   86.6|
-|RankDeficiency |s(S)           | 1.0002|  0.0000|         68.1208|                   84.3|
-|RankDeficiency |s(log_area)    | 1.9171|  0.0000|         25.5057|                   84.3|
-|RankDeficiency |s(latitude)    | 2.0776|  0.0503|          0.9691|                   84.3|
-|RankDeficiency |s(impact_mean) | 1.0025|  0.0000|          5.4044|                   84.3|
-|MEing_stable   |s(S)           | 1.0122|  0.0000|         56.2627|                   19.2|
-|MEing_stable   |s(log_area)    | 1.2684|  0.0129|         16.5487|                   19.2|
-|MEing_stable   |s(latitude)    | 1.0001|  0.0000|         26.6094|                   19.2|
-|MEing_stable   |s(impact_mean) | 2.6914|  0.5414|          0.5792|                   19.2|
 
-Table S1. Results from generalized additive models (GAMs) testing the effects of latitude, log-transformed area, and mean human impact on food web structural metrics. Reported are estimated degrees of freedom (edf), approximate p-values, approximate partial deviance contributions of each smooth term, and the total deviance explained by the model.
+|Metric         |Term           |    edf| p-value| PartialDeviance| TotalDevianceExplained|
+|:--------------|:--------------|------:|-------:|---------------:|----------------------:|
+|C              |s(S)           | 1.0003|  0.4121|          2.2282|                   89.4|
+|C              |s(log_area)    | 1.0003|  0.7780|          0.2638|                   89.4|
+|C              |s(latitude)    | 1.0496|  0.3471|          3.4241|                   89.4|
+|C              |s(impact_mean) | 1.0006|  0.7286|          0.3990|                   89.4|
+|C              |s(depth_m)     | 1.0001|  0.0019|         31.8231|                   89.4|
+|C              |s(site)        | 0.9492|  0.0000|         61.8618|                   89.4|
+|SVDComplexity  |s(S)           | 1.0002|  0.6288|          0.6628|                   94.4|
+|SVDComplexity  |s(log_area)    | 1.0002|  0.3721|          2.2609|                   94.4|
+|SVDComplexity  |s(latitude)    | 1.0363|  0.0322|         13.9596|                   94.4|
+|SVDComplexity  |s(impact_mean) | 1.0004|  0.6884|          0.4561|                   94.4|
+|SVDComplexity  |s(depth_m)     | 1.0000|  0.0757|          8.9453|                   94.4|
+|SVDComplexity  |s(site)        | 0.9629|  0.0000|         73.7153|                   94.4|
+|Modularity     |s(S)           | 1.0000|  0.0002|          1.9378|                   74.3|
+|Modularity     |s(log_area)    | 1.0000|  0.0188|          0.7733|                   74.3|
+|Modularity     |s(latitude)    | 1.0006|  0.0340|          0.6310|                   74.3|
+|Modularity     |s(impact_mean) | 1.0000|  0.2208|          0.2101|                   74.3|
+|Modularity     |s(depth_m)     | 1.0000|  0.8680|          0.0039|                   74.3|
+|Modularity     |s(site)        | 0.9985|  0.0000|         96.4439|                   74.3|
+|LD             |s(S)           | 1.0000|  0.8878|          0.0267|                   90.6|
+|LD             |s(log_area)    | 1.0000|  0.6082|          0.3514|                   90.6|
+|LD             |s(latitude)    | 1.0136|  0.3504|          1.2175|                   90.6|
+|LD             |s(impact_mean) | 1.0001|  0.7834|          0.1011|                   90.6|
+|LD             |s(depth_m)     | 1.0000|  0.1267|          3.1191|                   90.6|
+|LD             |s(site)        | 0.9862|  0.0000|         95.1843|                   90.6|
+|TLmean         |s(S)           | 1.0000|  0.1551|          0.0832|                   86.3|
+|TLmean         |s(log_area)    | 1.0000|  0.0085|          0.2856|                   86.3|
+|TLmean         |s(latitude)    | 1.0003|  0.0577|          0.1484|                   86.3|
+|TLmean         |s(impact_mean) | 1.0000|  0.9238|          0.0004|                   86.3|
+|TLmean         |s(depth_m)     | 1.0000|  0.8646|          0.0012|                   86.3|
+|TLmean         |s(site)        | 0.9996|  0.0000|         99.4812|                   86.3|
+|RankDeficiency |s(S)           | 1.0001|  0.0000|         16.8583|                   83.2|
+|RankDeficiency |s(log_area)    | 1.0001|  0.0716|          1.6758|                   83.2|
+|RankDeficiency |s(latitude)    | 1.0057|  0.4396|          0.3148|                   83.2|
+|RankDeficiency |s(impact_mean) | 1.0002|  0.0023|          4.7819|                   83.2|
+|RankDeficiency |s(depth_m)     | 1.0000|  0.7967|          0.0343|                   83.2|
+|RankDeficiency |s(site)        | 0.9933|  0.0000|         76.3349|                   83.2|
+|MEing_stable   |s(S)           | 1.0000|  0.1344|         12.3301|                   19.1|
+|MEing_stable   |s(log_area)    | 1.0000|  0.2778|          6.4802|                   19.1|
+|MEing_stable   |s(latitude)    | 1.0446|  0.0451|         23.1881|                   19.1|
+|MEing_stable   |s(impact_mean) | 1.0002|  0.5918|          1.5806|                   19.1|
+|MEing_stable   |s(depth_m)     | 1.0000|  0.4690|          2.8839|                   19.1|
+|MEing_stable   |s(site)        | 0.9418|  0.0000|         53.5371|                   19.1|
+
+Table S1. Results from generalized additive mixed models (GAMMs) testing the effects of number of species latitude, log-transformed area, mean human impact and depth on food web structural metrics. Reported are estimated degrees of freedom (edf), approximate p-values, approximate partial deviance contributions of each smooth term, and the total deviance explained by the model.
+
+\newpage
+
+![Relationship between dynamical stability, measured as the maximum eigenvalue of the community matrix, and latitude, log-transformed network area, and human impact across marine food webs. Negative values of the maximum eigenvalue indicate greater stability. Points show site-level means with 95% confidence intervals, colored by site, while dashed lines and shaded envelopes represent the fitted smooths (±95% confidence bands) from generalized additive mixed models (GAMMs). Model results indicate significant effects of latitude ($p = 0.0015$) and log area ($p = 0.0005$) on stability, while human impact showed no detectable effect ($p = 0.44$).](Figures/metric_Q_TL_MEing_vs_S_ci_gam.png)
+
 
 \newpage
 
