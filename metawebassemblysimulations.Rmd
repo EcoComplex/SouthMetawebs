@@ -514,13 +514,6 @@ ggsave("Figures/metric_Mod_vs_S_lat_area_sig_gam.png",
           bg = "white")
 
 
-# ggsave("Figures/metric_Entropy_vs_lat_area_ci_gam.png", 
-#           plot = combined_plot, 
-#           height = 6, 
-#           width = 10,
-#           bg = "white")
-
-
 #
 # Relative Rank Rank/S
 # LD and TLmean
