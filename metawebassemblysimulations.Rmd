@@ -554,9 +554,9 @@ ggsave("Figures/metric_SVDC_MAXE_C_vs_lat_area_ci_gam.png",
           width = 10,
           bg = "white")
 
-combined_plot <- wrap_plots(plots4$TLmean, plots5$RankDeficiency,plots6$RankDeficiency, 
-ncol = 3, guides = "collect", axes="collect") &
-  theme(legend.position = "bottom")
+
+combined_plot <- wrap_plots(plots4$TLmean + ylab("TL"), plots5$RankDeficiency + ylab("Rank Deficiency"),plots6$RankDeficiency + ylab("Rank Deficiency"), 
+ncol = 3, guides = "collect", axes="collect") & theme(legend.position = "bottom")
 
 ggsave("Figures/metric_TL_RD_vs_lat_area_ci_gam.png", 
           plot = combined_plot, 
