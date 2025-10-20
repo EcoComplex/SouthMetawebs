@@ -37,13 +37,28 @@ Taken together, these findings reveal that food web structure and stability vary
 
 ## Introduction
 
-#### Entropy (parrafo para la introducción)
+To investigate how environmental and spatial factors influence the structure and stability of marine trophic networks, we analyzed a suite of topological and dynamical metrics — Connectance, Link Density, Mean Trophic Level, Modularity, Maximal Eigenvalue, SVD Complexity, and Rank Deficiency — in relation to environmental gradients of Latitude, Area, Human Impact, Depth, and the number of trophic species (S). This macroecological approach builds on efforts to identify general laws governing the organization of ecological networks across scales and environments (e.g. [@Welti2015; @Cirtwill2015; @Marczak2007]).
+
+Several hypotheses guide our analyses. According to the ecosystem size hypothesis, larger ecosystems are expected to sustain longer food chains due to increased species richness, greater habitat heterogeneity, and enhanced persistence of higher trophic levels [@Post2000; @Post2007]. Empirical support for this pattern has been reported across freshwater and marine systems ([@Takimoto2008]). In contrast, studies of marine food webs found no consistent latitudinal pattern in food chain length or maximum trophic level ([@JakeVanderZanden2007]). Another dimension concerns human impact, where stronger anthropogenic pressures are hypothesized to erode network organization and produce structures more similar to random networks, leading to lower SVD complexity ([@Mestre2022]); although in marine systems, opposite trends have also been observed. Finally, recent large-scale syntheses indicate that connectance tends to increase toward higher latitudes in marine food webs, although this pattern is partly confounded by species richness and differences between oceanic and coastal systems ([@Albouy2019]).
+
+Together, these frameworks highlight how ecosystem size, latitude, and human disturbance may shape the organization, stability, and functional complexity of marine trophic networks across the Southwest Atlantic gradient analyzed in this study.
 
 Ecological networks can be analyzed using Singular Value Decomposition (SVD), which provides complementary measures of complexity [@Riva2023a]. The rank of the adjacency matrix reflects the diversity of interaction strategies, while the distribution of singular values can be used to compute an entropy measure. Since random networks maximize this entropy, we instead use $1 -$ SVD entropy to capture the organized heterogeneity that characterizes ecological systems.
 
 Ecological networks are often represented by adjacency matrices, where each entry indicates whether a pair of species interacts (1) or not (0). These matrices can be factorized using Singular Value Decomposition (SVD) [@Golub1971], a mathematical tool that provides complementary measures of network complexity. The first is the rank of the adjacency matrix, which reflects the number of linearly independent interaction patterns. Ecologically, this can be interpreted as the number of distinct interaction “strategies” present in the system. The second measure applies Shannon’s entropy [@Shannon1948] to the distribution of non-zero singular values obtained from the SVD. While this “SVD entropy” has been proposed as an indicator of internal informational balance [@Strydom2021], empirical comparisons with randomized networks show that random structures tend to maximize entropy, whereas ecological networks exhibit lower entropy due to their organized heterogeneity. For this reason, we interpret ecological complexity in terms of $1 -$ SVD entropy, which highlights the departure from randomness and captures the non-random organization characteristic of ecological systems. 
 
 ## Methods 
+
+### Study Areas
+
+We analyzed seven marine trophic networks distributed along a broad latitudinal gradient in the Southwest Atlantic, spanning from temperate to Antarctic ecosystems. The northernmost sites included San Jorge Gulf (~45–47°S, 65–68°W; [@Funes2022]) and the Beagle Channel (~54°S, 68°W; [@Rodriguez2022]), both representing sub-Antarctic coastal systems characterized by high productivity and seasonal variability. Further east, the Burdwood Bank (~54°S, 59°W; [@Marina2024a]) and the Scotia Sea (~48–58°S, 50°W; [@Lopez-Lopez2022]) encompass shelf and oceanic environments influenced by the confluence of the Antarctic Circumpolar Current and the Malvinas Current. In the Antarctic region, we included Potter Cove (62°S, 58°W; [@Marina2018]) and the Weddell Sea (74–78°S, 30°W; [@Jacob2011]), which represent coastal and deep continental shelf systems under polar conditions. Together, these sites capture a wide range of oceanographic, biogeographical, and trophic contexts across nearly 30 degrees of latitude in the Southern Hemisphere.
+
+To ensure comparability across sites, we standardized some of networks following a common trophic classification scheme. In the Beagle Channel and Scotia Sea networks, we incorporated marine mammals and seabirds that were not included in the original publications. For the Weddell Sea, we simplified the basal compartment by collapsing planktonic microalgae that were included at species levels. These adjustments harmonized the trophic resolution among systems while preserving their key ecological structure, allowing robust cross-site comparisons along the latitudinal gradient.
+
+![](Figures/TIM_SouthernOceanStressorsSites.png)
+
+
+
 
 ### Human Impact Index
 
