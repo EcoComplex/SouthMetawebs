@@ -57,10 +57,6 @@ output:
 
 Table S1. Results from generalized additive mixed models (GAMMs) testing the effects of number of species latitude, log-transformed area, mean human impact and depth on food web structural metrics. Reported are estimated degrees of freedom (edf), approximate p-values, approximate partial deviance contributions of each smooth term, and the total deviance explained by the model.
 
-\newpage
-
-![Relationship between dynamical stability, measured as the maximum eigenvalue of the community matrix, and latitude, log-transformed network area, and human impact across marine food webs. Negative values of the maximum eigenvalue indicate greater stability. Points show site-level means with 95% confidence intervals, colored by site, while dashed lines and shaded envelopes represent the fitted smooths (±95% confidence bands) from generalized additive mixed models (GAMMs). Model results indicate significant effects of latitude ($p = 0.0015$) and log area ($p = 0.0005$) on stability, while human impact showed no detectable effect ($p = 0.44$).](Figures/metric_Q_TL_MEing_vs_S_ci_gam.png)
-
 
 \newpage
 

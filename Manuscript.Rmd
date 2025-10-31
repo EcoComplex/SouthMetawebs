@@ -33,7 +33,6 @@ Our analyses revealed distinct patterns across metrics: a) connectance increased
 
 Taken together, these findings reveal that food web structure and stability vary systematically across a latitudinal gradient in the Southwestern Atlantic to Antarctic, but not always in ways anticipated by simple theoretical expectations. The contrasting responses of connectance, modularity, redundancy, and dynamical stability suggest that distinct ecological drivers shape different aspects of network organization. These differences highlight the need to consider multiple facets of network organization when analysing and predicting the impacts of anthropogenic drivers on food webs.
 
----
 
 ## Introduction
 
