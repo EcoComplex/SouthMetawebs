@@ -1,0 +1,337 @@
+---
+title: "Toy networks Modularity and SVD Entropy"
+output:
+  pdf_document: default
+  html_document: default
+editor_options:
+  chunk_output_type: console
+---
+```{r, echo=FALSE, message=FALSE, warning=FALSE,eval=TRUE}
+require(tidyverse)
+require(igraph)
+require(multiweb)
+require(rnetcarto)
+require(igraph)
+```
+
+
+
+# Create toy networks 
+
+```{r create3groupNetwork, echo=FALSE, message=FALSE, warning=FALSE}
+
+# 3 independent chains - 3IC
+
+g <-   graph_from_literal( 1 -+ 4 -+ 7,2 -+ 5 -+8, 3 -+ 6 -+9, simplify = FALSE)
+plot_troph_level_ggplot(g,modules = TRUE)
+svden <- tibble(name="3IC",igraph=list(g))
+
+# 3 3 level trophic chains one basal species
+g <-   graph_from_literal( 1 -+ 4 -+ 7,1 -+ 5 -+8, 1 -+ 6 -+9, simplify = FALSE)
+plot_troph_level_ggplot(g,modules = TRUE)
+svden <- svden %>% add_row(name="3IC-1BA",igraph=list(g))
+
+# Add top predator - 3IC -TP 
+g <-   graph_from_literal( 1 -+ 4 -+ 7,2 -+ 5 -+8, 3 -+ 6 -+9,11+-4:8:6:7, simplify = FALSE)
+plot_troph_level_ggplot(g,modules = TRUE)
+svden <- svden %>% add_row(name="3IC-TP",igraph=list(g))
+
+# Add links among chains from basal species to 2nd trophic level
+g1 <-   graph_from_literal( 1 -+ 4 -+ 7,2 -+ 5 -+8, 3 -+ 6 -+9,11+-4:8:6:7, 3-+5,2-+6,2-+4,1-+5, simplify = FALSE)
+plot_troph_level_ggplot(g1,modules = TRUE)
+svden <- svden %>% add_row(name="3IC-TP-BL",igraph=list(g1))
+
+# Add intermediate species 
+
+g <-   graph_from_literal( 1 -+ 4 -+ 7 ,2 -+ 5 -+8, 3 -+ 6 -+9,11+-4:8:6:7,
+                           1 -+ 12 -+ 7,2 -+ 13 -+8,3 -+ 10 -+9, simplify = FALSE)
+plot_troph_level_ggplot(g,modules = TRUE)
+
+svden <- svden %>% add_row(name="3IC-TP-IS",igraph=list(g))
+
+# Add crossed links 
+
+g <-   graph_from_literal( 1 -+ 4 -+ 7 ,2 -+ 5 -+8, 3 -+ 6 -+9,11+-4:8:6:7,
+                           1 -+ 12 -+ 7,2 -+ 13 -+8,3 -+ 10 -+9,
+                           1 -+ 6, 2 -+ 4, 3 -+ 5,
+                           simplify = FALSE)
+plot_troph_level_ggplot(g,modules = TRUE)
+
+svden <- svden %>% add_row(name="3IC-TP-IS-CL",igraph=list(g))
+
+# Add omnivors crossed links 
+
+g <-   graph_from_literal( 1 -+ 4 -+ 7 ,2 -+ 5 -+8, 3 -+ 6 -+9,11+-4:8:6:7,
+                           1 -+ 12 -+ 7,2 -+ 13 -+8,3 -+ 10 -+9,
+                           1 -+ 8, 2 -+ 9, 3 -+ 8,
+                           simplify = FALSE)
+plot_troph_level_ggplot(g,modules = TRUE)
+
+svden <- svden %>% add_row(name="3IC-TP-IS-CL-OM",igraph=list(g))
+
+# We add 100 to all node numbers, then species 11 = 111 is basal, we have more basal species, more top predators less trophic level
+
+g1 <- graph_from_literal(101 -+ 104 -+ 107, 102 -+ 105 -+ 108, 103 -+ 106 -+ 109, 111 -+ 104:108:106:107,
+                               101 -+ 112 -+ 107, 102 -+ 113 -+ 108, 103 -+ 110 -+ 109,
+                               101 -+ 108, 102 -+ 109, 103 -+ 108,
+                               simplify = FALSE)
+plot_troph_level_ggplot(g1,modules = TRUE)
+svden <- svden %>% add_row(name="3IC-2TP-IS-CL-OM-BA",igraph=list(g1))
+
+# We combine g and g1 and add a link from 8 to 108
+g3 <- graph_from_literal(8 -+ 108)
+
+g2 <- g+g1+g3
+plot_troph_level_ggplot(g2,modules = TRUE)
+
+svden <- svden %>% add_row(name="3IC-TP-IS-CL-OM-BA-CO",igraph=list(g2))
+
+```
+
+
+```{r calc_metrics}
+
+# ⚡ Función para calcular métricas de un grafo
+calc_all_metrics <- function(g) {
+  svd_res <- calc_svd_entropy(g)
+  mod <- run_infomap(g)
+  topo <- multiweb::calc_topological_indices(g)
+
+  tibble(
+    C = topo$Connectance,
+    S = topo$Size,
+    LD = topo$LD,
+    TLmean = topo$TLmean,
+    Vulnerability = topo$Vulnerability,
+    Generality = topo$Generality,
+    Entropy = svd_res$Entropy,
+    Rank = svd_res$Rank,
+    RankDeficiency = 1 - (Rank / S),
+    Modularity = modularity(mod),
+    Groups = length(mod)
+  )
+}
+
+# ⚡ 1. Calcular métricas para las redes observadas (ya lo tenías)
+svden <- svden %>%
+  mutate(metrics_emp = map(igraph, calc_all_metrics)) %>%
+  unnest(metrics_emp)
+
+# ⚡ Generar redes con el modelo de nicho
+svden_sim <- svden %>% dplyr::select(name, C, S)  %>%
+  mutate(
+    igraph = map2(S, C, ~ generate_niche(S = .x, C = .y, nsim = 1)),
+    name = paste0("niche_", name),
+    metrics = map(igraph, calc_all_metrics)
+  ) %>% dplyr::select(-S,-C) %>%
+  unnest(metrics) #, names_sep = "niche_")
+
+# ⚡ Combinar en un solo tibble
+svden <- bind_rows(svden_sim, svden)
+# Asegurar que tenemos la columna "type"
+svden_all <- svden %>%
+  mutate(type = ifelse(grepl("^niche_", name), "Niche model", "Empirical"))
+
+# 📊 Comparar C vs Entropy
+ggplot(svden_all, aes(x = C, y = Entropy, color = type, shape = type)) +
+  geom_point(size = 3, alpha = 0.8) +
+  geom_smooth(method = "lm", se = FALSE) +
+  scale_color_manual(values = c("Empirical" = "darkgreen", "Niche model" = "steelblue")) +
+  theme_minimal(base_size = 14) +
+  labs(
+    x = "Connectance (C)",
+    y = "SVD Entropy",
+    color = "Network type",
+    shape = "Network type",
+  )
+
+
+# 📊 Comparar C vs Rank Deficiency
+ggplot(svden_all, aes(x = C, y = RankDeficiency, color = type, shape = type)) +
+  geom_point(size = 3, alpha = 0.8) +
+  geom_smooth(method = "lm", se = FALSE) +
+  scale_color_manual(values = c("Empirical" = "darkgreen", "Niche model" = "steelblue")) +
+  theme_minimal(base_size = 14) +
+  labs(
+    x = "Connectance (C)",
+    y = "Rank Deficiency (1 - Rank/S)",
+    color = "Network type",
+    shape = "Network type",
+  )
+
+ggplot(svden_all, aes(x = Modularity, y = Entropy, color = type, shape = type)) +
+  geom_point(size = 3, alpha = 0.8) +
+  geom_smooth(method = "lm", se = FALSE) +
+  scale_color_manual(values = c("Empirical" = "darkgreen", "Niche model" = "steelblue")) +
+  theme_minimal(base_size = 14) +
+  labs(
+    color = "Network type",
+    shape = "Network type",
+  )
+
+
+```
+
+# Niche model and SVD Entropy / Rank
+
+```{r niche_model, echo=FALSE, message=FALSE, warning=FALSE}
+
+# load network_info
+network_info <- readRDS("Data/network_info.rds")
+
+
+network_info <- filter(network_info, !(site %in% c("WeddellSea","BeagleChannel","NorthernScotia","SouthernScotia")))
+
+# ---- Rango observado en datos empíricos ----
+S_min <- min(network_info$S)
+S_max <- max(network_info$S)
+C_min <- min(network_info$C)
+C_max <- max(network_info$C)
+
+# Expandir 10%
+S_min <- floor(S_min * 0.8)
+S_max <- ceiling(S_max * 1.2)
+C_min <- C_min * 0.8
+C_max <- C_max * 1.2
+
+generate_niche(S_max,C_min)
+
+# ---- Función para simular una red y calcular métricas ----
+calc_sim_metrics <- function(S, C) {
+  g <- generate_niche(S, C, nsim = 1)
+  A <- as.matrix(as_adjacency_matrix(g, sparse = FALSE))
+  svde <- calc_svd_entropy(A)
+
+  tibble(
+    Entropy = svde$Entropy,
+    rankDeficiency = 1 - (svde$Rank / vcount(g))
+  )
+}
+
+# ---- Simulación de 1000 redes ----
+library(furrr)
+library(future)
+num_cores <- future::availableCores()
+plan(multisession, workers = num_cores)  # or your preferred plan
+
+set.seed(123) # reproducibilidad
+
+sim_results <- tibble(
+  S = sample(S_min:S_max, 100, replace = TRUE),
+  C = runif(100, C_min, C_max)
+) %>%
+  mutate(metrics =future_map2(S, C, calc_sim_metrics, .progress = TRUE, 
+                              .options = furrr_options(seed = TRUE))) %>%
+  unnest(metrics)
+
+plan(sequential)
+
+# ---- Vista rápida ----
+head(sim_results)
+
+# ---- Graficar ----
+library(ggplot2)
+
+ggplot(sim_results, aes(x = C, y = rankDeficiency, color = S)) +
+  geom_point(alpha = 0.6) +
+  scale_color_viridis_c() +
+  theme_bw() +
+  labs(
+    x = "SVD Entropy",
+    y = "Rank Deficiency",
+    color = "Species (S)"
+    ) +
+  geom_point(data=network_info, aes(x=C, y=1 - Rank/S), size=3)
+
+
+
+sim_results  %>%  ggplot( aes(x = C, y = Entropy, color = S)) +
+  geom_point(alpha = 0.6) +
+  scale_color_viridis_c() +
+  theme_bw() +
+  labs(
+    y = "SVD Entropy",
+    color = "Species (S)",
+    title = "Niche model simulations"
+    ) +
+  geom_point(data=network_info, aes(x=C, y=Entropy), size=3)
+
+sim_results  %>%  ggplot( aes(x = S, y = Entropy, color = S)) +
+  geom_point(alpha = 0.6) +
+  scale_color_viridis_c() +
+  theme_bw() +
+  labs(
+    y = "SVD Entropy",
+    color = "Species (S)",
+    title = "Niche model simulations"
+    ) +
+  geom_point(data=network_info, aes(x=S, y=Entropy), size=3)
+
+
+## Con redes aleatorias
+# ---- Función para simular una red y calcular métricas ----
+calc_sim_metrics1 <- function(S, C) {
+  g <- sample_gnm(S, floor( C*S^2), directed = TRUE)
+  A <- as.matrix(as_adjacency_matrix(g, sparse = FALSE))
+  svde <- calc_svd_entropy(A)
+
+  tibble(
+    Entropy = svde$Entropy,
+    rankDeficiency = 1 - (svde$Rank / vcount(g))
+  )
+}
+
+num_cores <- future::availableCores()
+plan(multisession, workers = num_cores)  # or your preferred plan
+
+set.seed(123) # reproducibilidad
+
+sim_results <- tibble(
+  S = sample(S_min:S_max, 100, replace = TRUE),
+  C = runif(100, C_min, C_max)
+) %>%
+  mutate(metrics =future_map2(S, C, calc_sim_metrics1, .progress = TRUE,
+                              .options = furrr_options(seed = TRUE))) %>%
+  unnest(metrics)
+
+plan(sequential)
+
+ggplot(sim_results, aes(x = C, y = rankDeficiency, color = S)) +
+  geom_point(alpha = 0.6) +
+  scale_color_viridis_c() +
+  theme_bw() +
+  labs(
+    x = "SVD Entropy",
+    y = "Rank Deficiency",
+    color = "Species (S)"
+    ) +
+  geom_point(data=network_info, aes(x=C, y=1 - Rank/S), size=3)
+
+
+
+sim_results  %>%  ggplot( aes(x = C, y = Entropy, color = S)) +
+  geom_point(alpha = 0.6) +
+  scale_color_viridis_c() +
+  theme_bw() +
+  labs(
+    y = "SVD Entropy",
+    color = "Species (S)",
+    title = "Random model simulations"
+    ) +
+  geom_point(data=network_info, aes(x=C, y=Entropy), size=3)
+
+sim_results  %>%  ggplot( aes(x = S, y = Entropy, color = S)) +
+  geom_point(alpha = 0.6) +
+  scale_color_viridis_c() +
+  theme_bw() +
+  labs(
+    y = "SVD Entropy",
+    color = "Species (S)",
+    title = "Random model simulations"
+    ) +
+  geom_point(data=network_info, aes(x=S, y=Entropy), size=3)
+
+
+```
+
+

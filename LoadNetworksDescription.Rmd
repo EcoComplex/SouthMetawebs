@@ -20,8 +20,9 @@ network_info <- tibble::tibble(
            "NorthernScotia", "PotterCove", "SouthernScotia", "WeddellSea"),
   latitude = c(54.5, 54.5, 46, 51.5, 62.2, 58.5, 76.0),
     area_km2 = c(1200, 32000, 34000, 1500000, 9, 1500000, 200400),
-  depth_m = c(140, 200, 100, 3000, 200, 3000, 500),
+  depth_m = c(140, 200, 100, 3000, 100, 3000, 500),
 )
+# Depth is approx max depth of the area
 
 # Read two standarized csv networks in data folder and add it to network info
 network_info <- network_info %>%
@@ -86,6 +87,7 @@ network_info <- network_info %>%
   ) %>%
   tidyr::unnest(metrics)
 
+network_info$depth_m[network_info$name == "Potter Cove"] <- 100
 # Save the networks
 saveRDS(network_info, "Data/network_info.rds")
 
@@ -198,14 +200,12 @@ cowplot::plot_grid(
 library(patchwork)
 network_info <- filter(network_info, !(site %in% c("WeddellSea","BeagleChannel","NorthernScotia","SouthernScotia")))
 
+network_info <- network_info[order(network_info$latitude), ]
 # Function to generate plots with modularity, remove node labels, and add network name as title
 make_network_plot <- function(g, site_name) {
   mod <- run_infomap(g)
+  #mod <- cluster_spinglass(g)
   p <- multiweb::plot_troph_level_ggplot(g, modules=TRUE, community_obj = mod)
-  # Remove text/label layers if present
-  # p$layers <- Filter(function(layer) {
-  #   !inherits(layer$geom, c("GeomText", "GeomLabel", "GeomTextRepel", "GeomLabelRepel"))
-  # }, p$layers)
   p <- p + ggtitle(site_name)
   p
 }
@@ -213,11 +213,12 @@ make_network_plot <- function(g, site_name) {
 plots <- mapply(
   make_network_plot,
   network_info$igraph,
-  network_info$site,
+  network_info$name,
   SIMPLIFY = FALSE
 )
 
 # Combine all plots using patchwork
+require(patchwork)
 combined_plot <- wrap_plots(plots, axis_titles="collect_x")
 
 ggsave("Figures/networks_tlevel_modules.png", 
@@ -226,6 +227,50 @@ ggsave("Figures/networks_tlevel_modules.png",
           width = 16,
           bg = "white", dpi=300)
 
+# BurwoodBank
+ggsave("Figures/BurdwoodBank_tlevel_modules.png", 
+       plot = plots[[which(network_info$site == "BurdwoodBank")]], 
+       height = 5, 
+       width = 6,
+       bg = "white", dpi=300)
+
+#GulfSanJorge
+ggsave("Figures/GulfSanJorge_tlevel_modules.png", 
+       plot = plots[[which(network_info$site == "GulfSanJorge")]], 
+       height = 5, 
+       width = 6,
+       bg = "white", dpi=300)
+
+#PotterCove
+ggsave("Figures/PotterCove_tlevel_modules.png", 
+       plot = plots[[which(network_info$site == "PotterCove")]], 
+       height = 5, 
+       width = 6,
+       bg = "white", dpi=300)
+#
+ggsave("Figures/BeagleChannel_tlevel_modules.png", 
+       plot = plots[[which(network_info$site == "Std BeagleChannel")]], 
+       height = 5, 
+       width = 6,
+       bg = "white", dpi=300)
+
+ggsave("Figures/WeddellSea_tlevel_modules.png", 
+       plot = plots[[which(network_info$site == "Std Weddell Sea")]], 
+       height = 5, 
+       width = 6,
+       bg = "white", dpi=300)
+
+ggsave("Figures/NorthernScotia_tlevel_modules.png", 
+       plot = plots[[which(network_info$site == "Std NorthernScotia")]], 
+       height = 5, 
+       width = 6,
+       bg = "white", dpi=300)
+       
+ggsave("Figures/SouthernScotia_tlevel_modules.png", 
+       plot = plots[[which(network_info$site == "Std SouthernScotia")]], 
+       height = 5, 
+       width = 6,
+       bg = "white", dpi=300)
 
 knitr::kable( network_info %>% dplyr::select(site, C, S, LD, TLmean, Vulnerability, Generality, Entropy, Modularity, Groups, QSS, MaxEigen), 
           caption = "Food web metrics for each network", digits = 2) %>%

@@ -1,0 +1,486 @@
+---
+title: "Multivariate Bayesian multilevel model"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, echo = FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+
+
+library(tidyverse)
+# load network_info
+network_info <- readRDS("Data/network_info.rds")
+stability_results_meig <- readRDS("Data/stability_results_meig.rds")
+simMetaWebMetrics <- readRDS("Data/simulations_metaWeb_metrics.rds") %>% 
+  mutate(SVDComplexity= 1 - Entropy,RankDeficiency = 1 - relRank) %>%
+  filter( !(Metaweb %in% c("WeddellSea","BeagleChannel","NorthernScotia","SouthernScotia")))
+
+str(stability_results_meig)
+str(simMetaWebMetrics)
+
+stability_id <- stability_results_meig %>%
+  select(site, MEing_stable) %>%
+  group_by(site) %>%
+  mutate(Sim = row_number()) %>% # Crea ids: 1, 2, 3... 1000 por sitio
+  ungroup()
+
+sim_final <- simMetaWebMetrics %>% select(-S) %>%
+  rename(site = Metaweb) %>%
+  inner_join(stability_id, by = c("site","Sim")) %>%
+  group_by(site) %>%
+  slice_sample(n = 50) %>%
+  ungroup()
+
+sim_final %>% count(site)
+
+
+# 3. Agregar variables ambientales
+env <- network_info %>%
+  select(site, latitude, area_km2, depth_m, impact_mean,S) %>%
+  mutate(log_area = log(area_km2))
+
+# 4. Combinar todo
+df_all <- sim_final %>%
+  left_join(env, by = "site") %>%
+  drop_na()
+
+```
+
+# Run Bayesian Multivariate Model 
+
+```{r runBayesianMv,eval=FALSE, message=TRUE, warning=TRUE}
+
+
+d <- df_all
+N <- nrow(d)
+d <- d %>%
+  mutate(
+    # logit-transform bounded (0,1) metrics
+    C_logit      = qlogis(pmin(pmax(C, 1e-6), 1 - 1e-6)),
+    Mod_logit    = qlogis(pmin(pmax(Modularity, 1e-6), 1 - 1e-6)),
+    Rank_logit   = qlogis(pmin(pmax(RankDeficiency, 1e-6), 1 - 1e-6)),
+    
+    # Gaussian-friendly transforms
+    LD_log       = log(LD),
+    TL_z         = scale(TLmean),
+    SVD_z        = scale(SVDComplexity),
+    
+    # MEing_stable strictly <0
+    MEpos        = -MEing_stable,
+    ME_log       = log(MEpos),
+    
+    # standardized predictors
+    S_s          = scale(S),
+    log_area_s   = scale(log_area),
+    latitude_s   = scale(latitude),
+    impact_mean_s= scale(impact_mean),
+    depth_m_s    = scale(depth_m)
+  )
+
+library(brms)
+
+bf_C   <- bf(C_logit   ~ S_s + log_area_s + latitude_s + impact_mean_s + depth_m_s + (1 | site))
+bf_Mod <- bf(Mod_logit ~ S_s + log_area_s + latitude_s + impact_mean_s + depth_m_s + (1 | site))
+bf_Rk  <- bf(Rank_logit~ S_s + log_area_s + latitude_s + impact_mean_s + depth_m_s + (1 | site))
+bf_LD  <- bf(LD_log    ~ S_s + log_area_s + latitude_s + impact_mean_s + depth_m_s + (1 | site))
+bf_TL  <- bf(TL_z      ~ S_s + log_area_s + latitude_s + impact_mean_s + depth_m_s + (1 | site))
+bf_SVD <- bf(SVD_z     ~ S_s + log_area_s + latitude_s + impact_mean_s + depth_m_s + (1 | site))
+bf_ME  <- bf(ME_log    ~ S_s + log_area_s + latitude_s + impact_mean_s + depth_m_s + (1 | site))
+
+multi_form <- bf_C + bf_Mod + bf_Rk + bf_LD + bf_TL + bf_SVD + bf_ME +
+  set_rescor(TRUE)
+
+fit_mv <- brm(
+  formula = multi_form,
+  data = d,
+  family = gaussian(),
+  chains = 4, cores = 4,
+  iter = 4000, warmup = 2000,
+  control = list(adapt_delta = 0.95, max_treedepth = 15),
+  seed = 2025
+)
+
+saveRDS(fit_mv, "Data/brms_mv_foodweb_fit.rds")
+```
+
+## Pp checks and plots
+
+```{r ppchecks_and_plots, message=TRUE, warning=TRUE}
+
+brms::bayes_R2(fit_mv)
+
+# back-transform functions (adaptadas a tus transformaciones)
+inv_C     <- function(x) plogis(x)           # C_logit -> C (proportion)
+inv_Mod   <- function(x) plogis(x)           # Mod_logit -> Modularity
+inv_Rk    <- function(x) plogis(x)           # Rank_logit -> RankDeficiency
+inv_LD    <- function(x) exp(x)              # LD_log -> LD
+inv_TL    <- function(x, TLm=TL_mean, TLsd=TL_sd) (x * TLsd) + TLm  # TL_z -> TLmean (original)
+inv_SVD   <- function(x, m=SVD_mean, s=SVD_sd ) (x * s) + m # SVD_z -> original
+inv_ME    <- function(x) { - exp(x) }       # ME_log: MEpos = -MEing_stable, ME_log = log(MEpos)
+# so exp(x) -> MEpos, then negative to get MEing_stable
+inv_id    <- function(x) x
+
+library(bayesplot); library(posterior); library(tidybayes)
+library(ggplot2)
+
+# extras: valores necesarios para re-escalar
+TL_mean <- mean(network_info$TLmean, na.rm = TRUE)
+TL_sd   <- sd(network_info$TLmean, na.rm = TRUE)
+SVD_mean <- mean(d$SVDComplexity, na.rm = TRUE)
+SVD_sd   <- sd(d$SVDComplexity, na.rm = TRUE)
+
+# helper: pp summary and back-transform for a response
+pp_summary_resp <- function(fit, resp, inv_fun, obs, nsamples = 1000) {
+  # draw posterior predictive (ndraws x Nobs)
+  yrep <- posterior_predict(fit, resp = resp, ndraws = nsamples)
+  # summarise per observation: median, 2.5 and 97.5
+  med <- apply(yrep, 2, median)
+  lwr <- apply(yrep, 2, quantile, probs = 0.025)
+  upr <- apply(yrep, 2, quantile, probs = 0.975)
+  tibble(obs = obs, median = med, lwr = lwr, upr = upr) %>%
+    mutate(across(c(median, lwr, upr), inv_fun))
+}
+
+# Example: C (remember resp name is "C_logit" in your brms formulas)
+pp_C <- pp_summary_resp(fit_mv, resp = "Clogit", inv_fun = inv_C, obs = d$C)
+pp_C <- bind_cols(d %>% select(site), pp_C)
+
+# Plot
+ggplot(pp_C, aes(x = median, y = obs)) +
+  geom_errorbarh(aes(xmin = lwr, xmax = upr), height = 0.02, alpha = 0.4) +
+  geom_point(alpha = 0.6) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
+  labs(title = "Posterior predictive – C", x = "Predicted (median, 95% CI)", y = "Observed C") +
+  theme_minimal()
+# Repeat for other responses as needed
+
+# chequear C_logit (ajusta según nombre exacto en fit)
+pp_check(fit_mv, resp = "Clogit", nsamples = 100)         
+pp_check(fit_mv, resp = "Modlogit", nsamples = 100)       
+pp_check(fit_mv, resp = "Ranklogit", nsamples = 100)       
+pp_check(fit_mv, resp = "LDlog", nsamples = 100)       
+pp_check(fit_mv, resp = "TLz", nsamples = 100)       
+pp_check(fit_mv, resp = "SVDz", nsamples = 100)       
+pp_check(fit_mv, resp = "MElog", nsamples = 100)       
+
+pp_check(fit_mv, resp = "LDlog", type = "dens_overlay", nsamples = 100)
+pp_check(fit_mv, resp = "MElog", type = "stat", stat = "mean")
+
+names(fit_mv$formula$forms)
+# Modularidad 
+#
+# Example: C (remember resp name is "C_logit" in your brms formulas)
+pp_M <- pp_summary_resp(fit_mv, resp = "Modlogit", inv_fun = inv_Mod, obs = d$Modularity)
+pp_M <- bind_cols(d %>% select(site), pp_M)
+
+# Plot
+ggplot(pp_M, aes(x = median, y = obs)) +
+  geom_errorbarh(aes(xmin = lwr, xmax = upr), height = 0.02, alpha = 0.4) +
+  geom_point(alpha = 0.6) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
+  labs(title = "Posterior predictive – C", x = "Predicted (median, 95% CI)", y = "Observed C") +
+  theme_minimal()
+# Repeat for other responses as needed
+```
+
+## Parameter distribution
+
+```{r parameter_distribution, message=TRUE, warning=TRUE}
+
+library(brms)
+library(tidyverse)
+
+nice_names <- c(
+  "S_s"          = "Species",
+  "log_area_s"   = "Area (log)",
+  "latitude_s"   = "Latitude",
+  "impact_mean_s"= "Human Impact",
+  "depth_m_s"    = "Depth",
+  "MElog" = "Maximum Eigenvalue",
+  "TLz"           = "Trophic Level",
+  "LDlog"           = "Link Density",
+  "Ranklogit" = "Rank Deficiency",
+  "Modlogit" = "Modularity",
+  "Clogit" = "Connectance",
+  "SVDz"        = "SVD Complexity"
+)
+
+# Extraer draws en formato largo
+slopes_df <- as_draws_df(fit_mv) %>%
+  pivot_longer(cols = everything(), names_to = "param", values_to = "value") %>%
+  # filtrar solo slopes: b_<resp>_<predictor>
+  filter(str_detect(param, "^b_")) %>%
+  # quitar parámetros de intercepts y SDs
+  filter(!str_detect(param, "Intercept"),
+         !str_detect(param, "sigma")) %>%
+  mutate(
+    response = sub("^b_([^_]+)_.*", "\\1", param),
+    predictor = sub("^b_[^_]+_(.*)", "\\1", param),
+    nice_pred = nice_names[predictor] %||% predictor,
+    nice_resp = nice_names[response] %||% response
+  )
+
+# Calcular prob. de ser positivo o negativo
+summary_slopes <- slopes_df %>%
+  group_by(response, predictor, param) %>%
+  summarise(
+    prob_pos = mean(value > 0),
+    prob_neg = mean(value < 0),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    prob_max = pmax(prob_pos, prob_neg),
+    direction = ifelse(prob_pos > prob_neg, "positive", "negative")
+  ) %>%
+  arrange(desc(prob_max))
+
+# Filtrar efectos ≥ 0.70
+selected <- summary_slopes %>% filter(prob_max >= 0.80)
+
+slopes_selected <- slopes_df %>%
+  semi_join(selected, by = "param")
+
+slopes_selected <- slopes_df %>%
+  inner_join(selected %>% select(param, direction), by = "param")
+
+ggplot(slopes_selected, aes(x = value, fill = direction)) +
+  geom_density(alpha = 0.5) +
+  facet_grid(nice_pred ~ nice_resp, scales = "free") +
+  geom_vline(xintercept = 0, linetype = "dashed") +
+  scale_fill_manual(values = c("positive" = "steelblue", "negative" = "tomato")) +
+  labs(
+    x = "Slope Value",
+    y = "Posterior Density",
+    fill = "Direction",
+    title = "Posterior Distributions of Slopes with ≥80% Support"
+  ) +
+  theme_bw(base_size = 14)
+
+ggsave("Figures/Bayesian_slopes_gt80.png", width = 10, height = 5)
+
+
+```
+
+## Marginal effects plots
+
+```{r marginal_effects_plots, message=TRUE, warning=TRUE}
+
+
+library(tidyr); library(dplyr)
+
+
+# Solo b con 80% 
+#
+#print(marginal_effect_plot(fit_mv,"Clogit","C") +     labs(x = "latitude (std)", y = "C (predicted)", title = "Partial effect of latitude on C") )
+
+#print(marginal_effect_plot(fit_mv,"Clogit","C","log_area_s") +     labs(x = "Log Area (std)", y = "C (predicted)", title = "Partial effect of latitude on C") )
+
+#print(marginal_effect_plot(fit_mv,"Clogit","C","S_s") +     labs(x = "S (std)", y = "C (predicted)", title = "Partial effect of latitude on C") )
+#print(marginal_effect_plot(fit_mv,"Clogit","C","impact_mean_s") +     labs(x = "Impact (std)", y = "C (predicted)", title = "Partial effect of latitude on C") )
+#print(marginal_effect_plot(fit_mv,"Clogit","C","depth_m_s") +     labs(x = "Depth (std)", y = "C (predicted)", title = "Partial effect of latitude on C") )
+
+(g1 <- marginal_effect_plot2(fit_mv,"Modlogit","Modularity","latitude_s",inv_Mod) + 
+        labs(x = "latitude", y = "Modularity ") )
+
+(g2 <- marginal_effect_plot2(fit_mv,"Modlogit","Modularity","log_area_s",inv_Mod) + 
+        labs(x = "Log Area", y = "Modularity ") )
+
+(g3 <- marginal_effect_plot2(fit_mv,"Modlogit","Modularity","S_s",inv_Mod) + 
+        labs(x = "S", y = "Modularity ") )
+
+library(patchwork)
+
+combined_plot <- wrap_plots(g1,g2,g3, ncol = 3, guides = "collect", axes="collect") &
+  theme(legend.position = "bottom")
+ggsave("Figures/Bayesian_Modularity_vs_lat_area_mv.png", 
+          plot = combined_plot, 
+          height = 6, 
+          width = 10,
+          bg = "white")
+
+(g4 <- marginal_effect_plot2(fit_mv,"Ranklogit","RankDeficiency","S_s",inv_Rk) + 
+        labs(x = "S", y = "Rank Deficiency") )
+
+(g41 <- marginal_effect_plot2(fit_mv,"TLz","TLmean","log_area_s",inv_TL) + 
+        labs(x = "Log Area", y = "Trophic Level") )
+
+(g42 <- marginal_effect_plot2(fit_mv,"SVDz","SVDComplexity","latitude_s",inv_SVD) + 
+        labs(x = "Latitude", y = "Complexity") )
+
+combined_plot <- wrap_plots(g42,g41,g4, ncol = 3, guides = "collect", axes="collect") &
+  theme(legend.position = "bottom")
+ggsave("Figures/Bayesian_RK_TL_Compl_vs_lat_area_mv.png", 
+          plot = combined_plot, 
+          height = 6, 
+          width = 10,
+          bg = "white")
+
+
+(g5 <- marginal_effect_plot2(fit_mv,"MElog","ME_log","latitude_s",inv_id) + 
+        labs(x = "Latitude", y = "Log Stability") )
+
+(g6 <- marginal_effect_plot2(fit_mv,"MElog","ME_log","log_area_s",inv_id) + 
+        labs(x = "Log Area", y = "Log Stability") )
+
+
+(g7 <- marginal_effect_plot2(fit_mv,"MElog","ME_log","S_s",inv_id) + 
+        labs(x = "S", y = "Log Stability") )
+
+library(patchwork)
+combined_plot <- wrap_plots(g5,g6,g7, ncol = 3, guides = "collect", axes="collect") &
+  theme(legend.position = "bottom")
+ggsave("Figures/Bayesian_Meig_vs_lat_area_mv.png", 
+          plot = combined_plot, 
+          height = 6, 
+          width = 10,
+          bg = "white")
+
+# Ejemplo: efectos de latitude sobre una respuesta usando conditional effects
+# para verificar que los otros plots son correctos
+#
+ce_C <- conditional_effects(fit_mv, effects = "latitude_s", resp = "LDlog", re_formula = NULL)
+# extraemos el ggplot
+p <- plot(ce_C, ask = FALSE)[[1]]
+
+ce_C <- conditional_effects(fit_mv, effects = "latitude_s", resp = "SVDz", re_formula = NULL)
+
+# agregar puntos de los datos
+p + 
+  geom_point(
+    data = d,
+    aes(x = latitude_s, y = LD_log),
+    alpha = 0.4,
+    inherit.aes = FALSE
+  ) +
+  theme_bw()
+
+print(marginal_effect_plot(fit_mv,"S_s","Ranklogit",inv_Rk) + 
+        labs(x = "Latitude (std)", y = "Rank Deficiency") )
+
+print(marginal_effect_plot(fit_mv,"impact_mean_s","Ranklogit",inv_Rk) + 
+        labs(x = "Latitude (std)", y = "Rank Deficiency") )
+
+```
+
+
+
+## Correlation Matrix
+
+```{r CorrelationMatrix, message=TRUE, warning=TRUE}
+
+
+#
+# Matriz de correlaciones residuales
+#
+
+library(tidyverse)
+library(posterior)
+library(bayesplot)  # opcional para plots rápidos
+
+# 1. extraer muestras de parámetros rescor
+ps <- as_draws_df(fit_mv)  # o posterior::as_draws_df
+# seleccionar columnas que comienzan con "rescor__"
+ps_rescor <- ps %>% select(starts_with("rescor__"))
+
+# convertir a formato largo (cada fila = un draw x param)
+ps_long <- ps_rescor %>%
+  pivot_longer(cols = everything(), names_to = "param", values_to = "value")
+
+# extraer nombres de respuestas usando regex que capture texto entre __
+ps_long <- ps_long %>%
+  mutate(
+    resp = str_remove(param, "^rescor__"),          # "Clogit__Modlogit"
+    resp1 = str_extract(resp, "^[^_]+"),           # antes del primer __
+    resp2 = str_replace(resp, "^[^_]+__", "")      # lo que queda después
+  )
+
+# Obtener el orden real de respuestas tal como brms las guarda.
+# brms usa el orden con el que definiste los bf() al crear multi_form.
+# Podemos obtenerlo explícitamente desde fit_mv:
+resp_order <- names(fit_mv$formula$forms)
+# Mapear índices i/j
+ps_long <- ps_long %>%
+  mutate(
+    i = match(resp1, resp_order),
+    j = match(resp2, resp_order)
+  )
+
+# comprobar
+ps_long %>% select(param, resp1, resp2, i, j) %>% slice(1:20)
+
+summary_rescor <- ps_long %>%
+  group_by(param, resp1, resp2, i, j) %>%
+  summarise(
+    mean = mean(value),
+    lwr = quantile(value, 0.025),
+    upr = quantile(value, 0.975),
+    prob_pos = mean(value > 0),
+    .groups = "drop"
+  ) %>%
+  arrange(desc(abs(mean)))
+
+summary_rescor
+
+# crear MxM matrix filled with NA
+M <- length(resp_order)
+mat_mean <- matrix(NA_real_, nrow = M, ncol = M, dimnames = list(resp_order, resp_order))
+
+# poblar triangular superior con medias y symmetrizar
+for (r in 1:nrow(summary_rescor)) {
+  row <- summary_rescor[r, ]
+  mat_mean[row$i, row$j] <- row$mean
+  mat_mean[row$j, row$i] <- row$mean
+}
+diag(mat_mean) <- 1
+
+# mostrar matriz
+mat_mean
+
+# ggplot heatmap
+library(reshape2)
+melted <- melt(mat_mean, varnames = c("resp1","resp2"), value.name = "rho")
+
+ggplot(melted, aes(x = resp1, y = resp2, fill = rho)) +
+  geom_tile() +
+  scale_fill_gradient2(low = "blue", mid = "white", high = "red", limits = c(-1,1)) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(title = "Posterior mean residual correlations (brms)", fill = "rho")
+
+if (!requireNamespace("corrplot", quietly = TRUE)) install.packages("corrplot")
+library(corrplot)
+new_names <- c(
+  Clogit     = "Connectance",
+  Modlogit   = "Modularity",
+  Ranklogit  = "Rank Def.",
+  LDlog      = "Link Density",
+  TLz        = "Trophic Level",
+  SVDz       = "Complexity",
+  MElog      = "Max. Eigenvalue"
+)
+
+# Renombrar filas y columnas
+rownames(mat_mean) <- new_names[rownames(mat_mean)]
+colnames(mat_mean) <- new_names[colnames(mat_mean)]
+
+corrplot::corrplot(mat_mean, method = "color", tl.col = "black", tl.cex = 0.8, addCoef.col = "black")
+
+
+rename_resps <- function(x) {
+  ifelse(x %in% names(new_names), new_names[x], x)
+
+  }
+rename_resps("Clogit")
+
+summary_rescor %>% mutate(
+    resp1_pretty = rename_resps(resp1),
+    resp2_pretty = rename_resps(resp2)
+    ) %>%
+  filter(prob_pos > 0.975 | prob_pos < 0.025) %>%
+  arrange(desc(abs(mean))) %>% select(param, resp1_pretty, resp2_pretty, mean, lwr, upr, prob_pos)
+
+
+```

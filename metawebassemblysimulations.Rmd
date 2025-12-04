@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = FALSE)
 
 # Check and install required packages
 required_packages <- c(
-  "lhs", "dplyr", "purrr", "igraph", "ggplot2", "tibble", "doFuture","devtools","abc", "tidyverse", "viridisLite"
+  "lhs", "purrr", "igraph", "ggplot2", "tibble", "doFuture","devtools","abc", "tidyverse", "viridisLite"
 )
 for (pkg in required_packages) {
   if (!requireNamespace(pkg, quietly = TRUE)) {
@@ -219,7 +219,7 @@ plots
 fittedMetaWeb <- readRDS("Data/fittedMetaWeb_all_networks.rds")
 
 # Only networks with "std" in the site name
-# network_info <- network_info %>% filter(!(site %in% c("WeddellSea","BeagleChannel")))
+network_info <- network_info %>% filter(!(site %in% c("WeddellSea","BeagleChannel","SouthernScotia","NorthernScotia")))
 # network_info <- network_info[10:11,]
 
 if (file.exists("Data/simulations_metaWebAssembly_all_networks.rds")) {
@@ -250,7 +250,13 @@ simMetaWebMetrics <- bind_rows(simMetaWebMetrics, simulated_metaweb_metrics)
 
 simMetaWebMetrics <- simMetaWebMetrics %>% mutate(relRank = Rank/S)
 
-saveRDS(simMetaWebMetrics,"Data/simulations_metaWeb_metrics.rds")
+#saveRDS(simMetaWebMetrics,"Data/simulations_metaWeb_metrics.rds")
+
+#
+# Para comparar otro método de modularidad volvi a hacer las simulaciones con cluster_spinglass
+#
+saveRDS(simMetaWebMetrics,"Data/simulations_metaWeb_metrics_spinglass.rds")
+
 ```
 
 # Plot Metaweb metrics vs empirical
@@ -290,173 +296,23 @@ ggsave("Figures/empirical_vs_simulated_metrics_LD_TL.png",
 
 ```
 
-# Plot Metaweb metrics vs empirical
-
-## Metrics vs Latitude and Area
 
 
-```{r plotMetaWebMetrics1, eval=FALSE, message=TRUE, warning=TRUE}
-simMetaWebMetrics <- readRDS("Data/simulations_metaWeb_metrics.rds") %>% mutate(SVDComplexity= 1 - Entropy,
-                                                                                RankDeficiency = 1 - relRank)
+# Plot Metaweb metrics vs empirical - GAM 
 
-#
-## Metrics vs Latitude and Area
-#
-
-plot_list <- plot_metric_vs_latitude_ci(network_info, simMetaWebMetrics,fit_model = TRUE, metrics = c( "C", "SVDComplexity", "Modularity"))
-qr_models <- plot_list$models
-
-plots  <- plot_list$plots
-#plots$Entropy <- plots$Entropy + ylab("SVD Complexity")
-
-plot_list <- plot_metric_vs_latitude_ci(network_info, simMetaWebMetrics,fit_model = FALSE, metrics = c( "C", "SVDComplexity", "Modularity"),xvar = "log_area")
-plots1 <- plot_list$plots
-#plots1$Entropy <- plots1$Entropy + ylab("SVD Complexity")
-
-plots <- c(plots,plots1)
-
-plot_list <- plot_metric_vs_latitude_ci(network_info, simMetaWebMetrics,fit_model = FALSE, metrics = c( "C", "SVDComplexity", "Modularity"),xvar = "impact_mean")
-plot_list$plots
-plots1 <- plot_list$plots
-#plots1$Entropy <- plots1$Entropy + ylab("SVD Complexity")
-
-plots <- c(plots,plots1)
-
-### I need to arrange the list to show two columns 
-plots_grouped <- unlist(split(plots, names(plots)), recursive = FALSE)
-
-require(patchwork)
-
-combined_plot <- wrap_plots(plots_grouped, ncol = 3, guides = "collect", axes="collect") &
-  theme(legend.position = "bottom")
-ggsave("Figures/metric_Entropy_vs_lat_area_ci.png", 
-          plot = combined_plot, 
-          height = 6, 
-          width = 10,
-          bg = "white")
-
-
-#
-# Relative Rank Rank/S
-# LD and TLmean
-#
-simMetaWebMetrics <- simMetaWebMetrics %>% mutate( RankDeficiency = 1 - relRank)
-plot_list <- plot_metric_vs_latitude_ci(network_info, simMetaWebMetrics, metrics = c("LD", "TLmean","RankDeficiency") , fit_model = TRUE)
-qr_models <- append(qr_models,plot_list$models)
-plots <- c(plot_list$plots)
-
-
-plot_list <- plot_metric_vs_latitude_ci(network_info, simMetaWebMetrics, metrics = c("LD", "TLmean", "RankDeficiency"), 
-                                        xvar = "log_area",fit_model=FALSE)
-plots <- c(plots,plot_list$plots)
-
-plot_list <- plot_metric_vs_latitude_ci(network_info, simMetaWebMetrics, metrics = c("LD", "TLmean", "RankDeficiency"), 
-                                        xvar = "impact_mean",fit_model=FALSE)
-plots <- c(plots,plot_list$plots)
-
-
-plots_grouped <- unlist(split(plots, names(plots)), recursive = FALSE)
-names(plots_grouped)
-
-combined_plot <- wrap_plots(plots_grouped, ncol = 3, guides = "collect", axes="collect") &
-  theme(legend.position = "bottom")
-
-ggsave("Figures/metric_LD_TL_vs_lat_area_ci.png", 
-          plot = combined_plot, 
-          height = 6, 
-          width = 10,
-          bg = "white")
-
-#qr_models <- c(qr_models, plot_list$models)
-saveRDS(qr_models, "Data/qr_models.rds")
-knitr::kable( summarize_gam_summaries(qr_models),digits=4)
-```
-
-### Quantil models S Added
-
-|metric         |term        | estimate| p_value|
-|:--------------|:-----------|--------:|-------:|
-|C              |latitude    |   0.0025|  0.0000|
-|C              |log_area    |   0.0155|  0.0000|
-|C              |impact_mean |  -0.0494|  0.0000|
-|SVDComplexity  |latitude    |   0.0035|  0.0000|
-|SVDComplexity  |log_area    |   0.0103|  0.0000|
-|SVDComplexity  |impact_mean |  -0.0066|  0.0000|
-|Modularity     |latitude    |  -0.0054|  0.0000|
-|Modularity     |log_area    |  -0.0194|  0.0000|
-|Modularity     |impact_mean |  -0.1011|  0.0000|
-|LD             |latitude    |   0.8998|  0.0000|
-|LD             |log_area    |   3.3127|  0.0000|
-|LD             |impact_mean |  -4.0007|  0.0000|
-|TLmean         |latitude    |   0.0362|  0.0000|
-|TLmean         |log_area    |   0.1774|  0.0000|
-|TLmean         |impact_mean |  -0.0074|  0.0802|
-|RankDeficiency |latitude    |   0.0011|  0.0000|
-|RankDeficiency |log_area    |  -0.0099|  0.0000|
-|RankDeficiency |impact_mean |  -0.1372|  0.0000|
-|MEing_stable   |latitude    |  -0.0073|  0.0000|
-|MEing_stable   |log_area    |  -0.0204|  0.0000|
-|MEing_stable   |impact_mean |  -0.0554|  0.0007|
-
-### Quantil models C added
-
-|metric         |term        | estimate| p_value|
-|:--------------|:-----------|--------:|-------:|
-|C             |latitude    |  -0.0004|       0|
-|C             |log_area    |   0.0195|       0|
-|C             |impact_mean |   0.1493|       0|
-|SVDComplexity |latitude    |   0.0019|       0|
-|SVDComplexity |log_area    |   0.0032|       0|
-|SVDComplexity |impact_mean |   0.0063|       0|
-|Modularity    |latitude    |   0.0013|       0|
-|Modularity    |log_area    |   0.0059|       0|
-|Modularity    |impact_mean |  -0.1134|       0|
-|LD             |latitude    |   0.3913|   0e+00|
-|LD             |log_area    |   1.1366|   0e+00|
-|LD             |impact_mean |   0.7398|   0e+00|
-|TLmean         |latitude    |   0.0133|   0e+00|
-|TLmean         |log_area    |   0.0947|   0e+00|
-|TLmean         |impact_mean |   0.0652|   3e-04|
-|RankDeficiency |latitude    |   0.0083|   0e+00|
-|RankDeficiency |log_area    |   0.0122|   0e+00|
-|RankDeficiency |impact_mean |  -0.1394|   0e+00|
-|MEing_stable   |latitude    |  -0.0018|  0.0000|
-|MEing_stable   |log_area    |  -0.0009|  0.2227|
-|MEing_stable   |impact_mean |  -0.0288|  0.0460|
-
-### GAM models - S added
-
-|Metric         |Term        |    edf| p-value| DevianceExplained|
-|:--------------|:-----------|------:|-------:|-----------------:|
-|C              |log_area    | 1.0001|  0.0000|              89.4|
-|C              |latitude    | 2.9998|  0.0000|              89.4|
-|C              |impact_mean | 1.0001|  0.6052|              89.4|
-|SVDComplexity  |log_area    | 2.0598|  0.0734|              94.2|
-|SVDComplexity  |latitude    | 1.9397|  0.0000|              94.2|
-|SVDComplexity  |impact_mean | 1.0004|  0.0355|              94.2|
-|Modularity     |log_area    | 1.9400|  0.0000|              74.0|
-|Modularity     |latitude    | 2.0560|  0.0000|              74.0|
-|Modularity     |impact_mean | 1.0028|  0.0002|              74.0|
-|LD             |log_area    | 2.0439|  0.7582|              90.6|
-|LD             |latitude    | 1.9534|  0.0715|              90.6|
-|LD             |impact_mean | 1.0014|  0.0506|              90.6|
-|TLmean         |log_area    | 1.0000|  0.0191|              86.5|
-|TLmean         |latitude    | 1.8786|  0.1852|              86.5|
-|TLmean         |impact_mean | 1.0025|  0.3691|              86.5|
-|RankDeficiency |log_area    | 1.9224|  0.0000|              83.4|
-|RankDeficiency |latitude    | 2.0751|  0.0538|              83.4|
-|RankDeficiency |impact_mean | 1.0012|  0.0000|              83.4|
-|MEing_stable   |log_area    | 2.0040|  0.1158|               8.6|
-|MEing_stable   |latitude    | 1.8904|  0.0000|               8.6|
-|MEing_stable   |impact_mean | 1.0004|  0.0237|               8.6|
-
-# Plot Metaweb metrics vs empirical GAM -- With depth!!
 
 
 ```{r plotMetaWebMetricsGam, eval=FALSE, message=TRUE, warning=TRUE}
 simMetaWebMetrics <- readRDS("Data/simulations_metaWeb_metrics.rds") %>% mutate(SVDComplexity= 1 - Entropy,
                                                                                 RankDeficiency = 1 - relRank) %>%
   filter( !(Metaweb %in% c("WeddellSea","BeagleChannel","NorthernScotia","SouthernScotia")))
+
+#
+# Simulations with modularity calculate with spinglass method
+#
+# simMetaWebMetrics <- readRDS("Data/simulations_metaWeb_metrics_spinglass.rds") %>% mutate(SVDComplexity= 1 - Entropy,
+#                                                                                 RankDeficiency = 1 - relRank) %>%
+#   filter( !(Metaweb %in% c("WeddellSea","BeagleChannel","NorthernScotia","SouthernScotia")))
 
 #
 ## Metrics vs Latitude and Area
@@ -466,6 +322,7 @@ descdist(simMetaWebMetrics$C, boot=1000)
 plot_metric_density(simMetaWebMetrics, network_info, "C")
 plot_metric_density(simMetaWebMetrics, network_info, "Modularity")
 plot_metric_density(simMetaWebMetrics, network_info, "SVDComplexity")
+
 
 plot_list <- plot_metric_vs_latitude_ci_gam(network_info, simMetaWebMetrics,fit_model = TRUE, metrics = c( "C", "SVDComplexity", "Modularity"),xvar = "latitude")
 qr_models <- plot_list$deviance
@@ -478,7 +335,6 @@ plot_list <- plot_metric_vs_latitude_ci_gam(network_info, simMetaWebMetrics,fit_
 plots  <- plot_list$plots
 plots$SVDComplexity <- NULL
 plots$Modularity <- NULL
-
 
 plot_list <- plot_metric_vs_latitude_ci_gam(network_info, simMetaWebMetrics,fit_model = FALSE, metrics = c( "C", "SVDComplexity", "Modularity"),xvar = "log_area")
 plots1 <- plot_list$plots
@@ -507,11 +363,16 @@ combined_plot <- wrap_plots(list(plots[[5]],plots[[4]],plots[[2]]), ncol = 3, gu
 
 # Only p < 0.05
 #
+#ggsave("Figures/metric_Mod_vs_S_lat_area_sig_gam_spinglass.png",   # Figure of modularity with spinglass method
 ggsave("Figures/metric_Mod_vs_S_lat_area_sig_gam.png",
           plot = combined_plot,
           height = 6,
           width = 10,
           bg = "white")
+
+# Efecto total de S en las metricas --> Ninguno es significativo
+#
+plot_list <- plot_metric_vs_latitude_gam_S(network_info, simMetaWebMetrics,fit_model = TRUE, metrics = c( "C", "SVDComplexity", "Modularity"),xvar = "S")
 
 
 #
@@ -543,7 +404,7 @@ plots6 <- plot_list$plots
 #names(plots_grouped)
 
 # Here I included the stability plot from plot_list1 in Stabilitysimulations.Rmd
-#
+  #
 combined_plot <- wrap_plots(plots[[1]],plots7$MEing_stable,plots[[3]],
 ncol = 3, guides = "collect", axes="collect") &
   theme(legend.position = "bottom")
@@ -654,18 +515,22 @@ ggsave("Figures/metric_LD_TL_vs_lat_area_ci_gam.png",
 #
 # S plots only significant ones
 #
-plot_list <- plot_metric_vs_latitude_ci_gam(network_info, simMetaWebMetrics,fit_model = FALSE, metrics = c( "Modularity","TLmean","RankDeficiency"),xvar = "S")
+plot_list <- plot_metric_vs_latitude_ci_gam(network_info, simMetaWebMetrics,fit_model = FALSE, metrics = c( "Modularity","RankDeficiency"),xvar = "S")
 
 # plot_list1 from Stabilitysimulations.Rmd
-plots <- c(plot_list$plots,plot_list1$plots)
-
-combined_plot <- wrap_plots(plots, ncol = 2, guides = "collect", axes="collect") &
+#plots <- c(plot_list$plots,plot_list1$plots)
+plots <- plot_list$plots
+combined_plot <- wrap_plots(plots$Modularity, plots$RankDeficiency + ylab("Rank Deficiency"), ncol = 2, guides = "collect", axes="collect") &
   theme(legend.position = "bottom")
-ggsave("Figures/metric_Q_TL_MEing_vs_S_ci_gam.png", 
+ggsave("Figures/metric_Q_RD_vs_S_ci_gam.png", 
           plot = combined_plot, 
-          height = 10, 
+          height = 5, 
           width = 10,
           bg = "white")
+
+#
+#
+#
 
 ```
 

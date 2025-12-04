@@ -1,0 +1,401 @@
+---
+title: "Modularity comparison"
+output:
+  pdf_document: default
+  html_document: default
+editor_options:
+  chunk_output_type: console
+---
+```{r, echo=FALSE, message=FALSE, warning=FALSE,eval=TRUE}
+require(tidyverse)
+require(igraph)
+require(multiweb)
+require(rnetcarto)
+require(igraph)
+```
+
+
+# Testing modularity algorithms
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE,eval=FALSE}
+# load network_info
+network_info <- readRDS("Data/network_info.rds")
+
+
+network_info <- filter(network_info, !(site %in% c("WeddellSea","BeagleChannel","NorthernScotia","SouthernScotia")))
+
+mod_info <- network_info %>%
+  mutate(
+    metrics = purrr::map(igraph, function(g) {
+      mod_i <- run_infomap(g)
+      mod_ij <- run_infomap(g, two_level = FALSE)
+      mod_s <- cluster_spinglass(g)
+      mod_w <- cluster_walktrap(g)
+      mod_e <- cluster_edge_betweenness(g)
+
+      # Modularity comparison using rnetcarto
+      g <- network_info$igraph[1][[1]]
+      df_netc <- rnetcarto::netcarto(igraph::get.adjacency(g, sparse = FALSE))
+      netcarto_modules_df <- df_netc[[1]]
+      membership_vector <- netcarto_modules_df$module[match(V(g)$name, netcarto_modules_df$name)]
+      membership_vector <- membership_vector + 1 
+      mod_n <- make_clusters(g, membership_vector)
+
+      tibble::tibble(
+        mod_info= modularity(mod_i),
+        mod_infoJ= modularity(mod_ij),
+        mod_spin= modularity(mod_s),
+        mod_walk= modularity(mod_w),
+        mod_netc= modularity(mod_n),
+        gru_info = length(mod_i),
+        gru_infoJ = length(mod_ij),
+        gru_spin = length(mod_s),
+        gru_walk = length(mod_w),
+        gru_netc = length(mod_n)
+      )
+    })
+  ) %>%
+  tidyr::unnest(metrics)
+
+knitr::kable(mod_info %>% dplyr::select (
+  site, mod_info, mod_infoJ, mod_spin, mod_walk,mod_netc
+),digits=4) 
+
+knitr::kable(mod_info %>% dplyr::select (
+  site,
+  gru_info, gru_infoJ, gru_spin, gru_walk, gru_netc
+),digits=4) 
+
+
+```
+
+# Modularity comparison across different methods for each site
+
+The differences between the map equation and the modularity maximization approach are not merely conceptual. Because the map equation attends to patterns of flow on the network and the modularity maximization approach does not, the two methods can yield dramatically different results for some network structures. 
+
+
+* Info: infomap with two levels, InfoJ: Infomap assuming hierarchies , Spin: Spinglass, Walk: Walktrap, netc: netcarto
+
+|site               | mod_info| mod_infoJ| mod_spin| mod_walk| mod_netc|
+|:------------------|--------:|---------:|--------:|--------:|--------:|
+|BurdwoodBank       |   0.3132|    0.2725|   0.4607|   0.4169|   0.4507|
+|GulfSanJorge       |   0.1020|    0.0575|   0.2878|   0.2155|   0.4630|
+|PotterCove         |   0.1546|    0.1546|   0.2884|   0.1684|   0.4507|
+|Std BeagleChannel  |   0.0869|    0.0869|   0.3059|   0.2503|   0.4524|
+|Std Weddell Sea    |   0.2270|    0.2270|   0.3236|   0.2253|   0.4501|
+|Std NorthernScotia |   0.0722|    0.0722|   0.1840|   0.1401|   0.4549|
+|Std SouthernScotia |   0.0653|    0.0653|   0.2004|   0.1234|   0.4591|
+
+* Number of groups
+
+|site               | gru_info| gru_infoJ| gru_spin| gru_walk| gru_netc|
+|:------------------|--------:|---------:|--------:|--------:|--------:|
+|BurdwoodBank       |       33|         3|        7|       27|        4|
+|GulfSanJorge       |       15|         5|        6|       15|        5|
+|PotterCove         |        9|         9|        4|       15|        5|
+|Std BeagleChannel  |        8|         8|        5|       13|        5|
+|Std Weddell Sea    |       15|        15|        7|        2|        5|
+|Std NorthernScotia |        4|         4|        5|        4|        5|
+|Std SouthernScotia |       14|        14|        4|        5|        6|
+
+\newpage
+
+# Test con red con 3 grupos 
+
+```{r create3groupNetwork, echo=FALSE, message=FALSE, warning=FALSE}
+# Tres canales de energia independientes
+g <-   graph_from_literal( 1 -+ 4 -+ 7,2 -+ 5 -+8, 3 -+ 6 -+9, simplify = FALSE)
+en <- calc_svd_entropy(g)
+mod <- run_infomap(g, two_level = TRUE)
+svden <- tibble(name="3IC",Entropy = en$Entropy, Rank = en$Rank , RankDeficiency = 1 - (en$Rank / vcount(g)), Modularity = mod$modularity)
+
+plot_troph_level_ggplot(g,modules = TRUE, community_obj = mod) + ggtitle(paste("Infomap 2L", en$Entropy))
+plot_troph_level_ggplot(g,modules = TRUE) + ggtitle("spinglass")
+
+```
+
+# Agregamos predador tope 
+
+```{r create3N_top, echo=FALSE, message=FALSE, warning=FALSE}
+# agregamos predador tope
+g <-   graph_from_literal( 1 -+ 4 -+ 7,2 -+ 5 -+8, 3 -+ 6 -+9,11+-4:8:6:7, simplify = FALSE)
+en <- calc_svd_entropy(g)
+mod <- run_infomap(g, two_level = TRUE)
+svden <- svden %>% add_row(name="3IC-TP",Entropy = en$Entropy, Rank = en$Rank, RankDeficiency = 1 - (en$Rank / vcount(g)), Modularity = mod$modularity)
+
+plot_troph_level_ggplot(g,modules = TRUE, community_obj = mod) + ggtitle(paste("Infomap 2L ", en$Entropy ))
+plot_troph_level_ggplot(g,modules = TRUE) + ggtitle("spinglass")
+
+```
+
+# agregamos especies intermedias
+
+
+```{r create3N_top_inter, echo=FALSE, message=FALSE, warning=FALSE}
+# agregamos especies intermedias
+g <-   graph_from_literal( 1 -+ 4 -+ 7 ,2 -+ 5 -+8, 3 -+ 6 -+9,11+-4:8:6:7,
+                           1 -+ 12 -+ 7,2 -+ 13 -+8,3 -+ 10 -+9, simplify = FALSE)
+en <- calc_svd_entropy(g)
+mod <- run_infomap(g, two_level = TRUE)
+svden <- svden %>% add_row(name="3IC-TP-IS",Entropy = en$Entropy, Rank = en$Rank, RankDeficiency = 1 - (en$Rank / vcount(g)), Modularity = mod$modularity)
+
+plot_troph_level_ggplot(g,modules = TRUE, community_obj = mod) + ggtitle(paste("Infomap 2L", en$Entropy))
+plot_troph_level_ggplot(g,modules = TRUE) + ggtitle("spinglass")
+
+```
+
+# agregamos enlaces cruzados
+
+```{r create3N_top_inter_cross, echo=FALSE, message=FALSE, warning=FALSE}
+
+g <-   graph_from_literal( 1 -+ 4 -+ 7 ,2 -+ 5 -+8, 3 -+ 6 -+9,11+-4:8:6:7,
+                           1 -+ 12 -+ 7,2 -+ 13 -+8,3 -+ 10 -+9,
+                           1 -+ 6, 2 -+ 4, 3 -+ 5,
+                           simplify = FALSE)
+en <- calc_svd_entropy(g)
+mod <- run_infomap(g, two_level = TRUE)
+svden <- svden %>% add_row(name="3IC-TP-IS-CL",Entropy = en$Entropy, Rank = en$Rank, RankDeficiency = 1 - (en$Rank / vcount(g)), Modularity = mod$modularity)
+
+plot_troph_level_ggplot(g,modules = TRUE, community_obj = mod) + ggtitle(paste("Infomap 2L", en$Entropy))
+# mod <- run_infomap(g, two_level = FALSE)
+# plot_troph_level_ggplot(g,modules = TRUE, community_obj = mod) +ggtitle("Infomap J")
+
+plot_troph_level_ggplot(g,modules = TRUE) + ggtitle("spinglass")
+
+
+```
+
+# agregamos enlaces cruzados de omnivoros
+
+```{r create3N_top_inter_cross_omnivores, echo=FALSE, message=FALSE, warning=FALSE}
+g <-   graph_from_literal( 1 -+ 4 -+ 7 ,2 -+ 5 -+8, 3 -+ 6 -+9,11+-4:8:6:7,
+                           1 -+ 12 -+ 7,2 -+ 13 -+8,3 -+ 10 -+9,
+                           1 -+ 8, 2 -+ 9, 3 -+ 8,
+                           simplify = FALSE)
+en <- calc_svd_entropy(g)
+mod <- run_infomap(g, two_level = TRUE)
+svden <- svden %>% add_row(name="3IC-TP-IS-CL-OM",Entropy = en$Entropy, Rank = en$Rank, RankDeficiency = 1 - (en$Rank / vcount(g)), Modularity = mod$modularity)
+
+plot_troph_level_ggplot(g,modules = TRUE, community_obj = mod) + ggtitle(paste("Infomap 2L", en$Entropy))
+# mod <- run_infomap(g, two_level = FALSE, output_dir= ".")
+# plot_troph_level_ggplot(g,modules = TRUE, community_obj = mod) + ggtitle("Infomap J")
+
+plot_troph_level_ggplot(g,modules = TRUE) + ggtitle("spinglass")
+
+
+```
+
+## Version puse especie 11 = 111 como basal (le sume 100 a los nros de los nodos)
+
+```{r shuffling,echo=FALSE, message=FALSE, warning=FALSE}
+
+
+g1 <- graph_from_literal(101 -+ 104 -+ 107, 102 -+ 105 -+ 108, 103 -+ 106 -+ 109, 111 -+ 104:108:106:107,
+                               101 -+ 112 -+ 107, 102 -+ 113 -+ 108, 103 -+ 110 -+ 109,
+                               101 -+ 108, 102 -+ 109, 103 -+ 108,
+                               simplify = FALSE)
+en <- calc_svd_entropy(g1)
+mod <- run_infomap(g1, two_level = TRUE)
+svden <- svden %>% add_row(name="3IC-TP-IS-CL-OM-BA",Entropy = en$Entropy, Rank = en$Rank, RankDeficiency = 1 - (en$Rank / vcount(g1)), Modularity = mod$modularity)
+
+plot_troph_level_ggplot(g1,modules = TRUE, community_obj = mod) + ggtitle(paste("Infomap 2L", en$Entropy))
+# mod <- run_infomap(g1, two_level = FALSE)
+# plot_troph_level_ggraph(g1,modules = TRUE, community_obj = mod) + ggtitle("Infomap J")
+plot_troph_level_ggplot(g1,modules = TRUE) + ggtitle("spinglass")
+
+```
+
+## Combinación de las dos redes 
+
+
+```{r shufflingg+g1,echo=FALSE, message=FALSE, warning=FALSE}
+g3 <- graph_from_literal(8 -+ 108)
+
+g2 <- g+g1+g3
+en <- calc_svd_entropy(g2)
+mod <- run_infomap(g2, two_level = TRUE)
+svden <- svden %>% add_row(name="3IC-TP-IS-CL-OM-BA-CO",Entropy = en$Entropy, Rank = en$Rank, RankDeficiency = 1 - (en$Rank / vcount(g2)), Modularity = mod$modularity)
+
+plot_troph_level_ggplot(g2,modules = TRUE, community_obj = mod) + ggtitle(paste("Infomap 2L", en$Entropy))
+# mod <- run_infomap(g2, two_level = FALSE)
+# plot_troph_level_ggplot(g2,modules = TRUE, community_obj = mod) + ggtitle("Infomap J")
+
+plot_troph_level_ggplot(g2,modules = TRUE) + ggtitle("spinglass")
+
+knitr::kable(svden, digits=4)
+```
+
+
+## Entropía de SVD de la combinación (para probar el método)
+
+```{r calc_svd_entropy_importance, echo=FALSE, message=FALSE, warning=FALSE}
+calc_svd_entropy_importance(g2)
+
+```
+
+\newpage
+
+
+# Topological roles de la red combinada
+
+* rnetcarto asume enlaces no dirigidos y calcula la sd usando n en vez de n-1 como la funcion sd() de R
+
+
+```{r topological_roles, echo=FALSE, message=FALSE, warning=FALSE}
+
+rnet <- netcarto(as_adjacency_matrix(g2,sparse=FALSE))
+df <- rnet[[1]] %>% arrange(as.numeric(name))
+
+# Construir el vector de membership
+membership <- df$module[match(V(g2)$name, df$name)] + 1
+rmod <- make_clusters(g2, membership = membership, algorithm = "netcarto")
+rmod$names <- V(g2)$name
+plot_troph_level_ggplot(g2,modules = TRUE, community_obj = rmod) + ggtitle("Netcarto")
+#membership(rmod)
+tr <- calc_topological_roles(g2,community = rmod)
+classify_topological_roles(tr,g2,community = rmod)$gp + 
+  ggtitle("Netcarto") 
+
+mod<- run_infomap(g2, two_level = TRUE)
+#plot_troph_level_ggplot(g2,modules = TRUE, community_obj = mod) + ggtitle("Infomap 2L")
+tr <- calc_topological_roles(g2,community = mod)
+classify_topological_roles(tr,g2,community = mod)$gp + 
+  ggtitle("Infomap 2L") 
+
+```
+
+\newpage
+
+# Roles topológicos con Potter Cove
+
+```{r topological_roles_pc, echo=FALSE, message=FALSE, warning=FALSE}
+
+g <- netData$"Potter Cove" 
+rnet <- netcarto(as_adjacency_matrix(g,sparse=FALSE))
+df <- rnet[[1]] %>% arrange(as.numeric(name))
+
+# Construir el vector de membership
+membership <- df$module[match(V(g)$name, df$name)] + 1
+rmod <- make_clusters(g, membership = membership, algorithm = "netcarto")
+rmod$names <- V(g)$name
+plot_troph_level_ggplot(g,modules = TRUE, community_obj = rmod) + ggtitle("Netcarto")
+tr <- calc_topological_roles(g,community = rmod)
+classify_topological_roles(tr,g,community = rmod)$gp + 
+  ggtitle("Netcarto") 
+
+
+dmod <- run_infomap(g, two_level = TRUE, return_df= TRUE)
+mod<- run_infomap(g, two_level = TRUE)
+plot_troph_level_ggplot(g,modules = TRUE, community_obj = mod) + ggtitle("Infomap 2L")
+tr <- calc_topological_roles(g,community = mod)
+classify_topological_roles(tr,g,community = mod)$gp + 
+  ggtitle("Infomap 2L") 
+
+# tr <- calc_topological_roles(g)
+# classify_topological_roles(tr,g)
+
+
+mod<- cluster_spinglass(g)
+plot_troph_level_ggplot(g,modules = TRUE, community_obj = mod) + ggtitle("Spinglass")
+tr <- calc_topological_roles(g,community = mod)
+classify_topological_roles(tr,g,community = mod)$gp + 
+  ggtitle("Spinglass") 
+
+```
+
+\newpage
+
+# Modularidad y entropia cuando randomizamos manteniendo el número de enlaces sin mantener distribución de grado
+
+* La modularidad debería disminuir a medida que se randomiza la red
+* La entropía (cantidad de información) debería disminuir a medida que se randomiza la red
+
+```{r modularity_significance, echo=FALSE, message=FALSE, warning=FALSE}
+
+s_spin <- generate_shuffled_seq(g,max_delta=1000,shuffle_func = shuffle_network_ws, modularity_func = cluster_spinglass)
+
+s_info <- generate_shuffled_seq(g,max_delta=1000,shuffle_func = shuffle_network_ws, modularity_func = run_infomap)
+s_tot <- bind_rows(s_spin$Metrics %>% mutate(method = "spinglass"),
+                   s_info$Metrics %>% mutate(method = "infomap")) %>% mutate(rankDeficiency = 1 - (SVD_Rank / vcount(g)))
+
+ggplot(s_tot, aes(x = Step, y = Modularity, color = method)) +
+  geom_line() +
+  labs(x = "Shuffle step", y = "Modularity") +
+  theme_minimal() +
+  ggtitle("Modularity of shuffled networks") + facet_wrap(~method, scales="free_y") +
+  scale_color_viridis_d(guide="none")
+  
+ggplot(s_tot, aes(x = Step, y = SVD_Entropy, color = method)) +
+  geom_point() +
+  labs(x = "Shuffle step", y = "SVD Entropy") +
+  theme_minimal() +
+  ggtitle("SVD Entropy of shuffled networks") +
+  scale_color_viridis_d(guide="none")
+
+ggplot(s_tot, aes(x = Step, y = rankDeficiency, color = method)) +
+  geom_line() +
+  labs(x = "Shuffle step", y = "Rank Deficiency") +
+  theme_minimal() +
+  ggtitle("Rank Deficiency of shuffled networks") +
+  scale_color_viridis_d(guide="none") +
+  theme(legend.title = element_blank())
+
+```
+
+\newpage
+
+# Potter cove con intensidad de interacción
+
+```{r potter_cove_intensity, echo=FALSE, message=FALSE, warning=FALSE}
+
+pc_i <- calc_interaction_intensity(PotterCove_bm,r_bodymass,r_density,c_bodymass,D)
+g <- graph_from_data_frame(pc_i %>% select(resource,consumer, qRC) %>% rename(weight=qRC), directed = TRUE)
+(p <- plot_troph_level_ggraph(
+  g,
+  modules = TRUE,
+  weights = NULL,
+  vertexSizeFactor = 3,  # increase for visibility
+  vertexSizeMin = 1,
+  arrow_size = 0.1,
+  use_numbers = TRUE
+)) + ggtitle("Spinglass")
+
+coms <- cluster_spinglass(g)
+tr <- calc_topological_roles(g,community = coms)
+classify_topological_roles(tr,g,coms)$gp + 
+  ggtitle("Spinglass")
+
+comi <- run_infomap(g, two_level = TRUE)
+(p <- plot_troph_level_ggraph(
+  g,
+  modules = TRUE,
+  community_obj = comi,
+  vertexSizeFactor = 3,  # increase for visibility
+  vertexSizeMin = 1,
+  arrow_size = 0.1,
+  use_numbers = TRUE
+)) + ggtitle("Infomap J")
+tr <- calc_topological_roles(g,community = comi)
+classify_topological_roles(tr,g,comi)$gp + 
+  ggtitle("Infomap 2L")
+
+rnet <- netcarto(as_adjacency_matrix(g,attr="weight",sparse=FALSE))
+df <- rnet[[1]] %>% arrange(as.numeric(name))
+
+# Construir el vector de membership
+membership <- df$module[match(V(g)$name, df$name)] + 1
+rmod <- make_clusters(g, membership = membership, algorithm = "netcarto")
+rmod$names <- V(g)$name
+plot_troph_level_ggplot(g,modules = TRUE, community_obj = rmod) + ggtitle("Netcarto")
+tr <- calc_topological_roles(g,community = rmod)
+classify_topological_roles(tr,g,community = rmod)$gp + 
+  ggtitle("Netcarto") 
+
+```
+
+
+## Entropia y modularidad de modelos de nicho con distinta conectividad
+
+```{r niche_models, echo=FALSE, message=FALSE, warning=FALSE}
+
+```

@@ -27,9 +27,31 @@ background-position: 95% 95%, 85% 95%, 75% 95%, 65% 95%, 55% 95%
 
 Leonardo A. Saravia, Iara D. Rodriguez, David E. Galván, Georgina Cordone, Santiago R. Doyle, Manuela Funes, María Agulló Samper, Fernando R. Momo, Susanne Kortsch, Tomás I. Marina
 
+
+---
+# Sitios de estudio
+
+.center[<img src="Figures/TIM_SouthernOceanStressorsSites.png" width="80%"/>]
+
+
+---
+# Sitios de estudio
+.center[ 
+|name             | latitude |  S  | area (km2) | depth (m) | Human impact |
+|:----------------|:--------:|:---:|:--------:|:-------:|:-----------:|
+|San Jorge Gulf   |   46.0   | 164 |  34000   |   100   |    0.885    |
+|North Scotia Sea |   51.5   | 253 | 1500000  |  3000   |    1.222    |
+|Burdwood Bank    |   54.5   | 372 |  32000   |   200   |    0.886    |
+|Beagle Channel   |   54.5   | 166 |   1200   |   140   |    1.420    |
+|South Scotia Sea |   58.5   | 227 | 1500000  |  3000   |    1.136    |
+|Potter Cove      |   62.2   | 110 |    9     |   100   |    0.843    |
+|Weddell Sea      |   76.0   | 430 |  200400  |   500   |    0.889    |
+
+]
+
 ---
 
-### ¿Cómo influyen factores como el espacio, el tiempo, el clima y otros factores ecológicos en la estructura y la dinámica de las redes trófica?
+### ¿Cómo influyen factores como el latitud, área, tipo de habitat, disturbios antropogenicos y otros factores ecológicos en la estructura y la dinámica de las redes trófica?
 
 #### Latitud: El gradiente de diversidad latitudinal influye en el nivel trófico y la densidad de enlaces.
 
@@ -43,44 +65,28 @@ Leonardo A. Saravia, Iara D. Rodriguez, David E. Galván, Georgina Cordone, Sant
 
 
 <!-- 
-Mayor impacto humano:  Redes con estructuras más semejantes a redes aleatorias  Menor SVD Complexity [@Mestre2022]. Pero en redes marinas les da lo contrario. 
 
 
-* Mayor ecosystem size (Area) >>> Mayor Food Chain Length [@Post2007; @Post2000]
-  The ecosystem size hypothesis (Post et al. 2000) suggests that an increase in ecosystem size enhances species richness (Cohen and Newman 1991), stabilizes predator–prey interactions (Spencer and Warren 1996), and fosters metapopulation persistence of higher trophic levels (Holt 1996); all of these favor a longer food chain.
+
+### Metricas de redes: connectancia y nivel trófico
+
+.center[<img src="Figures/food_webs_low_high_connectance.png" width="100%"/>]
 
 
-* Food Chain Length Nivel trofico maximo y Latitud no se encontro relacion para redes marinas [@JakeVanderZanden2007]
+### Metricas de redes: Especies tróficas 
 
-* Confirma Ecosystem size >>> Food Chain Length [@Takimoto2008; @Tunney2012]
+.center[<img src="Figures/food_webs_low_high_S_modularity.png" width="100%"/>]
 
-* [@Albouy2019] Connectance increse towards the poles in marine food webs but the pattern was not corrected using number of species. Robustness have strongest difference between open ocean and coastal areas
--->
 
----
-# Sitios de estudio
-
-.pull-left[
-.center[<img src="Figures/TIM_SouthernOceanStressorsSites.png" width="100%"/>]
-
-]
-
-.pull-right[
-- San Jorge Gulf (~45 - 47°S, 65 - 68°W)
-- Beagle Channel (~54°S, 68°W)
-- Burdwood Bank (~54°S, 59°W)
-- Scotia Sea (~48 - 58°S, 50°W)
-- Potter Cove (62°S, 58°W, Antarctica)
-- Weddell Sea (74 - 78°S, 30°W, Antarctica)
-]
-
----
-
-### Utilizamos un modelo de metawebs para caracterizar la variabilidad de cada red
-
-.center[<img src="Figures/MetaWebAssemblyModelFigure.png" width="70%"/>]
-
----
+| Métrica de la red        | Significado ecológico                                                                                                                                                                                                                                                               |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Nivel trófico medio**  | El nivel trófico (NT) de una especie representa el número de eslabones que la separan de la base de la red alimentaria.                                                                                                                                                             |
+| **Conectancia**          | Proporción de interacciones establecidas entre especies en relación con todas las posibles.                                                                                                                                                                              |
+| **Densidad de enlaces**  | El número promedio de interacciones por especie informa cuán conectadas están las especies dentro de la red.                                                                                                                                                                        |
+| **Modularidad**          | La modularidad describe la densidad con la que interactúan los subgrupos de especies entre sí en comparación con las especies de otros subgrupos.                                                                                                               |
+| **Máximo Autovalor**     | Mide la estabilidad dinámica: si la parte real del valor propio máximo es negativa, el sistema retorna al equilibrio tras una perturbación.                          |
+| **Complejidad SVD**      | La entropía se calcula a partir de los valores singulares normalizados de la matriz de adyacencia obtenida mediante la descomposición en valores singulares (SVD). Utilizamos  *1 - la entropía SVD* para la complejidad. |
+| **Deficiencia de rango** | La deficiencia de rango relativa se calcula como $D = 1 - (r / M)$, donde $r$ es el rango de la matriz de adyacencia y $M$ es el rango máximo posible (número de especies). Implica más redundancia en las interacciones.                            |
 
 ## Modelo estadístico
 
@@ -91,73 +97,46 @@ Mayor impacto humano:  Redes con estructuras más semejantes a redes aleatorias 
 Modularity ~ s(S) + s(log_area) + s(latitude) 
               + s(impact_mean) + s(depth_m) + s(site, bs = 're')
 ```
+-->
+
+---
+#### **La Complejidad y Estabilidad aumentan con la latitud**
+
+#### **Connectancia aumenta con la profundidad**
+
+.center[<img src="Figures/metric_SVDC_MAXE_C_vs_lat_area_ci_gam.png" width="80%"/>]
+
+---
+#### **La modularidad aumenta con $S$ pero disminuye con el área y la latitud**
+
+.center[<img src="Figures/metric_Mod_vs_S_lat_area_sig_gam.png" width="80%"/>]
 
 ---
 
-### Relaciones con resultados significativos
+#### **El nivel trófico medio aumenta con el Área** 
+#### **La deficiencia de rango disminuye con el impacto humano y aumenta con $S$**
 
-|Metric         |Term           |    edf| p-value| Partial Deviance| Total Deviance Explained|
-|:--------------|:--------------|------:|-------:|---------------:|----------------------:|
-|SVDComplexity  |s(latitude)    | 1.0363|  0.0322|         13.9596|                   94.4|
-|Max Eigenvalue |s(latitude)    | 1.0446|  0.0451|         23.1881|                   19.1|
-|C              |s(depth_m)     | 1.0001|  0.0019|         31.8231|                   89.4|
-|Modularity     |s(S)           | 1.0000|  0.0002|          1.9378|                   74.3|
-|Modularity     |s(log_area)    | 1.0000|  0.0188|          0.7733|                   74.3|
-|Modularity     |s(latitude)    | 1.0006|  0.0340|          0.6310|                   74.3|
-|TL mean         |s(log_area)    | 1.0000|  0.0085|          0.2856|                   86.3|
-|Rank Deficiency |s(S)           | 1.0001|  0.0000|         16.8583|                   83.2|
-|Rank Deficiency |s(impact_mean) | 1.0002|  0.0023|          4.7819|                   83.2|
+.center[<img src="Figures/metric_TL_RD_vs_lat_area_ci_gam.png" width="80%"/>]
 
 ---
-## Plots Regresion GAMM
+class: center, middle
 
-* La Complejidad y Estabilidad aumentan con la latitud.
-* Connectancia aumenta con la profundidad
+# Gracias!
 
-.center[<img src="Figures/metric_SVDC_MAXE_C_vs_lat_area_ci_gam.png" width="70%"/>]
+<!--
+## Discusión
 
----
-## Plots Regresion GAMM
+* Complejidad y estabilidad: No hay estudios previos. A latitudes más altas aumenta la connectancia y podría provocar el aumento de la complejidad y estabilidad. También podría estar relacionado con la mayor estacionalidad y variabilidad ambiental en latitudes más altas, lo que podría favorecer redes tróficas más robustas y diversas.
 
-* La modularidad aumenta con $S$ pero disminuye con el área y la latitud.
+* Connectancia y profundidad: las redes de habitats pelágicos son distintas, quizás la preponderancia del habitat 3D provoque este aumento de $C$
 
-.center[<img src="Figures/metric_Mod_vs_S_lat_area_sig_gam.png" width="70%"/>]
-
-
-
----
-## Plots Regresion GAMM
-
-* El nivel trófico medio aumenta con el Área 
-* La deficiencia de rango disminuye con el impacto humano y aumenta con $S$.
-
-.center[<img src="Figures/metric_TL_RD_vs_lat_area_ci_gam.png" width="70%"/>]
-
----
+* Modularidad: Las redes con mayor modularidad tienen una profundidad similar, y parecen generar todos los patrones.  a mayor $S$ mayor modularidad. La modularidad puede ayudar a evitar la propagación de disturbios dentro de la red, lo cual es beneficioso cuando existen perturbaciones, pero no seria beneficioso si el disturbio es menor, lo cual podria explicar el patron latitudinal. 
 
 ## Discusión
 
-* La estructura y estabilidad de las redes tróficas marinas del Atlántico Sudoccidental están influenciadas por gradientes latitudinales, tamaño del ecosistema, profundidad y número de especies tróficas. 
+* El nivel trófico medio suele estar positivamente asociado con el tamaño del ecosistema (área), a través de un aumento en la riqueza de especies, la heterogeneidad del hábitat y la productividad. En nuestro caso, descartamos la influencia de $S$.
 
-* A mayores latitudes, las redes tróficas tienden a presentar una mayor complejidad y estabilidad, lo que podría estar asociado a la marcada estacionalidad de estos ecosistemas. En particular, las redes de altas latitudes, al incorporar todas las interacciones potenciales, reflejan también la reorganización estructural que ocurre durante el invierno, cuando las condiciones ambientales extremas modifican la disponibilidad de recursos y la actividad trófica de las especies.
+* Deficiencia de rango: seria un indicador de redundancia funcional, al aumentar con $S$ sugiere que las redes con mayor número de especies presentan más especies con estrategias similares. En cambio, su disminución con el impacto humano indica que las perturbaciones eliminan esta redundancia, simplificando estructuras tróficas.
 
-* La relación de la profundidad con la connectancia sugiere la importancia de diferentes tipos de habitats. En habitats pelágicos hay mayor connectancia lo que puede estar relacionado con la tridimensionalidad del espacio de busqueda. 
-
-
----
-
-## Discusión  
-
-* El nivel trófico medio suele estar positivamente asociado con el tamaño del ecosistema (área), a través de un aumento en la riqueza de especies, la heterogeneidad del hábitat y la productividad. En nuestro caso, descartamos la influencia de 
-$S$.
-
-* La modularidad se incrementa con el número de especies tróficas, un patrón bien establecido. A medida que aumenta la riqueza de especies, es probable que estas utilicen distintos hábitats y consuman diferentes presas, lo que promueve la formación de módulos más definidos. La modularidad contribuye a evitar la propagación de disturbios dentro de la red, lo cual podría estar relacionado con el hecho de que a mayores latitudes se observe una menor modularidad. Sin embargo, el argumento de que una mayor heterogeneidad de hábitat promueve la modularidad no se ve reflejado en nuestros resultados, ya que encontramos que la modularidad disminuye con el área.
-
-
----
-
-## Conclusiones
-
-* La deficiencia de rango, un indicador de redundancia funcional, al aumentar con $S$ sugiere que las redes con mayor número de especies presentan más especies con estrategias similares. En cambio, su disminución con el impacto humano indica que las perturbaciones eliminan esta redundancia, provocando la pérdida de estrategias equivalentes y manteniendo únicamente la heterogeneidad interna del sistema.
-
-* Estos hallazgos resaltan la importancia de considerar múltiples factores ecológicos y geográficos al estudiar la estructura y estabilidad de las redes tróficas marinas, lo que puede tener implicaciones para la conservación y gestión de los ecosistemas marinos en el contexto del cambio global.
+* Esperamos poder incluir una mayor cantidad de redes tróficas en este gradiente para poder confirmar o rechazar estos patrones de forma mas robusta.
+-->
