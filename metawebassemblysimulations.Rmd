@@ -542,8 +542,8 @@ library(GGally)
 library(dplyr)
 
 # Select relevant columns
-network_info %>%
-  dplyr::select(C,S,latitude, area_km2, impact_mean) %>%
+network_info %>% mutate(log_area = log(area_km2)) %>%
+  dplyr::select(S,latitude, log_area, impact_mean,depth_m) %>%
   ggpairs(
     upper = list(continuous = wrap("cor", size = 4)),  # correlation in upper panels
     lower = list(continuous = wrap("points", alpha = 0.7, size = 3)), # scatterplots

@@ -1947,34 +1947,41 @@ inv_scale <- function(z) {
 
 marginal_effect_plot2 <- function(
     fit_mv,
-    resp,             # nombre del response en brms ("Clogit", "Modularitylog", etc.)
-    obs_var,          # nombre de la variable observada en d (C, Modularity, SVDComplexity...)
+    resp,
+    obs_var,
     xvar = "latitude_s",
-    inv_y = plogis,   # función que transforma la variable respuesta
-    inv_x = identity, # función para des-escalar xvar (por defecto no hace nada)
+    inv_y = plogis,
+    inv_x = identity,
     ndraws = 2000,
     xlen = 100,
-    newdata_base = NULL
+    newdata_base = NULL,
+    ci = 0.95
 ) {
   
-  # comprobaciones
+  # chequeos
   if (!xvar %in% names(d)) stop("xvar no existe en d")
   if (!obs_var %in% names(d)) stop("obs_var no existe en d")
+  if (!"site" %in% names(d)) stop("d debe contener la columna 'site'")
+  if (!all(c("site","name") %in% names(network_info)))
+    stop("network_info debe contener columnas 'site' y 'name'")
   
-  # 1. Secuencia en X (estandarizada)
+  # Paleta daltónica Okabe–Ito (7 colores)
+  pal <- c('#1b9e77','#d95f02','#7570b3','#e7298a','#66a61e','#e6ab02','#a6761d')
+  
+  # Secuencia X estandarizada
   xseq_std <- seq(min(d[[xvar]], na.rm = TRUE),
                   max(d[[xvar]], na.rm = TRUE),
                   length.out = xlen)
   
-  # 2. Transformar X a su escala original usando los atributos de 'scale'
+  # Conversión X original
   mu  <- attr(d[[xvar]], "scaled:center")
   sig <- attr(d[[xvar]], "scaled:scale")
   if (is.null(mu) || is.null(sig))
-    stop("La variable no tiene atributos de 'scale'.")
+    stop("La variable no tiene atributos 'scale'")
   
   xseq_orig <- xseq_std * sig + mu
   
-  # 3. Armar newdata
+  # newdata
   if (is.null(newdata_base)) {
     newdata_base <- tibble(
       S_s = 0, log_area_s = 0, latitude_s = 0,
@@ -1986,37 +1993,49 @@ marginal_effect_plot2 <- function(
     newdata_base %>% mutate(!!xvar := x)
   }))
   
-  # 4. Linear predictor draws
+  # Linear predictor draws tambien se podria usar fitted
   lp <- posterior_linpred(
     fit_mv, newdata = newdata, resp = resp,
     re_formula = NA, ndraws = ndraws, transform = FALSE
   )
   
-  med <- apply(lp, 2, median)
-  lwr <- apply(lp, 2, quantile, probs = 0.025)
-  upr <- apply(lp, 2, quantile, probs = 0.975)
+  # Calcular límites del intervalo deseado
+  lower_q <- (1 - ci) / 2
+  upper_q <- 1 - lower_q
   
-  # 5. Transformar la respuesta a escala original
+  med <- apply(lp, 2, mean)
+  lwr <- apply(lp, 2, quantile, lower_q)
+  upr <- apply(lp, 2, quantile, upper_q)
+
+  # predicciones transformadas
   df_pred <- tibble(
     x_orig = xseq_orig,
     median = inv_y(med),
     lwr = inv_y(lwr),
     upr = inv_y(upr)
   )
-
-  # 6. Observaciones por sitio con quantiles
+  
+  # Observados por sitio **con jitter único**
+  set.seed(123)
   obs_points <- d %>%
     group_by(site) %>%
     summarise(
-      x_std = mean(!!sym(xvar), na.rm = TRUE),
+      x_std  = mean(!!sym(xvar), na.rm = TRUE),
       x_orig = x_std * sig + mu,
       y_med  = median(!!sym(obs_var), na.rm = TRUE),
-      y_lwr  = quantile(!!sym(obs_var), 0.025, na.rm = TRUE),
-      y_upr  = quantile(!!sym(obs_var), 0.975, na.rm = TRUE),
+      y_lwr  = quantile(!!sym(obs_var), lower_q, na.rm = TRUE),
+      y_upr  = quantile(!!sym(obs_var), upper_q, na.rm = TRUE),
       .groups = "drop"
-    )
+    ) %>%
+    mutate(
+      x_jit = x_orig + rnorm(n(), 0, diff(range(x_orig)) * 0.005)
+   ) %>%
+  # 🔥 Añadimos el nombre de la red
+  left_join(network_info %>% dplyr::select(site, network_name = name),#,y_med = !!sym(obs_var)),
+            by = "site")
+
   
-  # 7. Plot final con barras de quantiles
+  # Plot final
   ggplot() +
     geom_ribbon(data = df_pred,
                 aes(x = x_orig, ymin = lwr, ymax = upr),
@@ -2025,18 +2044,135 @@ marginal_effect_plot2 <- function(
               aes(x = x_orig, y = median),
               size = 1) +
     
-    # *** barras verticales de cuantiles ***
+    # barras verticales alineadas con jitter
     geom_linerange(data = obs_points,
-                   aes(x = x_orig, ymin = y_lwr, ymax = y_upr, color = site),
-                   size = 0.8, alpha = 0.7) +
+                   aes(x = x_jit, ymin = y_lwr, ymax = y_upr, color = network_name),
+                   size = 0.9, alpha = 0.8) +
     
     geom_point(data = obs_points,
-               aes(x = x_orig, y = y_med, color = site),
-               size = 2) +
+               aes(x = x_jit, y = y_med, color = network_name),
+               size = 2.5) +
+    
+    #scale_color_manual(values = pal) +
     
     labs(x = paste0(xvar, " (original scale)"),
          y = obs_var) +
     theme_bw() +
     theme(legend.position = "none")
-}    
+}
 
+
+plot_precis_brms <- function(fit, regex = NULL, CI = 0.89, nice_names = NULL) {
+    
+  library(dplyr)
+  library(ggplot2)
+  library(tibble)
+  
+  # extract draws
+  post <- as_draws_df(fit)
+  
+  # optionally filter parameters by regex
+  if (!is.null(regex)) {
+    post <- post %>% dplyr::select(matches(regex))
+  } else {
+    # default: population-level effects only (b_)
+    post <- post %>% dplyr::select(starts_with("b_"))
+  }
+  
+  # compute summary
+  df <- post %>%
+    pivot_longer(everything(), names_to = "effect", values_to = "value") %>%
+    group_by(effect) %>%
+    summarise(
+      lower = quantile(value, (1 - CI) / 2),
+      upper = quantile(value, 1 - (1 - CI) / 2),
+      mean  = mean(value),
+      .groups = "drop"
+    )
+  
+  # clean names: remove "b_" prefix so they match names in nice_names
+  df$clean_name <- gsub("^b_", "", df$effect)
+  
+  # apply nice names (if provided)
+  if (!is.null(nice_names)) {
+    df$label <- nice_names[df$clean_name]
+    # fallback to original if name not found
+    df$label <- ifelse(is.na(df$label), df$clean_name, df$label)
+  } else {
+    df$label <- df$clean_name
+  }
+  
+  # order by mean effect
+  df <- df %>% arrange(mean)
+  df$label <- factor(df$label, levels = df$label)
+
+  # plot
+  # plot
+  ggplot(df, aes(x = label, y = mean)) +
+    geom_pointrange(aes(ymin = lower, ymax = upper)) +
+    coord_flip() +
+    theme_bw() +
+    labs(x = NULL, y = "Posterior mean ± CI")
+  # ggplot(df, aes(x = mean, y = label)) +
+  #   geom_point(size = 2) +
+  #   geom_segment(aes(x = ll, xend = ul, y = param, yend = param),
+  #                linewidth = 0.8) +
+  #   geom_vline(xintercept = 0, linetype = 3) +
+  #   theme_bw() +
+  #   labs(x = "Posterior mean ± CI", y = NULL)
+}
+
+
+plot_density_split <- function(draws, param_name = "parameter") {
+  library(tidyverse)
+  
+  df <- tibble(value = draws)
+  
+  # Probabilidades
+  p_pos <- mean(df$value > 0)
+  p_neg <- mean(df$value < 0)
+  
+  # Cortes de densidad
+  dens <- density(df$value)
+  
+  # Convertimos a tibble para ggplot
+  dens_df <- tibble(
+    x = dens$x,
+    y = dens$y,
+    side = ifelse(dens$x >= 0, "positive", "negative")
+  )
+  
+  # Etiquetas
+  lab_pos <- paste0(round(p_pos * 100), "%")
+  lab_neg <- paste0(round(p_neg * 100), "%")
+  
+  ggplot(dens_df, aes(x, y, fill = side)) +
+    geom_area(alpha = 0.6) +
+    geom_line(color = "black", linewidth = 0.8) +
+    geom_vline(xintercept = 0, linetype = "dashed") +
+    scale_fill_manual(values = c("positive" = "steelblue", "negative" = "tomato")) +
+    annotate("text",
+             x = min(dens_df$x), y = max(dens_df$y)*0.9,
+             label = lab_neg, color = "tomato", hjust = 0, size = 6) +
+    annotate("text",
+             x = max(dens_df$x), y = max(dens_df$y)*0.9,
+             label = lab_pos, color = "steelblue", hjust = 1, size = 6) +
+    labs(
+      x = param_name,
+      y = "Density",
+      fill = "Side"
+    ) +
+    theme_bw(base_size = 14)
+}
+
+plot_param_density <- function(fit, regex, param_name) {
+  post <- as_draws_df(fit) %>%
+    select(matches(regex)) 
+  
+  if (ncol(post) != 1) stop("Regex must match exactly one parameter")
+  
+  #param_name <- names(post)
+  draws <- post[[1]]
+  
+  plot_density_split(draws, param_name = param_name)
+}

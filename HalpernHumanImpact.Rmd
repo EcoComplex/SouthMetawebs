@@ -5,6 +5,13 @@ editor_options:
   chunk_output_type: console
 ---
 
+https://oceanhealthindex.org/resources/data/cumulative-human-impacts/
+
+Del paper Cumulative impacts to global marine ecosystems projected to more than double by mid-century
+
+https://knb.ecoinformatics.org/view/doi%3A10.5063%2FF18K77KZ
+
+
 ```{r setup}
 
 
@@ -48,41 +55,82 @@ region_sf <- regions %>%
     ncol = 2, byrow = TRUE))))) %>%
   st_as_sf(crs = 4326)
 
+# Halpern 2015
+if(FALSE){
 r <- rast("~/Academicos/GitProjects/Networks/SouthMetawebs/Data/cumulative_impact_2013.tif")
-impact_means <- exact_extract(r, region_sf, 'mean')
+}
+# Halpern 2025
+r <- rast("~/Academicos/GitProjects/Networks/SouthMetawebs/Data/ssp245_current.tif")
+crs(r)
+# Transformar polígonos al CRS del raster
+region_sf_r <- st_transform(region_sf, crs(r))
+impact_stats <- exact_extract(
+  r,
+  region_sf_r,
+  function(values, coverage_fraction) {
+    v <- values[!is.na(values)]
+    tibble(
+      impact_mean = mean(v),
+      sd   = sd(v),
+      cv   = sd(v) / mean(v),
+      n    = length(v)
+    )
+  }
+)
+region_sf <- bind_cols(region_sf, impact_stats)
 
-region_sf$impact_mean <- impact_means
+region_sf <- region_sf %>%
+  mutate(
+    lat_mid = (lat_min + lat_max) / 2,
+    se = sd / sqrt(n),
+    ci_low  = impact_mean - 1.96 * se,
+    ci_high = impact_mean + 1.96 * se
+  )
+region_sf <- region_sf %>%
+  arrange(lat_mid) %>%
+  mutate(name = factor(name, levels = name))
 
+ggplot(region_sf, aes(x = name, y = impact_mean)) +
+  geom_point(size = 3) +
+  geom_errorbar(
+    aes(ymin = ci_low, ymax = ci_high),
+    width = 0.15
+  ) +
+  labs(
+    x = "Region (ordered by latitude)",
+    y = "Mean Human Impact Index",
+  ) +
+  theme_bw() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+#region_sf$impact_mean <- impact_means
 
 # --- Reproject to Antarctic Polar Stereographic (EPSG:3031) ---
-region_sf_proj <- st_transform(region_sf, 3031)
-#r_proj <- project(r, "EPSG:3031")
-#writeRaster(r_proj, "~/Academicos/GitProjects/Networks/SouthMetawebs/Data/cumulative_impact_2013_proj.tif")
-r_proj <- rast("~/Academicos/GitProjects/Networks/SouthMetawebs/Data/cumulative_impact_2013_proj.tif")
+# region_sf_proj <- st_transform(region_sf, 3031)
+# r_proj <- project(r, "EPSG:3031")
+# poly_union <- st_union(region_sf_r) %>% st_transform(3031)
+# r_mask <- mask(crop(r_proj, vect(poly_union)), vect(poly_union))
+# writeRaster(r_proj, "~/Academicos/GitProjects/Networks/SouthMetawebs/Data/cumulative_impact_2013_proj.tif")
+# r_proj <- rast("~/Academicos/GitProjects/Networks/SouthMetawebs/Data/cumulative_impact_2013_proj.tif")
   
 
 # --- Mask raster to polygon union ---
-poly_union <- st_union(region_sf) %>% st_transform(3031)
-r_mask <- mask(crop(r_proj, vect(poly_union)), vect(poly_union))
+poly_union <- st_union(region_sf_r) # %>% st_transform(3031)
+r_mask <- mask(crop(r, vect(poly_union)), vect(poly_union))
 
+r_crop <- crop(r, vect(region_sf_r))
+potter_sf <- region_sf_r %>% 
+  dplyr::filter(name == "Potter Cove")
+potter_buf <- st_buffer(potter_sf, dist = 0.2 * units::set_units(10000, m))
+r_potter <- crop(r, vect(potter_buf))
 
 # --- tmap plot ---
 tmap_mode("view")
-
-tmap_mode("plot")
 tm_shape(r_mask) +
-  tm_raster(style = "cont", palette = "viridis", title = "Impact Index") +
-  # Uncomment if bathymetry available:
-  # tm_shape(bathy_proj) +
-  # tm_raster(style = "cont", palette = "-Blues", alpha = 0.5, title = "Bathymetry") +
-  tm_shape(region_sf_proj) +
-  tm_borders(lwd = 2, col = "black") +
-  tm_basemap("Esri.WorldTopoMap") +
-  tm_layout(
-    main.title = "Mean Cumulative Human Impact by Region",
-    main.title.size = 1.2,
-    legend.outside = TRUE
-  )
+  tm_raster(palette = "viridis") +
+  tm_shape(region_sf_r) +
+  tm_borders()
 
 #
 #
@@ -118,10 +166,58 @@ name_map <- tibble::tibble(
 network_info <- readRDS("Data/network_info.rds")
 network_info <- filter(network_info, !(site %in% c("WeddellSea","BeagleChannel","NorthernScotia","SouthernScotia")))
 
+if(FALSE){
+  # Asumiendo que los datos de 2015 ya estan en network_info
+df_comparacion <- inner_join(impact_tbl, 
+                             network_info %>% dplyr::select(name, impact_mean), 
+                             by = "name")
+
+ggplot(df_comparacion, aes(x = impact_mean.y, y = impact_mean.x)) +
+  geom_point(color = "blue", size = 3) +
+  # Agregamos etiquetas con los nombres de los sitios
+  geom_text(aes(label = name), vjust = -0.8, size = 3) +
+  # Línea de identidad (x=y): Si el punto está arriba, el impacto aumentó
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "red") +
+  labs(
+    title = "Correlación de Impacto",
+    subtitle = "Puntos sobre la línea roja indican aumento de impacto",
+    x = "Impacto 2015",
+    y = "Impacto 2020"
+  ) +
+  theme_bw()
+
+df_long <- df_comparacion %>%
+  rename("2015" = impact_mean.y, "2020" = impact_mean.x) %>%
+  pivot_longer(cols = c("2015", "2020"), names_to = "Year", values_to = "Impact")
+
+ggplot(df_long, aes(x = Year, y = Impact, group = name)) +
+  geom_line(aes(color = name), size = 1.2) +
+  geom_point(aes(color = name), size = 3) +
+  # Agregamos etiquetas a los lados para ver el ranking
+  geom_text(data = df_long %>% filter(Year == "2015"), 
+            aes(label = name), hjust = 1.1, size = 3) +
+  geom_text(data = df_long %>% filter(Year == "2020"), 
+            aes(label = name), hjust = -0.1, size = 3) +
+  theme_bw() +
+  labs(title = "Cambio en el orden relativo de impacto",
+       subtitle = "Si las líneas se cruzan, el ranking cambió") +
+  theme(legend.position = "none") # Quitamos leyenda porque pusimos etiquetas
+}
+
 # Join descriptive names and impact values to network_info
-network_info <- network_info %>%
-  left_join(name_map, by = "site") %>%        # Add descriptive name
-  left_join(impact_tbl, by = "name")         
+if( "impact_mean" %in% names(network_info) ) {
+  network_info <- network_info %>%
+    dplyr::rename(impact_mean2015=impact_mean)  # Remove existing impact_mean to avoid duplication
+}
+
+if( "name" %in% names(network_info) ) {   # If descriptive names already exist
+  network_info <- network_info %>%
+    left_join(impact_tbl, by = "name")         
+} else {
+  network_info <- network_info %>%
+    left_join(name_map, by = "site") %>%        # Add descriptive name
+    left_join(impact_tbl, by = "name")         
+}
 
 # Save the networks
 saveRDS(network_info, "Data/network_info.rds")

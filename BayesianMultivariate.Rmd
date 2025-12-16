@@ -31,7 +31,7 @@ sim_final <- simMetaWebMetrics %>% select(-S) %>%
   rename(site = Metaweb) %>%
   inner_join(stability_id, by = c("site","Sim")) %>%
   group_by(site) %>%
-  slice_sample(n = 50) %>%
+  slice_sample(n = 200) %>%
   ungroup()
 
 sim_final %>% count(site)
@@ -41,7 +41,6 @@ sim_final %>% count(site)
 env <- network_info %>%
   select(site, latitude, area_km2, depth_m, impact_mean,S) %>%
   mutate(log_area = log(area_km2))
-
 # 4. Combinar todo
 df_all <- sim_final %>%
   left_join(env, by = "site") %>%
@@ -51,8 +50,10 @@ df_all <- sim_final %>%
 
 # Run Bayesian Multivariate Model 
 
-```{r runBayesianMv,eval=FALSE, message=TRUE, warning=TRUE}
 
+```{r runBayesianMv_200,eval=TRUE, message=NA, warning=TRUE}
+library(future)
+plan(multisession)
 
 d <- df_all
 N <- nrow(d)
@@ -81,6 +82,7 @@ d <- d %>%
   )
 
 library(brms)
+options(brms.backend = "cmdstanr")
 
 bf_C   <- bf(C_logit   ~ S_s + log_area_s + latitude_s + impact_mean_s + depth_m_s + (1 | site))
 bf_Mod <- bf(Mod_logit ~ S_s + log_area_s + latitude_s + impact_mean_s + depth_m_s + (1 | site))
@@ -102,14 +104,14 @@ fit_mv <- brm(
   control = list(adapt_delta = 0.95, max_treedepth = 15),
   seed = 2025
 )
-
+plan(sequential)
 saveRDS(fit_mv, "Data/brms_mv_foodweb_fit.rds")
 ```
 
 ## Pp checks and plots
 
-```{r ppchecks_and_plots, message=TRUE, warning=TRUE}
-
+```{r ppchecks_and_plots, message=TRUE, warning=TRUE,eval=FALSE}
+fit_mv <- readRDS("Data/brms_mv_foodweb_fit.rds")
 brms::bayes_R2(fit_mv)
 
 # back-transform functions (adaptadas a tus transformaciones)
@@ -158,37 +160,33 @@ ggplot(pp_C, aes(x = median, y = obs)) +
 # Repeat for other responses as needed
 
 # chequear C_logit (ajusta según nombre exacto en fit)
-pp_check(fit_mv, resp = "Clogit", nsamples = 100)         
-pp_check(fit_mv, resp = "Modlogit", nsamples = 100)       
-pp_check(fit_mv, resp = "Ranklogit", nsamples = 100)       
-pp_check(fit_mv, resp = "LDlog", nsamples = 100)       
-pp_check(fit_mv, resp = "TLz", nsamples = 100)       
-pp_check(fit_mv, resp = "SVDz", nsamples = 100)       
-pp_check(fit_mv, resp = "MElog", nsamples = 100)       
+p1 <- pp_check(fit_mv, resp = "Clogit", nsamples = 100) + ggtitle("Connectance")
+p2 <- pp_check(fit_mv, resp = "Modlogit", nsamples = 100) + ggtitle("Modularity")
+p3 <- pp_check(fit_mv, resp = "Ranklogit", nsamples = 100) + ggtitle("Rank Deficiency")
+p4 <- pp_check(fit_mv, resp = "LDlog", nsamples = 100) + ggtitle("Link Density")              
+p5 <- pp_check(fit_mv, resp = "TLz", nsamples = 100) + ggtitle("Mean Trophic Level")              
+p6 <- pp_check(fit_mv, resp = "SVDz", nsamples = 100)  + ggtitle("SVD Complexity")             
+p7 <- pp_check(fit_mv, resp = "MElog", nsamples = 100) + ggtitle("Log of Max Eigenvalue")       
+
+library(patchwork)
+
+combined_plot <- wrap_plots(p1,p2,p3,p4,p5,p6,p7, ncol = 3, guides = "collect", axes="collect") &
+  theme(legend.position = "bottom")
+ggsave("Figures/Bayesian_pp_checks.png", 
+          plot = combined_plot, 
+          height = 6, 
+          width = 10,
+          bg = "white")
 
 pp_check(fit_mv, resp = "LDlog", type = "dens_overlay", nsamples = 100)
 pp_check(fit_mv, resp = "MElog", type = "stat", stat = "mean")
 
 names(fit_mv$formula$forms)
-# Modularidad 
-#
-# Example: C (remember resp name is "C_logit" in your brms formulas)
-pp_M <- pp_summary_resp(fit_mv, resp = "Modlogit", inv_fun = inv_Mod, obs = d$Modularity)
-pp_M <- bind_cols(d %>% select(site), pp_M)
-
-# Plot
-ggplot(pp_M, aes(x = median, y = obs)) +
-  geom_errorbarh(aes(xmin = lwr, xmax = upr), height = 0.02, alpha = 0.4) +
-  geom_point(alpha = 0.6) +
-  geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
-  labs(title = "Posterior predictive – C", x = "Predicted (median, 95% CI)", y = "Observed C") +
-  theme_minimal()
-# Repeat for other responses as needed
 ```
 
 ## Parameter distribution
 
-```{r parameter_distribution, message=TRUE, warning=TRUE}
+```{r parameter_distribution, message=TRUE, warning=TRUE, eval=FALSE}
 
 library(brms)
 library(tidyverse)
@@ -225,7 +223,7 @@ slopes_df <- as_draws_df(fit_mv) %>%
 
 # Calcular prob. de ser positivo o negativo
 summary_slopes <- slopes_df %>%
-  group_by(response, predictor, param) %>%
+  group_by(nice_resp, nice_pred, param) %>%
   summarise(
     prob_pos = mean(value > 0),
     prob_neg = mean(value < 0),
@@ -238,7 +236,7 @@ summary_slopes <- slopes_df %>%
   arrange(desc(prob_max))
 
 # Filtrar efectos ≥ 0.70
-selected <- summary_slopes %>% filter(prob_max >= 0.80)
+selected <- summary_slopes %>% filter(prob_max >= 0.75)
 
 slopes_selected <- slopes_df %>%
   semi_join(selected, by = "param")
@@ -248,7 +246,7 @@ slopes_selected <- slopes_df %>%
 
 ggplot(slopes_selected, aes(x = value, fill = direction)) +
   geom_density(alpha = 0.5) +
-  facet_grid(nice_pred ~ nice_resp, scales = "free") +
+  facet_wrap(nice_pred ~ nice_resp, scales = "free") +
   geom_vline(xintercept = 0, linetype = "dashed") +
   scale_fill_manual(values = c("positive" = "steelblue", "negative" = "tomato")) +
   labs(
@@ -259,34 +257,183 @@ ggplot(slopes_selected, aes(x = value, fill = direction)) +
   ) +
   theme_bw(base_size = 14)
 
-ggsave("Figures/Bayesian_slopes_gt80.png", width = 10, height = 5)
+ggsave("Figures/Bayesian_slopes_gt80_n100.png", width = 10, height = 5)
 
+plot_precis_brms(fit_mv,regex = "^b_.*_s$",nice_names=nice_names)
+
+ggsave("Figures/Bayesian_slopes_n200.png", width = 5, height = 10)
+
+# Plot of residual correlations
+mcmc_areas(fit_mv, regex_pars = "^rescor")
+
+mcmc_areas(fit_mv, regex_pars = "^b_.*_s$")
+
+plot_param_density( fit_mv, "b_TLz_log_area_s", "Slope of Trophic Level vs log Area")
+plot_param_density( fit_mv, "b_Modlogit_S_s", "Slope of Modularity vs S")
+plot_param_density( fit_mv, "b_TLz_latitude_s", "Slope of Trophic Level vs Latitude")
+plot_param_density( fit_mv, "b_Ranklogit_S_s", "Slope of Rank Deficiency vs S")
+plot_param_density( fit_mv, "b_SVDz_latitude_s", "Slope of SVD Complexity vs Latitude")
+plot_param_density( fit_mv, "b_LDlog_latitude_s", "Slope of Link Density vs Latitude")
+plot_param_density( fit_mv, "b_Clogit_latitude_s", "Slope of Connectance vs Latitude")
+plot_param_density( fit_mv, "b_SVDz_depth_m_s", "Slope of SVD Complexity vs Depth")
+plot_param_density( fit_mv, "b_Clogit_S_s", "Slope of Connectance vs S")
+plot_param_density( fit_mv, "b_MElog_latitude_s", "Slope of Max Eigenvalue vs Latitude")
+plot_param_density( fit_mv, "b_TLz_S_s", "Slope of Trophic Level vs S")
+plot_param_density( fit_mv, "b_Modlogit_log_area_s", "Slope of Modularity vs log Area")
+plot_param_density( fit_mv, "b_Modlogit_latitude_s", "Slope of Modularity vs Latitude")
+plot_param_density( fit_mv, "b_Ranklogit_impact_mean_s", "Slope of Rank Deficiency vs Human Impact")
 
 ```
 
+* selected
+# A tibble: 8 × 7
+  nice_resp       nice_pred  param               prob_pos prob_neg prob_max direction
+  <chr>           <chr>      <chr>                  <dbl>    <dbl>    <dbl> <chr>    
+1 Trophic Level   Area (log) b_TLz_log_area_s       0.858    0.142    0.858 positive* 
+2 Modularity      Species    b_Modlogit_S_s         0.844    0.156    0.844 positive* 
+3 Trophic Level   Latitude   b_TLz_latitude_s       0.819    0.181    0.819 positive* 
+4 Rank Deficiency Species    b_Ranklogit_S_s        0.818    0.182    0.818 positive* 
+5 SVD Complexity  Latitude   b_SVDz_latitude_s      0.814    0.186    0.814 positive* 
+6 Link Density    Latitude   b_LDlog_latitude_s     0.798    0.202    0.798 positive 
+7 Connectance     Latitude   b_Clogit_latitude_s    0.797    0.203    0.797 positive 
+
+8 SVD Complexity  Depth      b_SVDz_depth_m_s       0.782    0.218    0.782 positive* 
+9 Connectance        Species      b_Clogit_S_s                 0.222    0.778    0.778 negative 
+10 Maximum Eigenvalue Latitude     b_MElog_latitude_s           0.768    0.232    0.768 positive 
+11 Trophic Level      Species      b_TLz_S_s                    0.238    0.762    0.762 negative* 
+12 Modularity         Area (log)   b_Modlogit_log_area_s        0.240    0.760    0.760 negative* 
+13 Modularity         Latitude     b_Modlogit_latitude_s        0.249    0.751    0.751 negative* 
+14 Rank Deficiency    Human Impact b_Ranklogit_impact_mean_s    0.250    0.750    0.750 negative 
+
 ## Marginal effects plots
 
-```{r marginal_effects_plots, message=TRUE, warning=TRUE}
+```{r marginal_effects_plots, message=TRUE, warning=TRUE, eval=FALSE}
 
 
 library(tidyr); library(dplyr)
 
+## Figure 1 (slopes probability p>=0.80)
+(g11 <- marginal_effect_plot2(fit_mv,"TLz","TLmean","log_area_s",inv_TL,ci=.95) + 
+        labs(x = "Area (log)", y = "Trophic Level") )
+(g12 <- marginal_effect_plot2(fit_mv,"TLz","TLmean","latitude_s",inv_TL,ci=.95) + 
+        labs(x = "Latitude", y = "Trophic Level") )
+(g13 <- marginal_effect_plot2(fit_mv,"Modlogit","Modularity","S_s",inv_Mod) + 
+        labs(x = "S", y = "Modularity ") )
+library(patchwork)
+
+combined_plot <- wrap_plots(g11,g12,g13, ncol = 3, guides = "collect", axes="collect") &
+  theme(legend.position = "bottom")
+ggsave("Figures/Bayesian_TL_Mod_vs_lat_Area_S_mv.png", 
+          plot = combined_plot, 
+          height = 6, 
+          width = 10,
+          bg = "white")
+
+## Figure 2 (slopes probability p>=0.80)
+
+
+# 4 Rank Deficiency Species    b_Ranklogit_S_s        0.818    0.182    0.818 positive* 
+# 5 SVD Complexity  Latitude   b_SVDz_latitude_s      0.814    0.186    0.814 positive* 
+# 6 Link Density    Latitude   b_LDlog_latitude_s     0.798    0.202    0.798 positive 
+# 7 Connectance     Latitude   b_Clogit_latitude_s    0.797    0.203    0.797 positive 
+
+# Trophic Level
+
+(g23 <- marginal_effect_plot2(fit_mv,"Modlogit","Modularity","S_s",inv_Mod) + 
+        labs(x = "S", y = "Modularity ") )
+(g11 <- marginal_effect_plot2(fit_mv,"TLz","TLmean","latitude_s",inv_TL,ci=.95) + 
+        labs(x = "Latitude", y = "Trophic Level") )
+(g33 <- marginal_effect_plot2(fit_mv,"Ranklogit","RankDeficiency","S_s",inv_Rk) + 
+        labs(x = "S", y = "Rank Deficiency") )
+(g31 <- marginal_effect_plot2(fit_mv,"SVDz","SVDComplexity","latitude_s",inv_SVD) + 
+        labs(x = "Latitude", y = "Complexity") )
+(g5 <- marginal_effect_plot2(fit_mv,"LDlog","LD_log","latitude_s",inv_id) + 
+        labs(x = "Latitude", y = "Log Link density") )
+(g1 <- marginal_effect_plot2(fit_mv,"Clogit","C","latitude_s",inv_Mod,ci=.8) + 
+        labs(x = "Latitude", y = "C ") )
+(g32 <- marginal_effect_plot2(fit_mv,"SVDz","SVDComplexity","depth_m_s",inv_SVD) + 
+        labs(x = "Depth", y = "Complexity") )
+(g13 <- marginal_effect_plot2(fit_mv,"TLz","TLmean","S_s",inv_TL,ci=.95) + 
+        labs(x = "S", y = "Trophic Level") )
+
+
+(g21 <- marginal_effect_plot2(fit_mv,"Modlogit","Modularity","latitude_s",inv_Mod) + 
+        labs(x = "latitude", y = "Modularity ") )
+
+(g22 <- marginal_effect_plot2(fit_mv,"Modlogit","Modularity","log_area_s",inv_Mod) + 
+        labs(x = "Log Area", y = "Modularity ") )
+
+
+(g23 <- marginal_effect_plot2(fit_mv,"Modlogit","Modularity","S_s",inv_Mod) + 
+        labs(x = "S", y = "Modularity ") )
+
+combined_plot <- wrap_plots(g21,g22,g23, ncol = 3, guides = "collect", axes="collect") &
+  theme(legend.position = "bottom")
+ggsave("Figures/Bayesian_Mod_vs_lat_Area_S_mv.png", 
+          plot = combined_plot, 
+          height = 6, 
+          width = 10,
+          bg = "white")
+
+
+(g31 <- marginal_effect_plot2(fit_mv,"SVDz","SVDComplexity","latitude_s",inv_SVD) + 
+        labs(x = "Latitude", y = "Complexity") )
+(g32 <- marginal_effect_plot2(fit_mv,"SVDz","SVDComplexity","depth_m_s",inv_SVD) + 
+        labs(x = "Depth", y = "Complexity") )
+(g33 <- marginal_effect_plot2(fit_mv,"Ranklogit","RankDeficiency","S_s",inv_Rk) + 
+        labs(x = "S", y = "Rank Deficiency") )
+
+combined_plot <- wrap_plots(g31,g32,g33, ncol = 3, guides = "collect", axes="collect") &
+  theme(legend.position = "bottom")
+ggsave("Figures/Bayesian_SVDC_RKD_vs_lat_Depth_S_mv.png", 
+          plot = combined_plot, 
+          height = 6, 
+          width = 10,
+          bg = "white")
 
 # Solo b con 80% 
 #
-#print(marginal_effect_plot(fit_mv,"Clogit","C") +     labs(x = "latitude (std)", y = "C (predicted)", title = "Partial effect of latitude on C") )
 
-#print(marginal_effect_plot(fit_mv,"Clogit","C","log_area_s") +     labs(x = "Log Area (std)", y = "C (predicted)", title = "Partial effect of latitude on C") )
+(g1 <- marginal_effect_plot2(fit_mv,"Clogit","C","latitude_s",inv_Mod,ci=.8) + 
+        labs(x = "Latitude", y = "C ") )
+(g12 <- marginal_effect_plot2(fit_mv,"SVDz","SVDComplexity","latitude_s",inv_SVD,ci=.8) + 
+        labs(x = "Latitude", y = "Complexity") )
+(g13 <- marginal_effect_plot2(fit_mv,"TLz","TLmean","latitude_s",inv_TL,ci=.8) + 
+        labs(x = "Latitude", y = "Trophic Level") )
 
-#print(marginal_effect_plot(fit_mv,"Clogit","C","S_s") +     labs(x = "S (std)", y = "C (predicted)", title = "Partial effect of latitude on C") )
-#print(marginal_effect_plot(fit_mv,"Clogit","C","impact_mean_s") +     labs(x = "Impact (std)", y = "C (predicted)", title = "Partial effect of latitude on C") )
-#print(marginal_effect_plot(fit_mv,"Clogit","C","depth_m_s") +     labs(x = "Depth (std)", y = "C (predicted)", title = "Partial effect of latitude on C") )
+library(patchwork)
 
+combined_plot <- wrap_plots(g1,g12,g13, ncol = 3, guides = "collect", axes="collect") &
+  theme(legend.position = "bottom")
+ggsave("Figures/Bayesian_C_SVDC_TL_vs_lat_mv.png", 
+          plot = combined_plot, 
+          height = 6, 
+          width = 10,
+          bg = "white")
+
+
+(g3 <- marginal_effect_plot2(fit_mv,"Modlogit","Modularity","S_s",inv_Mod,ci=.8) + 
+        labs(x = "S", y = "Modularity ") )
+(g31 <- marginal_effect_plot2(fit_mv,"Ranklogit","RankDeficiency","S_s",inv_Rk,ci=.8) + 
+        labs(x = "S", y = "Rank Deficiency") )
+(g32 <- marginal_effect_plot2(fit_mv,"TLz","TLmean","log_area_s",inv_TL,ci=.8) + 
+        labs(x = "Log Area", y = "Trophic Level") )
+
+combined_plot <- wrap_plots(g3,g31,g32, ncol = 3, guides = "collect", axes="collect") &
+  theme(legend.position = "bottom")
+ggsave("Figures/Bayesian_Mod_Rkd_TL_vs_S_lat_mv.png", 
+          plot = combined_plot, 
+          height = 6, 
+          width = 10,
+          bg = "white")
+
+if(FALSE){
 (g1 <- marginal_effect_plot2(fit_mv,"Modlogit","Modularity","latitude_s",inv_Mod) + 
         labs(x = "latitude", y = "Modularity ") )
 
 (g2 <- marginal_effect_plot2(fit_mv,"Modlogit","Modularity","log_area_s",inv_Mod) + 
         labs(x = "Log Area", y = "Modularity ") )
+
 
 (g3 <- marginal_effect_plot2(fit_mv,"Modlogit","Modularity","S_s",inv_Mod) + 
         labs(x = "S", y = "Modularity ") )
@@ -305,6 +452,9 @@ ggsave("Figures/Bayesian_Modularity_vs_lat_area_mv.png",
         labs(x = "S", y = "Rank Deficiency") )
 
 (g41 <- marginal_effect_plot2(fit_mv,"TLz","TLmean","log_area_s",inv_TL) + 
+        labs(x = "Log Area", y = "Trophic Level") )
+
+(g41 <- marginal_effect_plot2(fit_mv,"TLz","TLmean","latitude_s",inv_TL) + 
         labs(x = "Log Area", y = "Trophic Level") )
 
 (g42 <- marginal_effect_plot2(fit_mv,"SVDz","SVDComplexity","latitude_s",inv_SVD) + 
@@ -338,6 +488,8 @@ ggsave("Figures/Bayesian_Meig_vs_lat_area_mv.png",
           width = 10,
           bg = "white")
 
+}
+
 # Ejemplo: efectos de latitude sobre una respuesta usando conditional effects
 # para verificar que los otros plots son correctos
 #
@@ -369,7 +521,7 @@ print(marginal_effect_plot(fit_mv,"impact_mean_s","Ranklogit",inv_Rk) +
 
 ## Correlation Matrix
 
-```{r CorrelationMatrix, message=TRUE, warning=TRUE}
+```{r CorrelationMatrix, message=TRUE, warning=TRUE, eval=FALSE}
 
 
 #
@@ -466,8 +618,14 @@ new_names <- c(
 rownames(mat_mean) <- new_names[rownames(mat_mean)]
 colnames(mat_mean) <- new_names[colnames(mat_mean)]
 
+png(filename = "Figures/Bayesian_ResCor.png", 
+    width = 10,     # Ancho
+    height = 6,     # Alto
+    units = "in",   # IMPORTANTE: Definir unidades en pulgadas para igualar a ggsave
+    res = 300,      # IMPORTANTE: Resolución (300 dpi es el estándar de ggsave)
+    bg = "white")   # Fondo blanco
 corrplot::corrplot(mat_mean, method = "color", tl.col = "black", tl.cex = 0.8, addCoef.col = "black")
-
+dev.off()
 
 rename_resps <- function(x) {
   ifelse(x %in% names(new_names), new_names[x], x)
@@ -480,7 +638,7 @@ summary_rescor %>% mutate(
     resp2_pretty = rename_resps(resp2)
     ) %>%
   filter(prob_pos > 0.975 | prob_pos < 0.025) %>%
-  arrange(desc(abs(mean))) %>% select(param, resp1_pretty, resp2_pretty, mean, lwr, upr, prob_pos)
+  arrange(desc(abs(mean))) %>% dplyr::select(param, resp1_pretty, resp2_pretty, mean, lwr, upr, prob_pos)
 
 
 ```
