@@ -763,7 +763,7 @@ plot_empirical_vs_simulated_metrics <- function(network_info, simulated_metrics,
   
   # Helper for plotting
   plot_metric <- function(metric_name) {
-    ggplot(sim_data, aes(x = name, y = .data[[metric_name]])) +
+    ggplot(sim_data, aes(x = site, y = .data[[metric_name]])) +
       geom_boxplot(fill = "gray90", color = "gray50") +
       geom_point(data = obs_data, aes(x = site, y = .data[[metric_name]]),
                  color = "red", size = 2.5) +

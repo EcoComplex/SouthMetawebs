@@ -66,17 +66,25 @@ crs(r)
 region_sf_r <- st_transform(region_sf, crs(r))
 impact_stats <- exact_extract(
   r,
-  region_sf_r,
+  region_sf_r,#fun=c("weighted_mean","weighted_stdev","count"),
+              #weights= "area"
   function(values, coverage_fraction) {
     v <- values[!is.na(values)]
     tibble(
       impact_mean = mean(v),
       sd   = sd(v),
-      cv   = sd(v) / mean(v),
+      cv   = sd / impact_mean,
       n    = length(v)
     )
   }
 )
+# impact_stats <- impact_stats %>% rename(
+#     impact_mean = weighted_mean,
+#       sd   = weighted_stdev, n=count) %>% mutate(      
+#       n = round(n+.5), 
+#       n = ifelse(n==0,1,n))
+
+
 region_sf <- bind_cols(region_sf, impact_stats)
 
 region_sf <- region_sf %>%
@@ -119,12 +127,6 @@ ggplot(region_sf, aes(x = name, y = impact_mean)) +
 poly_union <- st_union(region_sf_r) # %>% st_transform(3031)
 r_mask <- mask(crop(r, vect(poly_union)), vect(poly_union))
 
-r_crop <- crop(r, vect(region_sf_r))
-potter_sf <- region_sf_r %>% 
-  dplyr::filter(name == "Potter Cove")
-potter_buf <- st_buffer(potter_sf, dist = 0.2 * units::set_units(10000, m))
-r_potter <- crop(r, vect(potter_buf))
-
 # --- tmap plot ---
 tmap_mode("view")
 tm_shape(r_mask) +
@@ -132,6 +134,103 @@ tm_shape(r_mask) +
   tm_shape(region_sf_r) +
   tm_borders()
 
+#
+r_df <- as.data.frame(r_crop, xy = TRUE, na.rm = TRUE)
+colnames(r_df)[3] <- "impact"
+(p_main <- ggplot() +
+  geom_raster(
+    data = r_df,
+    aes(x = x, y = y, fill = impact)
+  ) +
+  geom_sf(
+    data = region_sf_r,
+    fill = NA,
+    color = "black",
+    linewidth = 0.4
+  ) +
+  scale_fill_viridis_c(name = "Human impact") +
+  coord_sf(crs = st_crs(region_sf_r), expand = FALSE) +
+  labs(title = "Cumulative Human Impact Index") +
+  theme_minimal() +
+  theme(
+    legend.position = "right",
+    plot.title = element_text(size = 12)
+  )
+)
+make_inset <- function(region_name, title) {
+
+  sf_reg <- region_sf_r |> dplyr::filter(name == region_name)
+  r_crop <- crop(r, vect(sf_reg))
+  
+  r_crop_df <- as.data.frame(r_crop, xy = TRUE, na.rm = TRUE)
+  colnames(r_crop_df)[3] <- "impact"
+
+  ggplot() +
+    geom_raster(
+      data = r_crop_df,
+      aes(x = x, y = y, fill = impact)
+    ) +
+    geom_sf(
+      data = sf_reg,
+      fill = NA,
+      color = "black",
+      linewidth = 0.6
+    ) +
+    scale_fill_viridis_c(guide = "none") +
+    coord_sf(crs = st_crs(sf_reg), expand = FALSE) +
+    labs(title = title) +
+    theme_minimal() +
+    theme(
+      plot.title = element_text(size = 9),
+      axis.text = element_blank(),
+      axis.title = element_blank(),
+      panel.grid = element_blank()
+    )
+}
+p_potter <- make_inset("Potter Cove", "Potter Cove")
+p_beagle <- make_inset("Beagle Channel", "Beagle Channel")
+
+r_crop <- crop(r, vect(region_sf_r))
+potter_sf <- region_sf_r %>% 
+  dplyr::filter(name == "Potter Cove")
+potter_buf <- st_buffer(potter_sf, dist = 0.2 * units::set_units(10000, m))
+r_potter <- crop(r, vect(potter_buf))
+
+
+
+tmap_mode("view")
+(map_inset <-
+  tm_shape(r_potter) +
+    tm_raster(
+      style = "cont",
+      palette = "viridis",
+      legend.show = FALSE
+    ) +
+  tm_shape(potter_sf) +
+    tm_borders(lwd = 2, col = "black") +
+  tm_title("Potter Cove", size = 0.9)
+)
+map_main <-
+  tm_shape(r_crop) +
+    tm_raster(
+      style = "cont",
+      palette = "viridis",
+      title = "Human Impact Index"
+    ) +
+  tm_shape(region_sf_r) +
+    tm_borders(lwd = 1, col = "black") +
+  tm_title("Cumulative Human Impact (native resolution)")
+
+beagle_sf <- region_sf_r %>% filter(name == "Beagle Channel")
+r_beagle  <- crop(r, vect(beagle_sf))
+
+(map_beagle <-
+  tm_shape(r_beagle) +
+    tm_raster(palette = "viridis", legend.show = FALSE) +
+  tm_shape(beagle_sf) +
+    tm_borders(lwd = 2) +
+  tm_title("Beagle Channel", size = 0.9)
+)
 #
 #
 #
@@ -166,6 +265,9 @@ name_map <- tibble::tibble(
 network_info <- readRDS("Data/network_info.rds")
 network_info <- filter(network_info, !(site %in% c("WeddellSea","BeagleChannel","NorthernScotia","SouthernScotia")))
 
+#
+#
+### Plots de cambio en el indice de impacto entre 2015 y 2025
 if(FALSE){
   # Asumiendo que los datos de 2015 ya estan en network_info
 df_comparacion <- inner_join(impact_tbl, 

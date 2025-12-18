@@ -48,10 +48,9 @@ df_all <- sim_final %>%
 
 ```
 
-# Run Bayesian Multivariate Model 
+# Run Bayesian Multivariate Model (updated human impact index)
 
-
-```{r runBayesianMv_200,eval=TRUE, message=NA, warning=TRUE}
+```{r runBayesianMv_200_hi,eval=TRUE, message=NA, warning=TRUE}
 library(future)
 plan(multisession)
 

@@ -271,10 +271,10 @@ network_info$site
 network_info <- filter(network_info, !(site %in% c("WeddellSea","BeagleChannel","NorthernScotia","SouthernScotia")))
 network_info <- network_info %>% mutate(relRank=Rank/S,RankDeficiency=1 - relRank, SVDComplexity= 1 - Entropy)
 
-plot_list <- plot_empirical_vs_simulated_metrics(network_info,simMetaWebMetrics, metrics=c("S", "C","RankDeficiency", "SVDComplexity", "Modularity"))
+plot_list <- plot_empirical_vs_simulated_metrics(network_info,simMetaWebMetrics, metrics=c( "C","RankDeficiency", "SVDComplexity", "Modularity"))
 
-combined_plot <- wrap_plots(plot_list, ncol = 2, guides = "collect", axes="collect_x") &
-  theme(legend.position = "bottom")
+(combined_plot <- wrap_plots(plot_list, ncol = 2, guides = "collect", axes="collect_x") &
+  theme(legend.position = "bottom"))
 
 ggsave("Figures/empirical_vs_simulated_metrics.png", 
           plot = combined_plot, 
@@ -282,10 +282,10 @@ ggsave("Figures/empirical_vs_simulated_metrics.png",
           width = 10,
           bg = "white")
 
-plot_list <- plot_empirical_vs_simulated_metrics(network_info,simMetaWebMetrics, metrics=c("LD", "TLmean","Vulnerability","Generality"))
+plot_list <- plot_empirical_vs_simulated_metrics(network_info,simMetaWebMetrics, metrics=c("LD", "TLmean"))
 
-combined_plot <- wrap_plots(plot_list, ncol = 2, guides = "collect", axes="collect_x") &
-  theme(legend.position = "bottom")
+(combined_plot <- wrap_plots(plot_list, ncol = 2, guides = "collect", axes="collect_x") &
+  theme(legend.position = "bottom"))
 
 ggsave("Figures/empirical_vs_simulated_metrics_LD_TL.png", 
           plot = combined_plot, 
@@ -297,243 +297,7 @@ ggsave("Figures/empirical_vs_simulated_metrics_LD_TL.png",
 ```
 
 
-
-# Plot Metaweb metrics vs empirical - GAM 
-
-
-
-```{r plotMetaWebMetricsGam, eval=FALSE, message=TRUE, warning=TRUE}
-simMetaWebMetrics <- readRDS("Data/simulations_metaWeb_metrics.rds") %>% mutate(SVDComplexity= 1 - Entropy,
-                                                                                RankDeficiency = 1 - relRank) %>%
-  filter( !(Metaweb %in% c("WeddellSea","BeagleChannel","NorthernScotia","SouthernScotia")))
-
-#
-# Simulations with modularity calculate with spinglass method
-#
-# simMetaWebMetrics <- readRDS("Data/simulations_metaWeb_metrics_spinglass.rds") %>% mutate(SVDComplexity= 1 - Entropy,
-#                                                                                 RankDeficiency = 1 - relRank) %>%
-#   filter( !(Metaweb %in% c("WeddellSea","BeagleChannel","NorthernScotia","SouthernScotia")))
-
-#
-## Metrics vs Latitude and Area
-#
-require(fitdistrplus)
-descdist(simMetaWebMetrics$C, boot=1000)
-plot_metric_density(simMetaWebMetrics, network_info, "C")
-plot_metric_density(simMetaWebMetrics, network_info, "Modularity")
-plot_metric_density(simMetaWebMetrics, network_info, "SVDComplexity")
-
-
-plot_list <- plot_metric_vs_latitude_ci_gam(network_info, simMetaWebMetrics,fit_model = TRUE, metrics = c( "C", "SVDComplexity", "Modularity"),xvar = "latitude")
-qr_models <- plot_list$deviance
-plots0  <- plot_list$plots
-plots0$C <- NULL
-#plots0$Modularity <- NULL
-
-plot_list <- plot_metric_vs_latitude_ci_gam(network_info, simMetaWebMetrics,fit_model = TRUE, metrics = c( "C", "SVDComplexity", "Modularity"),xvar = "depth_m")
-# only p< 0.05
-plots  <- plot_list$plots
-plots$SVDComplexity <- NULL
-plots$Modularity <- NULL
-
-plot_list <- plot_metric_vs_latitude_ci_gam(network_info, simMetaWebMetrics,fit_model = FALSE, metrics = c( "C", "SVDComplexity", "Modularity"),xvar = "log_area")
-plots1 <- plot_list$plots
-plots1$SVDComplexity <- NULL
-plots1$C <- NULL
-
-plots <- c(plots0,plots,plots1)
-
-plot_list <- plot_metric_vs_latitude_ci_gam(network_info, simMetaWebMetrics,fit_model = FALSE, metrics = c( "C", "SVDComplexity", "Modularity"),xvar = "impact_mean")
-plot_list$plots
-plots2 <- plot_list$plots
-
-plot_list <- plot_metric_vs_latitude_ci_gam(network_info, simMetaWebMetrics,fit_model = FALSE, metrics = c( "C", "SVDComplexity", "Modularity"),xvar = "S")
-plot_list$plots
-plots2 <- plot_list$plots
-plots2$SVDComplexity <- NULL
-plots2$C <- NULL
-plots <- c(plots,plots2)
-
-
-### I need to arrange the list to show two columns 
-plots_grouped <- unlist(split(plots, names(plots)), recursive = FALSE)
-require(patchwork)
-combined_plot <- wrap_plots(list(plots[[5]],plots[[4]],plots[[2]]), ncol = 3, guides = "collect", axes="collect") &
-  theme(legend.position = "bottom")
-
-# Only p < 0.05
-#
-#ggsave("Figures/metric_Mod_vs_S_lat_area_sig_gam_spinglass.png",   # Figure of modularity with spinglass method
-ggsave("Figures/metric_Mod_vs_S_lat_area_sig_gam.png",
-          plot = combined_plot,
-          height = 6,
-          width = 10,
-          bg = "white")
-
-# Efecto total de S en las metricas --> Ninguno es significativo
-#
-plot_list <- plot_metric_vs_latitude_gam_S(network_info, simMetaWebMetrics,fit_model = TRUE, metrics = c( "C", "SVDComplexity", "Modularity"),xvar = "S")
-
-
-#
-# Relative Rank Rank/S
-# LD and TLmean
-#
-plot_list <- plot_metric_vs_latitude_ci_gam(network_info, simMetaWebMetrics, metrics = c("LD", "TLmean","RankDeficiency") , fit_model = TRUE)
-qr_models <- bind_rows(qr_models,plot_list$deviance)
-plots3 <- c(plot_list$plots)
-
-
-plot_list <- plot_metric_vs_latitude_ci_gam(network_info, simMetaWebMetrics, metrics = c("LD", "TLmean", "RankDeficiency"), 
-                                        xvar = "log_area",fit_model=FALSE)
-plots4 <- plot_list$plots
-# p < 0.05 plots4$TLmean
-
-plot_list <- plot_metric_vs_latitude_ci_gam(network_info, simMetaWebMetrics, metrics = c("LD", "TLmean", "RankDeficiency"), 
-                                        xvar = "impact_mean",fit_model=FALSE)
-plots5 <- plot_list$plots
-# p < 0.05 plots5$RankDeficiency
-
-plot_list <- plot_metric_vs_latitude_ci_gam(network_info, simMetaWebMetrics, metrics = c("LD", "TLmean", "RankDeficiency"), 
-                                        xvar = "S",fit_model=FALSE)
-plots6 <- plot_list$plots
-# p < 0.05 plots6$RankDeficiency
-
-
-#plots_grouped <- unlist(split(plots, names(plots)), recursive = FALSE)
-#names(plots_grouped)
-
-# Here I included the stability plot from plot_list1 in Stabilitysimulations.Rmd
-  #
-combined_plot <- wrap_plots(plots[[1]],plots7$MEing_stable,plots[[3]],
-ncol = 3, guides = "collect", axes="collect") &
-  theme(legend.position = "bottom")
-
-ggsave("Figures/metric_SVDC_MAXE_C_vs_lat_area_ci_gam.png", 
-          plot = combined_plot, 
-          height = 6, 
-          width = 10,
-          bg = "white")
-
-
-combined_plot <- wrap_plots(plots4$TLmean + ylab("TL"), plots5$RankDeficiency + ylab("Rank Deficiency"),plots6$RankDeficiency + ylab("Rank Deficiency"), 
-ncol = 3, guides = "collect", axes="collect") & theme(legend.position = "bottom")
-
-ggsave("Figures/metric_TL_RD_vs_lat_area_ci_gam.png", 
-          plot = combined_plot, 
-          height = 6, 
-          width = 10,
-          bg = "white")
-
-
-#qr_models <- readRDS("Data/qr_models_gam.rds")
-saveRDS(qr_models, "Data/qr_models_gam.rds")
-knitr::kable( qr_models,digits=4)
-```
-
-|Metric         |Term           |    edf| p-value| PartialDeviance| TotalDevianceExplained|
-|:--------------|:--------------|------:|-------:|---------------:|----------------------:|
-|C              |s(S)           | 1.0003|  0.4121|          2.2282|                   89.4|
-|C              |s(log_area)    | 1.0003|  0.7780|          0.2638|                   89.4|
-|C              |s(latitude)    | 1.0496|  0.3471|          3.4241|                   89.4|
-|C              |s(impact_mean) | 1.0006|  0.7286|          0.3990|                   89.4|
-|C              |s(depth_m)     | 1.0001|  0.0019|         31.8231|                   89.4|
-|C              |s(site)        | 0.9492|  0.0000|         61.8618|                   89.4|
-|SVDComplexity  |s(S)           | 1.0002|  0.6288|          0.6628|                   94.4|
-|SVDComplexity  |s(log_area)    | 1.0002|  0.3721|          2.2609|                   94.4|
-|SVDComplexity  |s(latitude)    | 1.0363|  0.0322|         13.9596|                   94.4|
-|SVDComplexity  |s(impact_mean) | 1.0004|  0.6884|          0.4561|                   94.4|
-|SVDComplexity  |s(depth_m)     | 1.0000|  0.0757|          8.9453|                   94.4|
-|SVDComplexity  |s(site)        | 0.9629|  0.0000|         73.7153|                   94.4|
-|Modularity     |s(S)           | 1.0000|  0.0002|          1.9378|                   74.3|
-|Modularity     |s(log_area)    | 1.0000|  0.0188|          0.7733|                   74.3|
-|Modularity     |s(latitude)    | 1.0006|  0.0340|          0.6310|                   74.3|
-|Modularity     |s(impact_mean) | 1.0000|  0.2208|          0.2101|                   74.3|
-|Modularity     |s(depth_m)     | 1.0000|  0.8680|          0.0039|                   74.3|
-|Modularity     |s(site)        | 0.9985|  0.0000|         96.4439|                   74.3|
-|LD             |s(S)           | 1.0000|  0.8878|          0.0267|                   90.6|
-|LD             |s(log_area)    | 1.0000|  0.6082|          0.3514|                   90.6|
-|LD             |s(latitude)    | 1.0136|  0.3504|          1.2175|                   90.6|
-|LD             |s(impact_mean) | 1.0001|  0.7834|          0.1011|                   90.6|
-|LD             |s(depth_m)     | 1.0000|  0.1267|          3.1191|                   90.6|
-|LD             |s(site)        | 0.9862|  0.0000|         95.1843|                   90.6|
-|TLmean         |s(S)           | 1.0000|  0.1551|          0.0832|                   86.3|
-|TLmean         |s(log_area)    | 1.0000|  0.0085|          0.2856|                   86.3|
-|TLmean         |s(latitude)    | 1.0003|  0.0577|          0.1484|                   86.3|
-|TLmean         |s(impact_mean) | 1.0000|  0.9238|          0.0004|                   86.3|
-|TLmean         |s(depth_m)     | 1.0000|  0.8646|          0.0012|                   86.3|
-|TLmean         |s(site)        | 0.9996|  0.0000|         99.4812|                   86.3|
-|RankDeficiency |s(S)           | 1.0001|  0.0000|         16.8583|                   83.2|
-|RankDeficiency |s(log_area)    | 1.0001|  0.0716|          1.6758|                   83.2|
-|RankDeficiency |s(latitude)    | 1.0057|  0.4396|          0.3148|                   83.2|
-|RankDeficiency |s(impact_mean) | 1.0002|  0.0023|          4.7819|                   83.2|
-|RankDeficiency |s(depth_m)     | 1.0000|  0.7967|          0.0343|                   83.2|
-|RankDeficiency |s(site)        | 0.9933|  0.0000|         76.3349|                   83.2|
-|MEing_stable   |s(S)           | 1.0000|  0.1344|         12.3301|                   19.1|
-|MEing_stable   |s(log_area)    | 1.0000|  0.2778|          6.4802|                   19.1|
-|MEing_stable   |s(latitude)    | 1.0446|  0.0451|         23.1881|                   19.1|
-|MEing_stable   |s(impact_mean) | 1.0002|  0.5918|          1.5806|                   19.1|
-|MEing_stable   |s(depth_m)     | 1.0000|  0.4690|          2.8839|                   19.1|
-|MEing_stable   |s(site)        | 0.9418|  0.0000|         53.5371|                   19.1|
-
-
-# Plot Metaweb metrics vs S - GAM
-
-
-```{r plotMetaWebMetricsSGam, eval=FALSE, message=TRUE, warning=TRUE}
-
-#
-# Relative Rank Rank/S
-# LD and TLmean
-#
-plot_list <- plot_metric_vs_latitude_ci_gam(network_info, simMetaWebMetrics, metrics = c("LD", "TLmean", "RankDeficiency") , fit_model = FALSE, xvar = "S")
-plots <- c(plot_list$plots)
-
-
-plot_list <- plot_metric_vs_latitude_ci_gam(network_info, simMetaWebMetrics, metrics = c("LD", "TLmean", "RankDeficiency"), 
-                                        xvar = "log_area",fit_model=FALSE)
-plots <- c(plots,plot_list$plots)
-
-plot_list <- plot_metric_vs_latitude_ci_gam(network_info, simMetaWebMetrics, metrics = c("LD", "TLmean", "RankDeficiency"), 
-                                        xvar = "impact_mean",fit_model=FALSE)
-plots <- c(plots,plot_list$plots)
-
-
-plots_grouped <- unlist(split(plots, names(plots)), recursive = FALSE)
-names(plots_grouped)
-
-combined_plot <- wrap_plots(plots_grouped, ncol = 3, guides = "collect", axes="collect") &
-  theme(legend.position = "bottom")
-
-ggsave("Figures/metric_LD_TL_vs_lat_area_ci_gam.png", 
-          plot = combined_plot, 
-          height = 6, 
-          width = 10,
-          bg = "white")
-
-
-#
-# S plots only significant ones
-#
-plot_list <- plot_metric_vs_latitude_ci_gam(network_info, simMetaWebMetrics,fit_model = FALSE, metrics = c( "Modularity","RankDeficiency"),xvar = "S")
-
-# plot_list1 from Stabilitysimulations.Rmd
-#plots <- c(plot_list$plots,plot_list1$plots)
-plots <- plot_list$plots
-combined_plot <- wrap_plots(plots$Modularity, plots$RankDeficiency + ylab("Rank Deficiency"), ncol = 2, guides = "collect", axes="collect") &
-  theme(legend.position = "bottom")
-ggsave("Figures/metric_Q_RD_vs_S_ci_gam.png", 
-          plot = combined_plot, 
-          height = 5, 
-          width = 10,
-          bg = "white")
-
-#
-#
-#
-
-```
-
+# Correlations between environmental (independent variables)
 
 ```{r CheckCorrelation_createTables, eval=FALSE, message=TRUE, warning=TRUE}
 
@@ -551,7 +315,7 @@ network_info %>% mutate(log_area = log(area_km2)) %>%
   ) +
   theme_bw()
 
-
+ggsave("Figures/correlation_network_info.png", width = 8, height = 6, dpi = 300)
 
 # Create RankDeficiency
 simMetaWebMetrics <- simMetaWebMetrics %>%
