@@ -780,6 +780,70 @@ plot_empirical_vs_simulated_metrics <- function(network_info, simulated_metrics,
 
 
 
+#' Faceted density plots of simulated metrics with observed values
+#'
+#' @param network_info Data frame with observed metrics (must include `site`)
+#' @param simulated_metrics Data frame with simulated metrics (must include `Metaweb`)
+#' @param metrics Character vector of metrics to plot
+#'
+#' @return A named list of ggplot objects (one per metric)
+#' @export
+#'
+#' @import ggplot2 dplyr purrr
+plot_density_faceted_by_site <- function(network_info,
+                                         simulated_metrics,
+                                         metrics = c("S", "C", "Modularity")) {
+  library(dplyr)
+  library(ggplot2)
+  library(purrr)
+  
+  # Prepare simulated data
+  sim_data <- simulated_metrics %>%
+    rename(site = Metaweb) %>%
+    filter(site %in% network_info$site)
+  
+  # Prepare observed data
+  obs_data <- network_info %>%
+    select(site, everything()) %>%
+    filter(site %in% sim_data$site)
+  
+  # Determine metrics automatically if needed
+  if (is.null(metrics)) {
+    numeric_cols <- map_lgl(obs_data, is.numeric)
+    candidate_metrics <- names(obs_data)[numeric_cols]
+    metrics <- intersect(candidate_metrics, names(sim_data))
+    metrics <- setdiff(metrics, c("latitude", "depth_m", "area_km2"))
+  }
+  
+  # Function to build one faceted plot per metric
+  plot_one_metric <- function(metric_name) {
+    
+    obs_metric <- obs_data %>%
+      select(site, value = all_of(metric_name))
+    
+    ggplot(sim_data, aes(x = .data[[metric_name]])) +
+      geom_density(fill = "skyblue", alpha = 0.5, linewidth = 0.5) +
+      geom_vline(data = obs_metric,
+                 aes(xintercept = value),
+                 color = "red",
+                 linetype = "dashed",
+                 linewidth = 0.9) +
+      facet_wrap(~ site, scales = "free") +
+      labs(#title = paste("Null distribution of", metric_name),
+           x = metric_name,
+           y = "Density") +
+      theme_bw(base_size = 13) +
+      theme(strip.background = element_rect(fill = "gray90"),
+            strip.text = element_text(face = "bold"))
+  }
+  
+  # Generate plots
+  plots <- map(metrics, plot_one_metric)
+  names(plots) <- metrics
+  
+  plots
+}
+
 #' Plot Simulated Metric Densities with Observed Value Lines
 #'
 #' @param network_info A data frame with observed values: must include `site`, `S`, `C`, `entropy`, `modularity`.

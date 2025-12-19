@@ -50,7 +50,7 @@ df_all <- sim_final %>%
 
 # Run Bayesian Multivariate Model (updated human impact index)
 
-```{r runBayesianMv_200_hi,eval=TRUE, message=NA, warning=TRUE}
+```{r runBayesianMv_200_nd,eval=TRUE, message=NA, warning=TRUE}
 library(future)
 plan(multisession)
 
@@ -82,14 +82,21 @@ d <- d %>%
 
 library(brms)
 options(brms.backend = "cmdstanr")
+bf_C   <- bf(C_logit   ~ S_s + log_area_s + latitude_s + impact_mean_s +  (1 | site))
+bf_Mod <- bf(Mod_logit ~ S_s + log_area_s + latitude_s + impact_mean_s +  (1 | site))
+bf_Rk  <- bf(Rank_logit~ S_s + log_area_s + latitude_s + impact_mean_s +  (1 | site))
+bf_LD  <- bf(LD_log    ~ S_s + log_area_s + latitude_s + impact_mean_s +  (1 | site))
+bf_TL  <- bf(TL_z      ~ S_s + log_area_s + latitude_s + impact_mean_s +  (1 | site))
+bf_SVD <- bf(SVD_z     ~ S_s + log_area_s + latitude_s + impact_mean_s +  (1 | site))
+bf_ME  <- bf(ME_log    ~ S_s + log_area_s + latitude_s + impact_mean_s +  (1 | site))
 
-bf_C   <- bf(C_logit   ~ S_s + log_area_s + latitude_s + impact_mean_s + depth_m_s + (1 | site))
-bf_Mod <- bf(Mod_logit ~ S_s + log_area_s + latitude_s + impact_mean_s + depth_m_s + (1 | site))
-bf_Rk  <- bf(Rank_logit~ S_s + log_area_s + latitude_s + impact_mean_s + depth_m_s + (1 | site))
-bf_LD  <- bf(LD_log    ~ S_s + log_area_s + latitude_s + impact_mean_s + depth_m_s + (1 | site))
-bf_TL  <- bf(TL_z      ~ S_s + log_area_s + latitude_s + impact_mean_s + depth_m_s + (1 | site))
-bf_SVD <- bf(SVD_z     ~ S_s + log_area_s + latitude_s + impact_mean_s + depth_m_s + (1 | site))
-bf_ME  <- bf(ME_log    ~ S_s + log_area_s + latitude_s + impact_mean_s + depth_m_s + (1 | site))
+# bf_C   <- bf(C_logit   ~ S_s + log_area_s + latitude_s + impact_mean_s + depth_m_s + (1 | site))
+# bf_Mod <- bf(Mod_logit ~ S_s + log_area_s + latitude_s + impact_mean_s + depth_m_s + (1 | site))
+# bf_Rk  <- bf(Rank_logit~ S_s + log_area_s + latitude_s + impact_mean_s + depth_m_s + (1 | site))
+# bf_LD  <- bf(LD_log    ~ S_s + log_area_s + latitude_s + impact_mean_s + depth_m_s + (1 | site))
+# bf_TL  <- bf(TL_z      ~ S_s + log_area_s + latitude_s + impact_mean_s + depth_m_s + (1 | site))
+# bf_SVD <- bf(SVD_z     ~ S_s + log_area_s + latitude_s + impact_mean_s + depth_m_s + (1 | site))
+# bf_ME  <- bf(ME_log    ~ S_s + log_area_s + latitude_s + impact_mean_s + depth_m_s + (1 | site))
 
 multi_form <- bf_C + bf_Mod + bf_Rk + bf_LD + bf_TL + bf_SVD + bf_ME +
   set_rescor(TRUE)
@@ -183,6 +190,15 @@ pp_check(fit_mv, resp = "MElog", type = "stat", stat = "mean")
 names(fit_mv$formula$forms)
 ```
 
+             Estimate    Est.Error      Q2.5     Q97.5
+R2Clogit    0.9955236 1.941795e-05 0.9954777 0.9955526
+R2Modlogit  0.3983943 1.567611e-02 0.3663384 0.4283074
+R2Ranklogit 0.9799284 1.593120e-04 0.9795749 0.9801924
+R2LDlog     0.9951369 2.218476e-05 0.9950843 0.9951695
+R2TLz       0.9401815 7.701684e-04 0.9385158 0.9415421
+R2SVDz      0.9964272 1.484143e-05 0.9963918 0.9964488
+R2MElog     0.1366703 1.572518e-02 0.1064221 0.1681636
+
 ## Parameter distribution
 
 ```{r parameter_distribution, message=TRUE, warning=TRUE, eval=FALSE}
@@ -235,7 +251,7 @@ summary_slopes <- slopes_df %>%
   arrange(desc(prob_max))
 
 # Filtrar efectos ≥ 0.70
-selected <- summary_slopes %>% filter(prob_max >= 0.75)
+selected <- summary_slopes %>% filter(prob_max >= 0.7)
 
 slopes_selected <- slopes_df %>%
   semi_join(selected, by = "param")
@@ -266,6 +282,12 @@ ggsave("Figures/Bayesian_slopes_n200.png", width = 5, height = 10)
 mcmc_areas(fit_mv, regex_pars = "^rescor")
 
 mcmc_areas(fit_mv, regex_pars = "^b_.*_s$")
+
+# Collinearity
+slopes_df %>%
+  dplyr::select(b_log_area, b_depth_m) %>%
+  cor()
+
 
 plot_param_density( fit_mv, "b_TLz_log_area_s", "Slope of Trophic Level vs log Area")
 plot_param_density( fit_mv, "b_Modlogit_S_s", "Slope of Modularity vs S")
@@ -303,6 +325,57 @@ plot_param_density( fit_mv, "b_Ranklogit_impact_mean_s", "Slope of Rank Deficien
 12 Modularity         Area (log)   b_Modlogit_log_area_s        0.240    0.760    0.760 negative* 
 13 Modularity         Latitude     b_Modlogit_latitude_s        0.249    0.751    0.751 negative* 
 14 Rank Deficiency    Human Impact b_Ranklogit_impact_mean_s    0.250    0.750    0.750 negative 
+
+## Check collinearity
+
+```{r check_collinearity, eval=FALSE}
+
+library(posterior)
+library(dplyr)
+
+draws <- as_draws_df(fit_mv)
+
+mod_draws <- draws %>%
+  select(
+    b_Modlogit_log_area_s,
+    b_Modlogit_depth_m_s
+  )
+
+cor(mod_draws)
+
+responses <- c("Clogit", "Modlogit", "Ranklogit",
+               "LDlog", "TLz", "SVDz", "MElog")
+
+corr_table <- lapply(responses, function(resp) {
+  cols <- paste0("b_", resp, c("_log_area_s", "_depth_m_s"))
+  c(response = resp,
+    cor = cor(draws[, cols])[1, 2])
+}) %>%
+  bind_rows()
+
+corr_table
+
+post_all <- map_dfr(responses, function(resp) {
+  as_draws_df(fit_mv) %>%
+    select(
+      !!paste0("b_", resp, "_log_area_s"),
+      !!paste0("b_", resp, "_depth_m_s")
+    ) %>%
+    setNames(c("log_area", "depth")) %>%
+    mutate(response = resp)
+})
+
+ggplot(post_all, aes(x = log_area, y = depth)) +
+  geom_point(alpha = 0.1, size = 0.4) +
+  facet_wrap(~ response, scales = "free") +
+  labs(
+    x = "log(area) coefficient",
+    y = "depth coefficient",
+    title = "Posterior joint distributions reveal strong collinearity across responses"
+  ) +
+  theme_bw(base_size = 12)
+
+```
 
 ## Marginal effects plots
 
@@ -533,6 +606,7 @@ library(bayesplot)  # opcional para plots rápidos
 
 # 1. extraer muestras de parámetros rescor
 ps <- as_draws_df(fit_mv)  # o posterior::as_draws_df
+
 # seleccionar columnas que comienzan con "rescor__"
 ps_rescor <- ps %>% select(starts_with("rescor__"))
 
@@ -638,6 +712,7 @@ summary_rescor %>% mutate(
     ) %>%
   filter(prob_pos > 0.975 | prob_pos < 0.025) %>%
   arrange(desc(abs(mean))) %>% dplyr::select(param, resp1_pretty, resp2_pretty, mean, lwr, upr, prob_pos)
+
 
 
 ```

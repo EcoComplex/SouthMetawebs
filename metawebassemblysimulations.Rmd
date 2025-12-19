@@ -271,18 +271,33 @@ network_info$site
 network_info <- filter(network_info, !(site %in% c("WeddellSea","BeagleChannel","NorthernScotia","SouthernScotia")))
 network_info <- network_info %>% mutate(relRank=Rank/S,RankDeficiency=1 - relRank, SVDComplexity= 1 - Entropy)
 
-plot_list <- plot_empirical_vs_simulated_metrics(network_info,simMetaWebMetrics, metrics=c( "C","RankDeficiency", "SVDComplexity", "Modularity"))
+plot_list <- plot_density_faceted_by_site(network_info,simMetaWebMetrics, metrics=c( "C","RankDeficiency"))
+
+#plot_list <- plot_empirical_vs_simulated_metrics(network_info,simMetaWebMetrics, metrics=c( "C","RankDeficiency", "SVDComplexity", "Modularity"))
 
 (combined_plot <- wrap_plots(plot_list, ncol = 2, guides = "collect", axes="collect_x") &
   theme(legend.position = "bottom"))
 
-ggsave("Figures/empirical_vs_simulated_metrics.png", 
+ggsave("Figures/empirical_vs_simulated_metrics_C_RD.png", 
           plot = combined_plot, 
           height = 6, 
           width = 10,
           bg = "white")
 
-plot_list <- plot_empirical_vs_simulated_metrics(network_info,simMetaWebMetrics, metrics=c("LD", "TLmean"))
+plot_list <- plot_density_faceted_by_site(network_info,simMetaWebMetrics, metrics=c( "SVDComplexity", "Modularity"))
+
+(combined_plot <- wrap_plots(plot_list, ncol = 2, guides = "collect", axes="collect_x") &
+  theme(legend.position = "bottom"))
+
+ggsave("Figures/empirical_vs_simulated_metrics_SVDC_Mod.png", 
+          plot = combined_plot, 
+          height = 6, 
+          width = 10,
+          bg = "white")
+
+plot_list <- plot_density_faceted_by_site(network_info,simMetaWebMetrics, metrics=c("LD", "TLmean"))
+
+#plot_list <- plot_empirical_vs_simulated_metrics(network_info,simMetaWebMetrics, metrics=c("LD", "TLmean"))
 
 (combined_plot <- wrap_plots(plot_list, ncol = 2, guides = "collect", axes="collect_x") &
   theme(legend.position = "bottom"))
