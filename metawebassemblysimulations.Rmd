@@ -348,10 +348,10 @@ summarize_metric <- function(x, digits = 3) {
 }
 
 # Summarize by Metaweb
-network_info <- 
+stability_results_meig <- readRDS("Data/stability_results_meig.rds") 
 
-summary_table <- simMetaWebMetrics %>% rename(Network = Metaweb ) %>% filter(!(Network %in% c("WeddellSea","BeagleChannel","NorthernScotia","SouthernScotia"))) %>%
-  group_by(Network) %>%
+summary_table <- simMetaWebMetrics %>% rename(site = Metaweb ) %>% filter(!(site %in% c("WeddellSea","BeagleChannel","NorthernScotia","SouthernScotia"))) %>%
+  group_by(site) %>%
   summarise(
     C = summarize_metric(C),
     LD = summarize_metric(LD),
@@ -362,7 +362,9 @@ summary_table <- simMetaWebMetrics %>% rename(Network = Metaweb ) %>% filter(!(N
     .groups = "drop"
   )
 
-summary_table
+
+summary_table <- inner_join(summary_table,  stability_results_meig %>% group_by(site) %>% summarise(
+  Meig = summarize_metric(MEing_stable) ) )
 
 library(xtable)
 
@@ -371,7 +373,7 @@ print(
   xtable(summary_table,
          caption = "Summary of network metrics across 1000 simulations for each metaweb. Values are means with 95\\% intervals in parentheses.",
          label = "tab:metaweb_metrics",
-         align = c("l","l","c","c","c","c","c","c")),
+         align = c("l","l","c","c","c","c","c","c","c")),
   include.rownames = FALSE,
   sanitize.text.function = identity,  # keeps the formatted mean (lwr–upr)
   booktabs = TRUE
