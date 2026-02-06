@@ -326,11 +326,14 @@ sim_results  %>%  ggplot( aes(x = S, y = Entropy, color = S)) +
   theme_bw() +
   labs(
     y = "SVD Entropy",
-    color = "Species (S)",
-    title = "Random model simulations"
+    color = "Species (S)"
     ) +
-  geom_point(data=network_info, aes(x=S, y=Entropy), size=3)
+  geom_point(data=network_info, aes(x=S, y=Entropy), size=3, shape=17) + guides(color = "none")
 
+ggsave("Figures/random_vs_empirical_SVDE.png", 
+          height = 6, 
+          width = 10,
+          bg = "white")
 
 ```
 

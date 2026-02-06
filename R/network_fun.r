@@ -1886,7 +1886,7 @@ marginal_effect_plot2 <- function(
     summarise(
       x_std  = mean(!!sym(xvar), na.rm = TRUE),
       x_orig = x_std * sig + mu,
-      y_med  = median(!!sym(obs_var), na.rm = TRUE),
+      #y_med  = median(!!sym(obs_var), na.rm = TRUE),
       y_lwr  = quantile(!!sym(obs_var), lower_q, na.rm = TRUE),
       y_upr  = quantile(!!sym(obs_var), upper_q, na.rm = TRUE),
       .groups = "drop"
@@ -1895,7 +1895,7 @@ marginal_effect_plot2 <- function(
       x_jit = x_orig + rnorm(n(), 0, diff(range(x_orig)) * 0.005)
    ) %>%
   # 🔥 Añadimos el nombre de la red
-  left_join(network_info %>% dplyr::select(site, network_name = name),#,y_med = !!sym(obs_var)),
+  left_join(network_info %>% dplyr::select(site, network_name = name,y_med = !!sym(obs_var)),
             by = "site")
 
   

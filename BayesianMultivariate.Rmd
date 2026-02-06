@@ -399,6 +399,7 @@ library(patchwork)
         labs(x = "Area (log)", y = "Trophic Level") )
 (g12 <- marginal_effect_plot2(fit_mv,"SVDz","SVDComplexity","log_area_s",inv_SVD) + 
         labs(x = "Area (log)", y = "Complexity") )
+network_info$LD_log = log(network_info$LD)
 (g13 <- marginal_effect_plot2(fit_mv,"LDlog","LD_log","log_area_s",inv_id) + 
         labs(x = "Area (log)", y = "Log Link density") )
 
@@ -410,6 +411,8 @@ library(patchwork)
         labs(x = "Area (log)", y = "Rank Deficiency") )
 (g16 <- marginal_effect_plot2(fit_mv,"Modlogit","Modularity","log_area_s",inv_Mod) + 
         labs(x = "Area (log)", y = "Modularity ") )
+# The values in network_info are  the median of simulations of Meing_stable
+network_info$ME_log = log(-network_info$MEing_stable)
 (g17 <- marginal_effect_plot2(fit_mv,"MElog","ME_log","log_area_s",inv_id) + 
         labs(x = "Area (log)", y = "Log Stability") )
 
@@ -430,7 +433,7 @@ ggsave("Figures/Bayesian_C_RD_Mod_ST_vs_Area_mv.png",
           width = 10,
           bg = "white")
 
-#x
+#
 # Latitude
 #
 (g21 <- marginal_effect_plot2(fit_mv,"TLz","TLmean","latitude_s",inv_TL,ci=.95) + 
@@ -442,12 +445,12 @@ ggsave("Figures/Bayesian_C_RD_Mod_ST_vs_Area_mv.png",
 
 (g24 <- marginal_effect_plot2(fit_mv,"Clogit","C","latitude_s",inv_Mod,ci=.8) + 
         labs(x = "Latitude", y = "C ") )
-(g25 <- marginal_effect_plot2(fit_mv,"Ranklogit","RankDeficiency","S_s",inv_Rk) + 
-        labs(x = "S", y = "Rank Deficiency") )
+(g25 <- marginal_effect_plot2(fit_mv,"Ranklogit","RankDeficiency","latitude_s",inv_Rk) + 
+        labs(x = "Latitude", y = "Rank Deficiency") )
 (g26 <- marginal_effect_plot2(fit_mv,"Modlogit","Modularity","latitude_s",inv_Mod) + 
         labs(x = "latitude", y = "Modularity ") )
-(g27 <- marginal_effect_plot2(fit_mv,"MElog","ME_log","log_area_s",inv_id) + 
-        labs(x = "Area (log)", y = "Log Stability") )
+(g27 <- marginal_effect_plot2(fit_mv,"MElog","ME_log","latitude_s",inv_id) + 
+        labs(x = "latitude", y = "Log Stability") )
 
 
 combined_plot <- wrap_plots(g21,g22,g23, ncol = 3, guides = "collect", axes="collect") &
