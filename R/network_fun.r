@@ -1825,6 +1825,7 @@ marginal_effect_plot2 <- function(
   # chequeos
   if (!xvar %in% names(d)) stop("xvar no existe en d")
   if (!obs_var %in% names(d)) stop("obs_var no existe en d")
+  if (!obs_var %in% names(network_info)) stop("obs_var no existe en network_info")
   if (!"site" %in% names(d)) stop("d debe contener la columna 'site'")
   if (!all(c("site","name") %in% names(network_info)))
     stop("network_info debe contener columnas 'site' y 'name'")
@@ -1886,7 +1887,7 @@ marginal_effect_plot2 <- function(
     summarise(
       x_std  = mean(!!sym(xvar), na.rm = TRUE),
       x_orig = x_std * sig + mu,
-      #y_med  = median(!!sym(obs_var), na.rm = TRUE),
+      y_med  = median(!!sym(obs_var), na.rm = TRUE),
       y_lwr  = quantile(!!sym(obs_var), lower_q, na.rm = TRUE),
       y_upr  = quantile(!!sym(obs_var), upper_q, na.rm = TRUE),
       .groups = "drop"
@@ -1895,7 +1896,7 @@ marginal_effect_plot2 <- function(
       x_jit = x_orig + rnorm(n(), 0, diff(range(x_orig)) * 0.005)
    ) %>%
   # 🔥 Añadimos el nombre de la red
-  left_join(network_info %>% dplyr::select(site, network_name = name,y_med = !!sym(obs_var)),
+  left_join(network_info %>% dplyr::select(site, network_name = name),
             by = "site")
 
   
@@ -2143,7 +2144,7 @@ plot_mcmc_areas_ordered <- function(fit,
        panel.grid.major.y = element_blank(),
        panel.grid.minor = element_blank()
     ) +
-    geom_vline(xintercept = 0, linetype = 3) +
+    geom_vline(xintercept = 0, linetype = 1, linewidth = 1) +
     labs(x = "Posterior distribution", y = NULL)
 }
 

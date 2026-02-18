@@ -117,6 +117,7 @@ saveRDS(fit_mv, "Data/brms_mv_foodweb_fit.rds")
 ## Pp checks and plots
 
 ```{r ppchecks_and_plots, message=TRUE, warning=TRUE,eval=FALSE}
+
 fit_mv <- readRDS("Data/brms_mv_foodweb_fit.rds")
 brms::bayes_R2(fit_mv)
 
@@ -212,7 +213,7 @@ nice_names <- c(
   "latitude_s"   = "Latitude",
   "impact_mean_s"= "Human Impact",
   "depth_m_s"    = "Depth",
-  "MElog" = "Maximum Eigenvalue",
+  "MElog" = "Stability",
   "TLz"           = "Trophic Level",
   "LDlog"           = "Link Density",
   "Ranklogit" = "Rank Deficiency",
@@ -501,7 +502,8 @@ ggsave("Figures/Bayesian_all_vs_impact_mv.png",
 #
 # S 
 #
-
+network_info$LD_log <-  log(network_info$LD)
+network_info$ME_log <- log(-network_info$MEing_stable) 
 
 (g41 <- marginal_effect_plot2(fit_mv,"TLz","TLmean","S_s",inv_TL) + 
         labs(x = "S", y = "Trophic Level") )
@@ -520,7 +522,16 @@ ggsave("Figures/Bayesian_all_vs_impact_mv.png",
         labs(x = "S", y = "Stability ") )
 
 
-combined_plot <- wrap_plots(g41,g42,g43,g44,g45,g46,g47, ncol = 2, guides = "collect", axes="collect") &
+combined_plot <- wrap_plots(g46,g45,g47, ncol = 3, guides = "collect", axes="collect") &
+  theme(legend.position = "bottom")
+ggsave("Figures/Bayesian_Mod_RK_ST_vs_S_mv.png", 
+          plot = combined_plot, 
+          height = 6, 
+          width = 10,
+          bg = "white")
+
+
+combined_plot <- wrap_plots(g41,g42,g43,g44, ncol = 2, guides = "collect", axes="collect") &
   theme(legend.position = "bottom")
 ggsave("Figures/Bayesian_all_vs_S_mv.png", 
           plot = combined_plot, 

@@ -86,6 +86,17 @@ plot_troph_level_ggplot(g2,modules = TRUE)
 
 svden <- svden %>% add_row(name="3IC-TP-IS-CL-OM-BA-CO",igraph=list(g2))
 
+# @Sanders2018
+
+g <-   graph_from_literal( 1 -+ 4 -+ 7 -+ 3,1 -+ 5 -+8 -+ 3, 1 -+ 6 -+9 -+ 3, simplify = FALSE)
+plot_troph_level_ggplot(g,modules = TRUE)
+svden <-  svden %>% add_row(name="SAN-A",igraph=list(g))
+
+
+g <-   graph_from_literal( 1 -+ 4 -+ 7 -+ 3,1 -+ 5 -+8 -+ 3, 1 -+ 6 -+9 -+ 3, 2 -+ 10 -+ 11 -+ 3,4-+10,6-+10, simplify = FALSE)
+plot_troph_level_ggplot(g,modules = TRUE)
+svden <-  svden %>% add_row(name="SAN-C",igraph=list(g))
+
 ```
 
 
@@ -296,16 +307,15 @@ sim_results <- tibble(
 
 plan(sequential)
 
-ggplot(sim_results, aes(x = C, y = rankDeficiency, color = S)) +
+ggplot(sim_results, aes(x = S, y = rankDeficiency, color = S)) +
   geom_point(alpha = 0.6) +
   scale_color_viridis_c() +
   theme_bw() +
   labs(
-    x = "SVD Entropy",
-    y = "Rank Deficiency",
-    color = "Species (S)"
+    x = "S",
+    y = "Rank Deficiency"
     ) +
-  geom_point(data=network_info, aes(x=C, y=1 - Rank/S), size=3)
+  geom_point(data=network_info, aes(x=S, y=1 - Rank/S), size=3, shape=17) + guides(color = "none")
 
 
 
