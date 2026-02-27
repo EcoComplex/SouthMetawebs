@@ -666,7 +666,7 @@ new_names <- c(
   LDlog      = "Link Density",
   TLz        = "Trophic Level",
   SVDz       = "Complexity",
-  MElog      = "Max. Eigenvalue"
+  MElog      = "Stability"
 )
 
 # Renombrar filas y columnas
