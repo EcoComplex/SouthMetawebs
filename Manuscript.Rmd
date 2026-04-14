@@ -119,14 +119,15 @@ Dynamic Stability   Maximal real part of the eigenvalues of the community   A me
                     then assessed from the distribution of maximal
                     eigenvalues across stable realizations.
 
-SVD Complexity      Entropy computed from the normalized singular values    Ecological complexity arises from organized          @Shannon1948;
-                    of the adjacency matrix obtained through Singular      heterogeneity, not from randomness. Lower entropy   @Loke2022;
-                    Value Decomposition (SVD). While entropy traditionally (and thus higher 1 - entropy) indicates stronger   @Strydom2021;
-                    measures how evenly structural information is           structural constraints and non-random organization @Huaylla2024
-                    distributed across dimensions, randomized networks     of interactions, consistent with ecological
-                    often show higher values than empirical food webs.     assembly processes. We therefore use 1 - SVD
-                    entropy for complexity to emphasize deviations from
-                    randomness.
+SVD Complexity      Defined as $1 − J$, where $J$ is the Shannon entropy    SVD complexity quantifies how strongly network        @Shannon1948;
+                    of the normalized singular values of the adjacency      structure is concentrated in a few dominant           @Loke2022;
+                    matrix obtained through Singular Value Decomposition    dimensions rather than evenly distributed. High       @Strydom2021;
+                    (SVD). Singular values are scaled to sum to one and     values indicate that most structural information      @Huaylla2024
+                    represent the relative contribution of each structural  is captured by a limited number of dimensions,
+                    dimension.                                              reflecting strong ecological constraints such as
+                                                                            trophic hierarchy or modular organization. Low
+                                                                            values indicate a more homogeneous, random-like
+                                                                            distribution of interactions.
 
 Rank Deficiency     The relative rank deficiency is calculated as           Provides an estimate of external structural          @Strydom2021
                     D = 1 - (r / M), where r is the adjacency matrix rank   complexity: higher deficiency implies more
