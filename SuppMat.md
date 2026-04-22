@@ -91,13 +91,45 @@ where:
 
 ![Distribution of metaweb-simulated network metrics (SVD complexity and modularity) with the empirical value indicated by the red dashed line.](Figures/empirical_vs_simulated_metrics_SVDC_Mod.png) 
 
+\newpage
+
 ![Distribution of metaweb-simulated network metrics (Connectance and Rank Deficiency) with the empirical value indicated by the red dashed line.](Figures/empirical_vs_simulated_metrics_C_RD.png) 
+
+\newpage
 
 ![Distribution of metaweb-simulated network metrics (Link Density and Trophic Level) with the empirical value indicated by the red dashed line.](Figures/empirical_vs_simulated_metrics_LD_TL.png)
 
+\newpage
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{lcccccc}
+  \toprule
+site & C & LD & TLmean & SVDComplexity & RankDeficiency & Modularity \\ 
+  \midrule
+BurdwoodBank & \shortstack{0.014 \\ {\tiny(0.012--0.018)}} & \shortstack{4.463 \\ {\tiny(3.937--4.810)}} & \shortstack{2.470 \\ {\tiny(2.377--2.551)}} & \shortstack{0.079 \\ {\tiny(0.075--0.082)}} & \shortstack{0.635 \\ {\tiny(0.572--0.660)}} & \shortstack{0.334 \\ {\tiny(0.301--0.371)}} \\ 
+  GulfSanJorge & \shortstack{0.038 \\ {\tiny(0.035--0.042)}} & \shortstack{5.590 \\ {\tiny(4.750--6.121)}} & \shortstack{2.906 \\ {\tiny(2.653--3.025)}} & \shortstack{0.080 \\ {\tiny(0.075--0.084)}} & \shortstack{0.447 \\ {\tiny(0.419--0.481)}} & \shortstack{0.137 \\ {\tiny(0.074--0.212)}} \\ 
+  PotterCove & \shortstack{0.055 \\ {\tiny(0.050--0.060)}} & \shortstack{5.461 \\ {\tiny(4.639--5.935)}} & \shortstack{2.233 \\ {\tiny(2.094--2.530)}} & \shortstack{0.091 \\ {\tiny(0.085--0.096)}} & \shortstack{0.493 \\ {\tiny(0.451--0.533)}} & \shortstack{0.164 \\ {\tiny(0.054--0.243)}} \\ 
+  BeagleChannel & \shortstack{0.048 \\ {\tiny(0.045--0.052)}} & \shortstack{7.256 \\ {\tiny(6.433--7.855)}} & \shortstack{2.607 \\ {\tiny(2.480--2.798)}} & \shortstack{0.092 \\ {\tiny(0.088--0.096)}} & \shortstack{0.411 \\ {\tiny(0.386--0.439)}} & \shortstack{0.119 \\ {\tiny(0.058--0.180)}} \\ 
+  NorthernScotia & \shortstack{0.165 \\ {\tiny(0.157--0.174)}} & \shortstack{38.458 \\ {\tiny(34.339--41.574)}} & \shortstack{3.549 \\ {\tiny(3.431--3.683)}} & \shortstack{0.172 \\ {\tiny(0.167--0.175)}} & \shortstack{0.455 \\ {\tiny(0.434--0.476)}} & \shortstack{0.076 \\ {\tiny(0.001--0.113)}} \\ 
+  SouthernScotia & \shortstack{0.151 \\ {\tiny(0.143--0.158)}} & \shortstack{31.339 \\ {\tiny(27.805--33.969)}} & \shortstack{3.513 \\ {\tiny(3.374--3.649)}} & \shortstack{0.167 \\ {\tiny(0.162--0.171)}} & \shortstack{0.424 \\ {\tiny(0.400--0.447)}} & \shortstack{0.071 \\ {\tiny(0.049--0.120)}} \\ 
+  Weddell Sea & \shortstack{0.063 \\ {\tiny(0.059--0.075)}} & \shortstack{24.084 \\ {\tiny(21.360--26.175)}} & \shortstack{3.443 \\ {\tiny(3.170--3.757)}} & \shortstack{0.155 \\ {\tiny(0.148--0.159)}} & \shortstack{0.707 \\ {\tiny(0.669--0.724)}} & \shortstack{0.219 \\ {\tiny(0.171--0.245)}} \\ 
+   \bottomrule
+\end{tabular}
+\caption{Summary of network metrics across 1000 simulations for each metaweb. Values are means with 95\% intervals in parentheses.} 
+\label{tab:metaweb_metrics}
+\end{table}
+
+\newpage
+
 ![SVD entropy of the empirical food webs analyzed in this study (filled triangles) compared with directed random networks (filled circles) constructed over the same range of trophic species numbers (S). Lower entropy values indicate greater structural organization relative to random expectations. ](Figures/random_vs_empirical_SVDE.png)
 
+\newpage
+
 ![Pairwise relationships among environmental and network covariates used in the statistical analyses. Panels show bivariate scatterplots (lower triangle), smoothed density distributions (diagonal), and Pearson correlation coefficients (upper triangle) for the number of trophic species (S), latitude, log-transformed area, mean human impact index, and mean depth. This exploratory analysis was used to assess potential collinearity among predictors prior to model fitting](Figures/correlation_network_info.png)
+
+\newpage
+
 
 # **Supplementary Methods S1 — Multivariate Bayesian Multilevel Model**
 
@@ -226,7 +258,6 @@ The model was fitted in **brms** [@Burkner2017] using the **CmdStan** backend, w
 
 \newpage
 
-![Posterior distributions of standardized effects (slopes) from the multivariate Bayesian model relating environmental and network covariates to food-web structural metrics. Shaded areas represent the posterior densities for each effect, with darker regions indicating the central 50% credible intervals. Effects are ordered from the largest positive to the most negative posterior mean.](Figures/Bayesian_post_slopes.png){width=60%}
 
 
 \newpage
