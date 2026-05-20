@@ -319,10 +319,18 @@ ggsave("Figures/empirical_vs_simulated_metrics_LD_TL.png",
 library(ggplot2)
 library(GGally)
 library(dplyr)
-
+# 
+# Added mean Temperature from bibliography 
+#
+network_info <- network_info %>% inner_join( tibble::tibble(
+  name = c("Beagle Channel", "Burdwood Bank", "San Jorge Gulf",
+           "North Scotia Sea", "Potter Cove", "South Scotia Sea", "Weddell Sea"),
+  temp_C = c(6.8, 6, 10.55, 4, -0.15, 0.5, -0.9)
+))
+  
 # Select relevant columns
 network_info %>% mutate(log_area = log(area_km2)) %>%
-  dplyr::select(S,latitude, log_area, impact_mean,depth_m) %>%
+  dplyr::select(temp_C,latitude, log_area, impact_mean,depth_m) %>%
   ggpairs(
     upper = list(continuous = wrap("cor", size = 4)),  # correlation in upper panels
     lower = list(continuous = wrap("points", alpha = 0.7, size = 3)), # scatterplots

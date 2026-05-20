@@ -21,6 +21,7 @@ network_info <- tibble::tibble(
   latitude = c(54.5, 54.5, 46, 51.5, 62.2, 58.5, 76.0),
     area_km2 = c(1200, 32000, 34000, 1500000, 9, 1500000, 200400),
   depth_m = c(140, 200, 100, 3000, 100, 3000, 500),
+  temp_C = c(6.8, 6, 10.55, 4, -0.15, 0.5, -0.9)
 )
 # Depth is approx max depth of the area
 
