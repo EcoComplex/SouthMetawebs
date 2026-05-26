@@ -9,6 +9,63 @@ output:
     includes:
       in_header: Appendices.sty
 ---
+
+## Food Web Standardization
+
+### Beagle Channel
+
+The standardized version increases the resolution of the top trophic level by adding 21 species of seabirds and marine mammals absent from the original network, along with their diets. These include penguins (*Spheniscus magellanicus*, *Pygoscelis papua*), albatrosses (*Thalassarche melanophris*), cormorants (*Phalacrocorax atriceps*, *P. magellanicus*), gulls (*Larus dominicanus*, *L. scoresbii*), skuas (*Stercorarius chilensis*), terns (*Sterna hirundinacea*), petrels (*Macronectes giganteus*), cetaceans (*Cephalorhynchus commersonii*, *Grampus griseus*, *Lagenorhynchus australis*, *L. cruciger*, *L. obscurus*, *Lissodelphis peronii*, *Megaptera novaeangliae*, *Phocoena spinipinnis*, *Pseudorca crassidens*), otariids (*Otariidae*), and the marine otter *Lontra provocax*.
+
+**Summary of structural changes:**
+
+| Version | S | L | Connectance | Link Density |
+|---|---|---|---|---|
+| Original  | 145 | 1,115 | 0.0530 | 7.69 |
+| Standardized | 166 | 1,304 | 0.0473 | 7.86 |
+
+The increase from 1,115 to 1,304 links (+185) reflects exclusively the addition of trophic interactions involving the 21 new top-level taxa.
+
+### Weddell Sea
+
+The standardized version reduces the resolution of basal producers by collapsing 62 individually resolved phytoplankton species — primarily diatoms (*Chaetoceros*, *Fragilariopsis*, *Thalassiosira*, *Nitzschia*, *Proboscia*, *Pseudo-Nitzschia*, *Porosira*, *Rhizosolenia*, *Trichotoxon*, and others) — into two functional groups: *Bacillariophyceae* and *Phytoplankton_other*. This reduction reflects the higher taxonomic resolution of the original Weddell Sea network relative to the other networks in the dataset, and brings basal resolution in line with the remaining study sites.
+
+**Summary of structural changes:**
+
+| Version | S | L | Connectance | Link Density |
+|---|---|---|---|---|
+| Original  | 490 | 16,041 | 0.0668 | 32.74 |
+| Standardized | 430 | 11,284 | 0.0610 | 26.24 |
+
+The reduction from 490 to 430 species (−60) and from 16,041 to 11,284 links (−4,757 net) is entirely attributable to the collapse of 62 phytoplankton taxa into 2 functional groups. The 112 links added in the standardized version correspond to interactions reassigned to the two new functional groups that were not directly recoverable from the original link list.
+
+### Northern Scotia Sea
+
+The standardized version increases the resolution of the top trophic level by adding 35 species of seabirds and marine mammals absent from the original network, along with their diets. These include penguins (*Aptenodytes forsteri*, *A. patagonicus*, *Eudyptes chrysocome*, *E. chrysolophus*, *Pygoscelis adeliae*, *P. antarctica*, *P. papua*), albatrosses (*Diomedea exulans*, *Phoebetria palpebrata*, *Thalassarche chrysostoma*, *T. melanophris*), petrels and procellariids (*Daption capense*, *Fregetta tropica*, *Fulmarus glacialoides*, *Halobaena caerulea*, *Macronectes giganteus*, *Oceanites oceanicus*, *Pachyptila turtur*, *P. vittata*, *Pagodroma nivea*, *Procellaria aequinoctialis*, *Pterodroma mollis*, *Thalassoica antarctica*), terns (*Sterna paradisaea*), pinnipeds (*Arctocephalus gazella*, *Hydrurga leptonyx*, *Leptonychotes weddellii*, *Mirounga leonina*, *Ommatophoca rossii*), and cetaceans (*Balaenoptera bonaerensis*, *B. borealis*, *B. physalus*, *Globicephala melas*, *Hyperoodon planifrons*, *Physeter macrocephalus*).
+
+**Summary of structural changes:**
+
+| Version | S | L | Connectance | Link Density |
+|---|---|---|---|---|
+| Original  | 218 | 10,008 | 0.2106 | 45.91 |
+| Standardized | 253 | 10,561 | 0.1650 | 41.74 |
+
+The increase from 218 to 253 species (+35) and 10,008 to 10,561 links (+553) reflects the addition of the 35 new top-level taxa and their interactions.
+
+### Southern Scotia Sea
+
+Identical to Northern Scotia Sea: the same 35 species of seabirds and marine mammals were added with their respective diets (see Northern Scotia Sea section above for the full species list).
+
+**Summary of structural changes:**
+
+| Version | S | L | Connectance | Link Density |
+|---|---|---|---|---|
+| Original  | 192 | 7,241 | 0.1964 | 37.71 |
+| Standardized | 227 | 7,730 | 0.1500 | 34.05 |
+
+The increase from 192 to 227 species (+35) and 7,241 to 7,730 links (+489) is entirely attributable to the added top trophic level taxa.
+
+\newpage
+
 ## Metric Formulas
 
 The food web is represented by an **adjacency matrix** $\mathbf{A} = [a_{ij}]$, where each element is defined as:
@@ -62,7 +119,7 @@ LD = \frac{L}{S}.
 ###  Modularity (Q)
 
 Modularity describes the extent to which the network is organized into modules with dense intra-module links and sparse inter-module links.
-We detect modules using the **Infomap algorithm**, which minimizes the description length of a random walker’s trajectory to reveal community structure (Rosvall and Bergstrom, 2008).
+We detect modules using the **Infomap algorithm**, which minimizes the description length of a random walker’s trajectory to reveal community structure [@Rosvall2008].
 
 Formally, modularity is reported as the fraction of links within modules relative to the whole network, given by the Infomap solution.
 
@@ -82,22 +139,75 @@ where:
 
 (This is the standard Newman-Girvan modularity.)
 
-### References
 
-* Infomap: Rosvall M., Bergstrom C.T. (2008). Maps of random walks on complex networks reveal community structure. *PNAS* 105(4): 1118–1123.
+### SVD Complexity
+
+Singular Value Decomposition (SVD) factorizes the adjacency matrix $\mathbf{A}$ as
+
+$$
+\mathbf{A} = \mathbf{U} \, \boldsymbol{\Sigma} \, \mathbf{V}^T,
+$$
+
+where $\mathbf{U}$ and $\mathbf{V}$ are orthogonal matrices of left- and 
+right-singular vectors, and $\boldsymbol{\Sigma}$ is a diagonal matrix 
+containing the non-negative singular values $\sigma_i$ in descending order. 
+Each singular value represents the weight of one independent structural 
+dimension of the network.
+
+Normalized singular values are defined as:
+
+$$
+s_i = \frac{\sigma_i}{\sum_{j=1}^{k} \sigma_j},
+$$
+
+where $k$ is the number of non-zero singular values. The SVD entropy $J$ is 
+then computed following @Shannon1948:
+
+$$
+J = -\frac{1}{\ln(k)} \sum_{i=1}^{k} s_i \ln(s_i),
+$$
+
+where the normalization by $\ln(k)$ ensures a maximum of 1, equivalent to 
+Pielou's evenness index [@Pielou1975]. We define SVD complexity as $E = 1 - J$.
+
+A random network with fixed connectance distributes structural information 
+evenly across many dimensions (high $J$, low $E$), whereas ecological networks 
+with trophic hierarchy or modular organization concentrate most information in 
+a few dimensions (low $J$, high $E$; see Figure S4).
+
+### Rank Deficiency
+
+The rank $r$ of the adjacency matrix is the number of linearly independent 
+rows (or columns). For a square matrix of dimension $M$ (the number of trophic 
+species), rank deficiency is defined as:
+
+$$
+D = 1 - \frac{r}{M},
+$$
+
+where $D = 0$ indicates a full-rank matrix (all species have unique interaction 
+profiles) and $D \to 1$ indicates high redundancy in trophic strategies. 
+Dividing by $M$ controls for differences in species richness across networks, 
+enabling cross-system comparisons [@Strydom2021].
+
+
+
+\newpage
+
+![Figure explaining SVD complexity and Rank Deficiency](Figures/svd_complexity_figure_v4.png)
 
 \newpage
 
 
-![Distribution of metaweb-simulated network metrics (SVD complexity and modularity) with the empirical value indicated by the red dashed line.](Figures/empirical_vs_simulated_metrics_SVDC_Mod.png) 
+![Distribution of metaweb-simulated network metrics (SVD complexity and modularity) with the observed value indicated by the red dashed line.](Figures/empirical_vs_simulated_metrics_SVDC_Mod.png) 
 
 \newpage
 
-![Distribution of metaweb-simulated network metrics (Connectance and Rank Deficiency) with the empirical value indicated by the red dashed line.](Figures/empirical_vs_simulated_metrics_C_RD.png) 
+![Distribution of metaweb-simulated network metrics (Connectance and Rank Deficiency) with the observed value indicated by the red dashed line.](Figures/empirical_vs_simulated_metrics_C_RD.png) 
 
 \newpage
 
-![Distribution of metaweb-simulated network metrics (Link Density and Trophic Level) with the empirical value indicated by the red dashed line.](Figures/empirical_vs_simulated_metrics_LD_TL.png)
+![Distribution of metaweb-simulated network metrics (Link Density and Trophic Level) with the observed value indicated by the red dashed line.](Figures/empirical_vs_simulated_metrics_LD_TL.png)
 
 \newpage
 
@@ -122,7 +232,7 @@ BurdwoodBank & \shortstack{0.014 \\ {\tiny(0.012--0.018)}} & \shortstack{4.463 \
 
 \newpage
 
-![SVD entropy of the empirical food webs analyzed in this study (filled triangles) compared with directed random networks (filled circles) constructed over the same range of trophic species numbers (S). Lower entropy values indicate greater structural organization relative to random expectations. ](Figures/random_vs_empirical_SVDE.png)
+![SVD entropy of the observed food webs analyzed in this study (filled triangles) compared with directed random networks (filled circles) constructed over the same range of trophic species numbers (S). Lower entropy values indicate greater structural organization relative to random expectations. ](Figures/random_vs_empirical_SVDE.png)
 
 \newpage
 
@@ -262,14 +372,16 @@ The model was fitted in **brms** [@Burkner2017] using the **CmdStan** backend, w
 
 \newpage
 
-![Marginal effects of log-transformed area on food-web structure and dynamic stability from the multivariate Bayesian model. Solid black lines show posterior mean predictions, with shaded regions representing 95% credible intervals. Colored points indicate empirical values for each site, and vertical bars denote the 95% quantiles summarizing variability generated by the metaweb assembly model. Panels show the effects of area on (top left) connectance (C), (top right) rank deficiency, (bottom left) modularity, and (bottom right) log dynamic stability (maximum eigenvalue). Overall, larger areas are associated with increased connectance and stability, alongside reduced modularity and rank deficiency, consistent with more interconnected and dynamically resilient food webs.](Figures/Bayesian_C_RD_Mod_ST_vs_Area_mv.png)
+![Marginal effects of log-transformed area on food-web structure and dynamic stability from the multivariate Bayesian model. Solid black lines show posterior mean predictions, with shaded regions representing 95% credible intervals. Colored points indicate observed values for each site, and vertical bars denote the 95% quantiles summarizing variability generated by the metaweb assembly model. Panels show the effects of area on (top left) connectance (C), (top right) rank deficiency, (bottom left) modularity, and (bottom right) log dynamic stability (maximum eigenvalue). Overall, larger areas are associated with increased connectance and stability, alongside reduced modularity and rank deficiency, consistent with more interconnected and dynamically resilient food webs.](Figures/Bayesian_C_RD_Mod_ST_vs_Area_mv.png)
 
 
-![Marginal effects of environmental and network size predictors on food-web structural metrics from the multivariate Bayesian model. Solid black lines show posterior mean predictions, with shaded regions indicating 95% credible intervals. Colored points represent empirical values for each site, and vertical bars denote the 95% quantiles summarizing variability generated by the metaweb assembly model. Panels show the effects of latitude on (top left) connectance (C), (top right) rank deficiency, (bottom left) modularity, and (bottom right) log dynamic stability (maximum eigenvalue).](Figures/Bayesian_C_RD_Mod_ST_vs_Latitude_mv.png)
+![Marginal effects of environmental and network size predictors on food-web structural metrics from the multivariate Bayesian model. Solid black lines show posterior mean predictions, with shaded regions indicating 95% credible intervals. Colored points represent observed values for each site, and vertical bars denote the 95% quantiles summarizing variability generated by the metaweb assembly model. Panels show the effects of latitude on (top left) connectance (C), (top right) rank deficiency, (bottom left) modularity, and (bottom right) log dynamic stability (maximum eigenvalue).](Figures/Bayesian_C_RD_Mod_ST_vs_Latitude_mv.png)
 
 
-![Marginal effects of environmental and network size predictors on food-web structural metrics from the multivariate Bayesian model. Solid black lines show posterior mean predictions, with shaded regions indicating 95% credible intervals. Colored points represent empirical values for each site, and vertical bars denote the 95% quantiles summarizing variability generated by the metaweb assembly model. Panels illustrate the effects of the number of trophic species on the full set of food-web metrics.](Figures/Bayesian_all_vs_S_mv.png)
+![Marginal effects of environmental and network size predictors on food-web structural metrics from the multivariate Bayesian model. Solid black lines show posterior mean predictions, with shaded regions indicating 95% credible intervals. Colored points represent observed values for each site, and vertical bars denote the 95% quantiles summarizing variability generated by the metaweb assembly model. Panels illustrate the effects of the number of trophic species on the full set of food-web metrics.](Figures/Bayesian_all_vs_S_mv.png)
 
-![Marginal effects of environmental and network size predictors on food-web structural metrics from the multivariate Bayesian model. Solid black lines show posterior mean predictions, with shaded regions indicating 95% credible intervals. Colored points represent empirical values for each site, and vertical bars denote the 95% quantiles summarizing variability generated by the metaweb assembly model. Panels illustrate the effects of the human impact index on the full set of food-web metrics.](Figures/Bayesian_all_vs_impact_mv.png)
+![Marginal effects of environmental and network size predictors on food-web structural metrics from the multivariate Bayesian model. Solid black lines show posterior mean predictions, with shaded regions indicating 95% credible intervals. Colored points represent observed values for each site, and vertical bars denote the 95% quantiles summarizing variability generated by the metaweb assembly model. Panels illustrate the effects of the human impact index on the full set of food-web metrics.](Figures/Bayesian_all_vs_impact_mv.png)
 
 ![Residual correlations of network properties after accounting for fixed effects and site‐level shifts.](Figures/Bayesian_ResCor.png)
+
+### References
