@@ -206,6 +206,7 @@ R2MElog     0.1366703 1.572518e-02 0.1064221 0.1681636
 
 library(brms)
 library(tidyverse)
+library(bayesplot)
 
 nice_names <- c(
   "S_s"          = "Species",
@@ -251,8 +252,10 @@ summary_slopes <- slopes_df %>%
   ) %>%
   arrange(desc(prob_max))
 
-# Filtrar efectos ≥ 0.70
+# Filtrar efectos ≥ 0.90
 selected <- summary_slopes %>% filter(prob_max >= 0.9)
+knitr::kable(selected %>% select(-param), digits=4)
+
 
 slopes_selected <- slopes_df %>%
   semi_join(selected, by = "param")
@@ -286,9 +289,10 @@ mcmc_areas(fit_mv, regex_pars = "^b_.*_s$",prob_outer=.9)
 
 plot_mcmc_areas_ordered(
   fit_mv,
-  regex = "^b_.*_s$",
-  nice_names = nice_names,
-  prob = 0.9
+  regex_pars    = "^b_.*_s$",
+  nice_names    = nice_names,
+  prob          = 0.9,
+  summary_slopes = summary_slopes   # the df you already computed
 )
 ggsave("Figures/Bayesian_post_slopes.png", width = 5, height = 10)
 
@@ -397,12 +401,12 @@ library(patchwork)
 #
 
 (g11 <- marginal_effect_plot2(fit_mv,"TLz","TLmean","log_area_s",inv_TL,ci=.95) + 
-        labs(x = "Area (log)", y = "Trophic Level") )
+        labs(x = "Area (log)", y = "mean Trophic Level") )
 (g12 <- marginal_effect_plot2(fit_mv,"SVDz","SVDComplexity","log_area_s",inv_SVD) + 
-        labs(x = "Area (log)", y = "Complexity") )
+        labs(x = "Area (log)", y = "SVD Complexity") )
 network_info$LD_log = log(network_info$LD)
 (g13 <- marginal_effect_plot2(fit_mv,"LDlog","LD_log","log_area_s",inv_id) + 
-        labs(x = "Area (log)", y = "Log Link density") )
+        labs(x = "Area (log)", y = "Link Density (log)" ) )
 
 
 # Para SI 
@@ -415,7 +419,7 @@ network_info$LD_log = log(network_info$LD)
 # The values in network_info are  the median of simulations of Meing_stable
 network_info$ME_log = log(-network_info$MEing_stable)
 (g17 <- marginal_effect_plot2(fit_mv,"MElog","ME_log","log_area_s",inv_id) + 
-        labs(x = "Area (log)", y = "Log Stability") )
+        labs(x = "Area (log)", y = "Dynamic Stability (log)") )
 
 combined_plot <- wrap_plots(g11,g12,g13, ncol = 3, guides = "collect", axes="collect") &
   theme(legend.position = "bottom")
@@ -438,11 +442,11 @@ ggsave("Figures/Bayesian_C_RD_Mod_ST_vs_Area_mv.png",
 # Latitude
 #
 (g21 <- marginal_effect_plot2(fit_mv,"TLz","TLmean","latitude_s",inv_TL,ci=.95) + 
-        labs(x = "Latitude", y = "Trophic Level") )
+        labs(x = "Latitude", y = "mean Trophic Level") )
 (g22 <- marginal_effect_plot2(fit_mv,"SVDz","SVDComplexity","latitude_s",inv_SVD) + 
-        labs(x = "Latitude", y = "Complexity") )
+        labs(x = "Latitude", y = "SVD Complexity") )
 (g23 <- marginal_effect_plot2(fit_mv,"LDlog","LD_log","latitude_s",inv_id) + 
-        labs(x = "Latitude", y = "Log Link density") )
+        labs(x = "Latitude", y = "Link density (log)") )
 
 (g24 <- marginal_effect_plot2(fit_mv,"Clogit","C","latitude_s",inv_Mod,ci=.8) + 
         labs(x = "Latitude", y = "C ") )
@@ -451,7 +455,7 @@ ggsave("Figures/Bayesian_C_RD_Mod_ST_vs_Area_mv.png",
 (g26 <- marginal_effect_plot2(fit_mv,"Modlogit","Modularity","latitude_s",inv_Mod) + 
         labs(x = "latitude", y = "Modularity ") )
 (g27 <- marginal_effect_plot2(fit_mv,"MElog","ME_log","latitude_s",inv_id) + 
-        labs(x = "latitude", y = "Log Stability") )
+        labs(x = "latitude", y = "Dynamic Stability (log)") )
 
 
 combined_plot <- wrap_plots(g21,g22,g23, ncol = 3, guides = "collect", axes="collect") &
@@ -476,11 +480,11 @@ ggsave("Figures/Bayesian_C_RD_Mod_ST_vs_Latitude_mv.png",
 # Human Impact
 #
 (g31 <- marginal_effect_plot2(fit_mv,"TLz","TLmean","impact_mean_s",inv_TL,ci=.95) + 
-        labs(x = "Human Impact", y = "Trophic Level") )
+        labs(x = "Human Impact", y = "mean Trophic Level") )
 (g32 <- marginal_effect_plot2(fit_mv,"SVDz","SVDComplexity","impact_mean_s",inv_SVD) + 
-        labs(x = "Human Impact", y = "Complexity") )
+        labs(x = "Human Impact", y = "SVD Complexity") )
 (g33 <- marginal_effect_plot2(fit_mv,"LDlog","LD_log","impact_mean_s",inv_id) + 
-        labs(x = "Human Impact", y = "Log Link density") )
+        labs(x = "Human Impact", y = "Link Density (log)") )
 
 (g34 <- marginal_effect_plot2(fit_mv,"Clogit","C","impact_mean_s",inv_Mod) + 
         labs(x = "Human Impact", y = "C ") )
@@ -489,7 +493,7 @@ ggsave("Figures/Bayesian_C_RD_Mod_ST_vs_Latitude_mv.png",
 (g36 <- marginal_effect_plot2(fit_mv,"Modlogit","Modularity","impact_mean_s",inv_Mod) + 
         labs(x = "Human Impact", y = "Modularity ") )
 (g37 <- marginal_effect_plot2(fit_mv,"MElog","ME_log","impact_mean_s",inv_id) + 
-        labs(x = "Human Impact", y = "Stability ") )
+        labs(x = "Human Impact", y = "Dynamic Stability (log)") )
 
 combined_plot <- wrap_plots(g31,g32,g33,g34,g35,g36,g37, ncol = 2, guides = "collect", axes="collect") &
   theme(legend.position = "bottom")
@@ -506,20 +510,20 @@ network_info$LD_log <-  log(network_info$LD)
 network_info$ME_log <- log(-network_info$MEing_stable) 
 
 (g41 <- marginal_effect_plot2(fit_mv,"TLz","TLmean","S_s",inv_TL) + 
-        labs(x = "S", y = "Trophic Level") )
+        labs(x = "Trophic Species (S)", y = "mean Trophic Level") )
 (g42 <- marginal_effect_plot2(fit_mv,"SVDz","SVDComplexity","S_s",inv_SVD) + 
-        labs(x = "S", y = "Complexity") )
+        labs(x = "Trophic Species (S)", y = "SVD Complexity") )
 (g43 <- marginal_effect_plot2(fit_mv,"LDlog","LD_log","S_s",inv_id) + 
-        labs(x = "S", y = "Log Link density") )
+        labs(x = "Trophic Species (S)", y = "Link Density (log)") )
 
 (g44 <- marginal_effect_plot2(fit_mv,"Clogit","C","S_s",inv_Mod) + 
-        labs(x = "S", y = "C ") )
+        labs(x = "Trophic Species (S)", y = "C ") )
 (g45 <- marginal_effect_plot2(fit_mv,"Ranklogit","RankDeficiency","S_s",inv_Rk) + 
-        labs(x = "S", y = "Rank Deficiency") )
+        labs(x = "Trophic Species (S)", y = "Rank Deficiency") )
 (g46 <- marginal_effect_plot2(fit_mv,"Modlogit","Modularity","S_s",inv_Mod) + 
-        labs(x = "S", y = "Modularity ") )
+        labs(x = "Trophic Species (S)", y = "Modularity ") )
 (g47 <- marginal_effect_plot2(fit_mv,"MElog","ME_log","S_s",inv_id) + 
-        labs(x = "S", y = "Stability ") )
+        labs(x = "Trophic Species (S)", y = "Dynamic Stability (log)") )
 
 
 combined_plot <- wrap_plots(g46,g45,g47, ncol = 3, guides = "collect", axes="collect") &

@@ -139,8 +139,15 @@ where:
 
 (This is the standard Newman-Girvan modularity.)
 
+### Estimating Network Complexity
 
-### SVD Complexity
+We characterized structural complexity using two complementary metrics derived from the adjacency matrix. The first, SVD complexity, is based on the 
+distribution of singular values obtained by Singular Value Decomposition (SVD) of the adjacency matrix. Ecological networks with strong trophic hierarchy, 
+modularity, or body-size constraints tend to concentrate structural information in a few dominant dimensions, resulting in an uneven distribution of singular values. We captured this organized heterogeneity as $E = 1 - J$, where $J$ is the normalized Shannon entropy of the singular value spectrum-- Pielou's evenness [@Pielou1975]. Higher values of $E$ indicate that network structure is dominated by fewer independent dimensions, reflecting stronger ecological constraints, whereas random networks maximize $J$ and thus minimize $E$ (Figure S5).
+
+The second metric, **rank deficiency** ($D$), quantifies the proportion of linearly dependent rows and columns in the adjacency matrix, relative to the maximum possible rank (number of trophic species). A fully ranked matrix ($D = 0$) implies that every species has a unique interaction profile, whereas high deficiency ($D \to 1$) indicates substantial redundancy in trophic strategies. Together, SVD complexity and rank deficiency provide complementary views of the external and internal dimensionality of food web structure [@Strydom2021]. For a graphical illustration of how these metrics capture different aspects of network organization, see Figure S1.
+
+#### SVD Complexity
 
 Singular Value Decomposition (SVD) factorizes the adjacency matrix $\mathbf{A}$ as
 
@@ -175,7 +182,7 @@ evenly across many dimensions (high $J$, low $E$), whereas ecological networks
 with trophic hierarchy or modular organization concentrate most information in 
 a few dimensions (low $J$, high $E$; see Figure S4).
 
-### Rank Deficiency
+#### Rank Deficiency
 
 The rank $r$ of the adjacency matrix is the number of linearly independent 
 rows (or columns). For a square matrix of dimension $M$ (the number of trophic 
@@ -190,6 +197,15 @@ profiles) and $D \to 1$ indicates high redundancy in trophic strategies.
 Dividing by $M$ controls for differences in species richness across networks, 
 enabling cross-system comparisons [@Strydom2021].
 
+#### Dynamic stability
+
+We used the eigenvalue with the maximum real part of the community matrix Jacobian, $\lambda_{\max}$ [@Allesina2015a], for randomly parameterized systems, preserving the predator–prey (sign) structure and conditioning on stability [@Barabas2017]. This corresponds to the rightmost eigenvalue in the complex plane and determines local asymptotic stability. The system is stable when $\lambda_{\max} < 0$, and more negative values indicate faster return to equilibrium following perturbations.  
+
+The entries of the Jacobian were sampled from uniform distributions: positive effects of prey on predators were bounded above by 1, and negative effects of predators on prey were bounded below by $-10$ (reflecting a 10% ecological efficiency). Diagonal entries representing self-regulation were sampled from a uniform distribution between $-\textit{SelfReg}$ and $0$. The value of $\textit{SelfReg}$ was calibrated via simulation so that 5% of randomly parameterized systems were stable (i.e., $\lambda_{\max} < 0$).  
+
+To estimate $\textit{SelfReg}$, we performed a grid search over values from $-7$ to $-60$ (step size = 1). For each value, we generated 10,000 Jacobians and computed the proportion of stable systems. We then interpolated these results to identify the value of $\textit{SelfReg}$ yielding a stability probability of 0.05.  
+
+Using this calibrated value, we generated 10,000 additional realizations and retained only stable systems to obtain the distribution of $\lambda_{\max}$ for each network. Because $\lambda_{\max} < 0$ for all retained systems, we multiplied values by $-1$ and modeled $\log(-\lambda_{\max})$, placing the stability metric on a positive, approximately log-normal scale.
 
 
 \newpage
@@ -228,6 +244,37 @@ BurdwoodBank & \shortstack{0.014 \\ {\tiny(0.012--0.018)}} & \shortstack{4.463 \
 \end{tabular}
 \caption{Summary of network metrics across 1000 simulations for each metaweb. Values are means with 95\% intervals in parentheses.} 
 \label{tab:metaweb_metrics}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{llrrrr}
+  \toprule
+  Response & Predictor & Prob pos & Prob neg & Prob max & Direction \\
+  \midrule
+  Trophic Level   & Area (log) & 0.976 & 0.024 & 0.976 & positive \\
+  SVD Complexity  & Area (log) & 0.971 & 0.029 & 0.971 & positive \\
+  Link Density    & Area (log) & 0.960 & 0.040 & 0.960 & positive \\
+  Connectance     & Area (log) & 0.959 & 0.041 & 0.959 & positive \\
+  Modularity      & Area (log) & 0.041 & 0.959 & 0.959 & negative \\
+  Modularity      & Species    & 0.949 & 0.051 & 0.949 & positive \\
+  Stability       & Area (log) & 0.944 & 0.056 & 0.944 & positive \\
+  SVD Complexity  & Latitude   & 0.942 & 0.058 & 0.942 & positive \\
+  Stability       & Latitude   & 0.922 & 0.078 & 0.922 & positive \\
+  Rank Deficiency & Species    & 0.922 & 0.078 & 0.922 & positive \\
+  Connectance     & Latitude   & 0.922 & 0.079 & 0.922 & positive \\
+  Connectance     & Species    & 0.083 & 0.917 & 0.917 & negative \\
+  Link Density    & Latitude   & 0.915 & 0.085 & 0.915 & positive \\
+  Stability       & Species    & 0.086 & 0.914 & 0.914 & negative \\
+  Trophic Level   & Latitude   & 0.909 & 0.091 & 0.909 & positive \\
+  \bottomrule
+\end{tabular}
+\caption{Posterior probabilities of directional effects for predictor--response
+pairs retained in the multivariate Bayesian model (posterior probability of
+consistent sign $\geq 0.90$). Columns show the probability that each slope is
+positive (Prob pos) or negative (Prob neg), the maximum of the two (Prob max),
+and the inferred direction. Pairs are ordered by decreasing Prob max.}
+\label{tab:posterior_slopes}
 \end{table}
 
 \newpage

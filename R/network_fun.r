@@ -1922,7 +1922,7 @@ marginal_effect_plot2 <- function(
     scale_shape_manual(values = c(15, 16, 17, 18, 19, 20, 15)) +
     
     labs(x = paste0(xvar, " (original scale)"),
-         y = obs_var) +
+         y = obs_var, color="Food web",shape="Food web") +
     theme_bw() +
     theme(legend.position = "none")
 }
@@ -2121,34 +2121,6 @@ plot_area_effect_by_site <- function(
 }
 
 
-plot_mcmc_areas_ordered <- function(fit,
-                                    regex_pars = "^b_.*_s$",
-                                    nice_names = NULL,
-                                    prob = 0.9) {
-  
-  ord <- get_effect_order(fit, regex_pars, nice_names)
-  
-  p <- mcmc_areas(
-    fit,
-    regex_pars = regex_pars,
-    prob_outer = prob
-  )
-  
-  p +
-    scale_y_discrete(
-      limits = rev(ord$param),
-      labels = setNames(ord$label, ord$param)
-    ) +
-    theme_bw(base_size = 13) +
-    theme(
-       panel.grid.major.y = element_blank(),
-       panel.grid.minor = element_blank()
-    ) +
-    geom_vline(xintercept = 0, linetype = 1, linewidth = 1) +
-    labs(x = "Posterior distribution", y = NULL)
-}
-
-
 get_effect_order <- function(fit, regex, nice_names = NULL) {
   
   library(posterior)
@@ -2189,4 +2161,69 @@ get_effect_order <- function(fit, regex, nice_names = NULL) {
   
   df
 }
+
+
+plot_mcmc_areas_ordered <- function(fit,
+                                    regex_pars = "^b_.*_s$",
+                                    nice_names = NULL,
+                                    prob = 0.9,
+                                    summary_slopes = NULL) {
+  
+  ord       <- get_effect_order(fit, regex_pars, nice_names)
+  limits_vec <- rev(ord$param)          # bottom → top order used by scale_y_discrete
+  
+  p <- mcmc_areas(fit, regex_pars = regex_pars, prob_outer = prob)
+  
+  # ---- Background colour bands ------------------------------------------------
+  if (!is.null(summary_slopes)) {
+    
+    pos_df <- tibble::tibble(param = limits_vec,
+                             ypos  = seq_along(limits_vec))
+    
+    bg_df <- pos_df |>
+      dplyr::left_join(
+        summary_slopes |> dplyr::select(param, prob_max, direction),
+        by = "param"
+      ) |>
+      dplyr::mutate(
+        band = dplyr::case_when(
+          !is.na(prob_max) & prob_max >= prob & direction == "positive" ~ "positive",
+          !is.na(prob_max) & prob_max >= prob & direction == "negative" ~ "negative",
+          TRUE                                                           ~ "neutral"
+        )
+      )
+    
+    make_band <- function(rows, fill, alpha) {
+      if (nrow(rows) == 0) return(NULL)
+      annotate("rect",
+               xmin  = -Inf,          xmax = Inf,
+               ymin  = rows$ypos - 0.5, ymax = rows$ypos + 0.5,
+               fill  = fill,          alpha = alpha)
+    }
+    
+    bg_layers <- list(
+      make_band(dplyr::filter(bg_df, band == "positive"), "#2166ac", 0.6),
+      make_band(dplyr::filter(bg_df, band == "negative"), "#d6604d", 0.6),
+      make_band(dplyr::filter(bg_df, band == "neutral"),  "#f5f5f5", 0.6)
+    ) |> purrr::compact()                # drop NULLs
+    
+    # Insert *before* the existing mcmc_areas layers so bands sit behind
+    p$layers <- c(bg_layers, p$layers)
+  }
+  # -----------------------------------------------------------------------------
+  
+  p +
+    scale_y_discrete(
+      limits = limits_vec,
+      labels = setNames(ord$label, ord$param)
+    ) +
+    theme_bw(base_size = 13) +
+    theme(
+      panel.grid.major.y = element_blank(),
+      panel.grid.minor   = element_blank()
+    ) +
+    geom_vline(xintercept = 0, linetype = 1, linewidth = 1) +
+    labs(x = "Posterior distribution", y = NULL)
+}
+
 
