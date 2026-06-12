@@ -331,7 +331,7 @@ $$
 
 Let $\mathbf{y}^{\ast}_{ij}$ denote the transformed response vector.
 
-Continuous predictors were centered and scaled. Representing number of trophic species = $S$ , natural logarithm of the Area, Latitude, Human Impact Index. Depth was initially included as a covariate; however, it showed a strong correlation with log-transformed area (Figure S4). This collinearity was further confirmed after fitting the model with both predictors, by examining the posterior correlation between their regression coefficients. To avoid multicollinearity and improve interpretability of parameter estimates, depth was therefore excluded from the final model and log-transformed area was retained as the sole spatial size–related predictor.
+Continuous predictors were centered and scaled. These included the number of trophic species ($S$), the natural logarithm of area, latitude, and the human impact index. Depth and temperature were initially included as covariates; however, depth was strongly correlated with log-transformed area, and temperature was strongly correlated with latitude (Figure S6). To avoid multicollinearity and improve parameter interpretability, both variables were excluded from the final model. This collinearity was further supported by strong posterior correlations among regression coefficients when the full model was fitted.
 
 For each observation:
 
@@ -404,7 +404,8 @@ $$
 
 Standardization ensures regression coefficients lie on comparable scales and priors correspond to plausible effect sizes.
 
-Because a fully joint multivariate model is computationally demanding, we used **200 simulated replicates per site**, which balances precision and computational feasibility. The hierarchical structure still correctly models within-site dependence and avoids pseudo-replication.
+Because a fully joint multivariate model is computationally demanding, we used **200 simulated replicates per site**, which balances precision and computational feasibility. To assess the robustness of this subsampling strategy, we refitted the model using progressively larger subsets of 50, 100, 150, and 200 replicates per food web. Parameter estimates stabilized after 100 replicates, indicating that the results were insensitive to further increases in the number of simulations.
+
 
 The model was fitted in **brms** [@Burkner2017] using the **CmdStan** backend, with  4 chains and 4000 iterations (2000 warmup).
 

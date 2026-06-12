@@ -209,12 +209,12 @@ library(tidyverse)
 library(bayesplot)
 
 nice_names <- c(
-  "S_s"          = "Species",
+  "S_s"          = "Trophic Species",
   "log_area_s"   = "Area (log)",
   "latitude_s"   = "Latitude",
   "impact_mean_s"= "Human Impact",
   "depth_m_s"    = "Depth",
-  "MElog" = "Stability",
+  "MElog" = "Dyn. Stability",
   "TLz"           = "Trophic Level",
   "LDlog"           = "Link Density",
   "Ranklogit" = "Rank Deficiency",
@@ -295,6 +295,7 @@ plot_mcmc_areas_ordered(
   summary_slopes = summary_slopes   # the df you already computed
 )
 ggsave("Figures/Bayesian_post_slopes.png", width = 5, height = 10)
+ggsave("Figures/Bayesian_post_slopes.svg", width = 5, height = 10)
 
 # Collinearity
 slopes_df %>%
