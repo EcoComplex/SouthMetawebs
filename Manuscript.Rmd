@@ -31,7 +31,7 @@ Leonardo A. Saravia ^1^^2^, Iara D. Rodriguez^5^, Manuela Funes^8^, Georgina Cor
 
 Understanding how food web structure varies across broad spatial gradients is essential for identifying general principles of ecosystem organization and resilience under global change. We analyzed seven highly resolved marine food webs spanning a latitudinal gradient from 48°S to 78°S in the Southwest Atlantic and Antarctic region to evaluate how ecosystem size, latitude, human impact, and species richness shape network structure and dynamic stability. We quantified multiple topological and dynamical properties—including connectance, link density, mean trophic level, modularity, dynamic stability (maximum eigenvalue), SVD-based complexity, and rank deficiency—and modeled their relationships with environmental predictors using a multivariate Bayesian framework. To account for the variability of food webs, we implemented a metaweb assembly model by simulating site-specific local networks.
 
-Ecosystem area emerged as the strongest and most consistent predictor of food web organization. Larger ecosystems supported higher trophic levels, greater interaction density, increased structural complexity, and higher dynamic stability, in agreement with theoretical expectations. However, larger areas exhibited lower modularity, which is consistent with large-scale fish food webs. Although lower modularity is often associated with greater potential for perturbation spread, the greater spatial extent of large ecosystems may buffer disturbance propagation at broader scales. Latitude showed similarly strong effects: higher-latitude systems exhibited greater connectance, structural complexity, trophic level, and dynamic stability, independent of species richness.  In contrast, human impact effects were comparatively weak and uncertain likely due to opposing effects of human pressures on modularity and other network metrics, limiting interpretability. 
+Ecosystem area emerged as the strongest and most consistent predictor of food web organization. Larger ecosystems supported higher trophic levels, greater interaction density, increased structural complexity, and higher dynamic stability, in agreement with theoretical expectations. However, larger areas exhibited lower modularity, which is consistent with large-scale fish food webs. Although lower modularity is often associated with greater potential for perturbation spread, the greater spatial extent of large ecosystems may buffer disturbance propagation at broader scales. Latitude showed similarly strong effects: higher-latitude systems exhibited greater connectance, structural complexity, trophic level, and dynamic stability, independent of species richness.  In contrast, human impact effects were comparatively weak and uncertain, likely because the cumulative impact index integrates multiple stressors whose effects on food web structure may differ in magnitude and direction. 
 
 Together, these results demonstrate that ecosystem size and latitude are dominant drivers of marine food web structure and resilience in the Southwest Atlantic. 
 
@@ -87,33 +87,13 @@ We described the food web complexity, structure and stability using commonly-use
 -----------------------------------------------------------------------------------------------
 Network Metric      Definition                                             Ecological Meaning                                   Reference
 ------------------- ------------------------------------------------------ --------------------------------------------------- ------------------------------
-Mean trophic level  The trophic level (TL) of a species represents the     Mean TL of a food web shows the efficiency of the   @Borrelli2014;
-                    number of links that separate it from the base of the  energy transfer from basal assemblages to top       @Thompson2007
-                    food web and indicates the position the species        predators and is related to stability. See Eq. (2)
-                    occupies in the network.                               in Supplementary Material.
-
-Connectance         Proportion of established interactions between species Estimator of food web robustness to perturbations   @Delmas2018;
-                    relative to all possible ones.                         and ecosystem stability. See Eq. (1) in             @Dunne2002;
-                                                                            Supplementary Material.                              @May1972
-
 Link density        Mean number of trophic interactions (links) per        The average number of links per species informs     @Dunne2002
                     species.                                               about how connected species are within the food
                                                                             web.
 
-Modularity          Modularity describes how densely sub-groups of species Modularity is positively associated with robustness @May1972;
-                    interact with one another compared to species from     because perturbations can be retained within        @Stouffer2011
-                    other sub-groups.                                      modules, preventing them from spreading to the
-                                                                            whole network.
-
-Dynamic Stability   The eigenvalue with maximum real part of the           A measure of dynamic stability: more negative       @Allesina2015a;
-                    community matrix Jacobian for randomly parameterized   values indicate a stronger tendency for the system  @Barabas2017
-                    systems that preserve the predator–prey sign           to return to equilibrium after perturbation. This
-                    structure. Interaction strengths are sampled           quantifies the network’s resilience to dynamic
-                    uniform distributions, and self-regulation terms are   perturbations under uncertainty in interaction
-                    calibrated via simulations so that only a fixed        strengths.
-                    proportion (5%) of systems are stable. Stability is
-                    then assessed from the distribution of maximum
-                    eigenvalues across stable realizations.
+Connectance         Proportion of established interactions between species Estimator of food web robustness to perturbations   @Delmas2018;
+                    relative to all possible ones.                         and ecosystem stability. See Eq. (1) in             @Dunne2002;
+                                                                            Supplementary Material.                              @May1972
 
 SVD Complexity      Defined as $1 - J$, where $J$ is the Shannon entropy    SVD complexity quantifies how strongly network        @Shannon1948;
                     of the normalized singular values of the adjacency      structure is concentrated in a few dominant           @Loke2022;
@@ -130,6 +110,26 @@ Rank Deficiency     The relative rank deficiency is calculated as           Prov
                     rank and $M$ is the maximum possible rank (number of    redundancy in interactions (less unique strategies),
                     species). It quantifies the number of rows/columns in   while lower deficiency implies a more structurally
                     the adjacency matrix that are linearly dependent.       unique and diverse network.
+
+Mean trophic level  The trophic level (TL) of a species represents the     Mean TL of a food web shows the efficiency of the   @Borrelli2014;
+                    number of links that separate it from the base of the  energy transfer from basal assemblages to top       @Thompson2007
+                    food web and indicates the position the species        predators and is related to stability. See Eq. (2)
+                    occupies in the network.                               in Supplementary Material.
+
+Modularity          Modularity describes how densely sub-groups of species Modularity is positively associated with robustness @May1972;
+                    interact with one another compared to species from     because perturbations can be retained within        @Stouffer2011
+                    other sub-groups.                                      modules, preventing them from spreading to the
+                                                                            whole network.
+
+Dynamic Stability   The eigenvalue with maximum real part of the           A measure of dynamic stability: more negative       @Allesina2015a;
+                    community matrix Jacobian for randomly parameterized   values indicate a stronger tendency for the system  @Barabas2017
+                    systems that preserve the predator–prey sign           to return to equilibrium after perturbation. This
+                    structure. Interaction strengths are sampled           quantifies the network’s resilience to dynamic
+                    uniform distributions, and self-regulation terms are   perturbations under uncertainty in interaction
+                    calibrated via simulations so that only a fixed        strengths.
+                    proportion (5%) of systems are stable. Stability is
+                    then assessed from the distribution of maximum
+                    eigenvalues across stable realizations.
 -----------------------------------------------------------------------------------------------
 
 Table: Metrics used to describe the structure and complexity of food webs.
@@ -160,7 +160,7 @@ All analyses were conducted in R version 4.3.1 [@RCoreTeam2023] using the `brms`
 
 ## Results
 
-![Posterior distributions of standardized effects (slopes) from the multivariate Bayesian model relating environmental and network covariates to food web structural metrics. For each effect, the curve shows the full posterior density, the lighter inner shaded region indicates the central 50% credible interval, and the vertical line marks the posterior median. Effects are ordered from the largest positive to the most negative posterior median. Background bands indicate the direction and reliability of each effect: blue bands denote effects with a posterior probability ≥ 0.90 of being positive, orange bands denote effects with a posterior probability ≥ 0.90 of being negative.](Figures/Bayesian_post_slopes.png){width=60%}
+![Posterior distributions of standardized effects (slopes) from the multivariate Bayesian model relating environmental and network covariates to food web structural metrics. For each effect, the curve shows the full posterior density, the lighter inner shaded region indicates the central 50% credible interval, and the vertical line marks the posterior median. Effects are ordered from the largest positive to the most negative posterior median. Background bands indicate the direction and reliability of each effect: blue bands denote effects with a posterior probability $\ge 0.90$ of being positive, orange bands denote effects with a posterior probability $\ge 0.90$ of being negative.](Figures/Bayesian_post_slopes.png){width=60%}
 
 Across the seven food webs analyzed, network metrics varied markedly in magnitude and variability (Table S1). Connectance (C) and link density (LD) spanned an order of magnitude, with the highest values observed in both Scotia Sea networks and the lowest in the Burdwood Bank. Mean trophic level (TL) ranged between 2.2 and 3.5, whereas SVD complexity showed moderate variation among systems. Rank deficiency, reflecting the effective dimensionality of interaction matrices, was generally lower in the northern systems, whereas modularity showed a wide range across networks, indicating differing degrees of compartmentalization.
 
