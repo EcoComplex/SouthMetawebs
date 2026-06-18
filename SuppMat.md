@@ -18,10 +18,18 @@ The standardized version increases the resolution of the top trophic level by ad
 
 **Summary of structural changes:**
 
-| Version | S | L | Connectance | Link Density |
-|---|---|---|---|---|
-| Original  | 145 | 1,115 | 0.0530 | 7.69 |
-| Standardized | 166 | 1,304 | 0.0473 | 7.86 |
+```{=latex}
+\begin{center}
+\begin{tabular}{lcccc}
+\toprule
+Version & S & L & Connectance & Link Density\\
+\midrule
+Original & 145 & 1,115 & 0.0530 & 7.69\\
+Standardized & 166 & 1,304 & 0.0473 & 7.86\\
+\bottomrule
+\end{tabular}
+\end{center}
+```
 
 The increase from 1,115 to 1,304 links (+185) reflects exclusively the addition of trophic interactions involving the 21 new top-level taxa.
 
@@ -31,23 +39,39 @@ The standardized version reduces the resolution of basal producers by collapsing
 
 **Summary of structural changes:**
 
-| Version | S | L | Connectance | Link Density |
-|---|---|---|---|---|
-| Original  | 490 | 16,041 | 0.0668 | 32.74 |
-| Standardized | 430 | 11,284 | 0.0610 | 26.24 |
+```{=latex}
+\begin{center}
+\begin{tabular}{lcccc}
+\toprule
+Version & S & L & Connectance & Link Density\\
+\midrule
+Original & 490 & 16,041 & 0.0668 & 32.74\\
+Standardized & 430 & 11,284 & 0.0610 & 26.24\\
+\bottomrule
+\end{tabular}
+\end{center}
+```
 
 The reduction from 490 to 430 species (−60) and from 16,041 to 11,284 links (−4,757 net) is entirely attributable to the collapse of 62 phytoplankton taxa into 2 functional groups. The 112 links added in the standardized version correspond to interactions reassigned to the two new functional groups that were not directly recoverable from the original link list.
 
 ### Northern Scotia Sea
 
-The standardized version increases the resolution of the top trophic level by adding 35 species of seabirds and marine mammals absent from the original network, along with their diets. These include penguins (*Aptenodytes forsteri*, *A. patagonicus*, *Eudyptes chrysocome*, *E. chrysolophus*, *Pygoscelis adeliae*, *P. antarctica*, *P. papua*), albatrosses (*Diomedea exulans*, *Phoebetria palpebrata*, *Thalassarche chrysostoma*, *T. melanophris*), petrels and procellariids (*Daption capense*, *Fregetta tropica*, *Fulmarus glacialoides*, *Halobaena caerulea*, *Macronectes giganteus*, *Oceanites oceanicus*, *Pachyptila turtur*, *P. vittata*, *Pagodroma nivea*, *Procellaria aequinoctialis*, *Pterodroma mollis*, *Thalassoica antarctica*), terns (*Sterna paradisaea*), pinnipeds (*Arctocephalus gazella*, *Hydrurga leptonyx*, *Leptonychotes weddellii*, *Mirounga leonina*, *Ommatophoca rossii*), and cetaceans (*Balaenoptera bonaerensis*, *B. borealis*, *B. physalus*, *Globicephala melas*, *Hyperoodon planifrons*, *Physeter macrocephalus*).
+The standardized version increases the resolution of the top trophic level by adding 35 species of seabirds and marine mammals absent from the original network, along with their diets.
 
 **Summary of structural changes:**
 
-| Version | S | L | Connectance | Link Density |
-|---|---|---|---|---|
-| Original  | 218 | 10,008 | 0.2106 | 45.91 |
-| Standardized | 253 | 10,561 | 0.1650 | 41.74 |
+```{=latex}
+\begin{center}
+\begin{tabular}{lcccc}
+\toprule
+Version & S & L & Connectance & Link Density\\
+\midrule
+Original & 218 & 10,008 & 0.2106 & 45.91\\
+Standardized & 253 & 10,561 & 0.1650 & 41.74\\
+\bottomrule
+\end{tabular}
+\end{center}
+```
 
 The increase from 218 to 253 species (+35) and 10,008 to 10,561 links (+553) reflects the addition of the 35 new top-level taxa and their interactions.
 
@@ -57,14 +81,23 @@ Identical to Northern Scotia Sea: the same 35 species of seabirds and marine mam
 
 **Summary of structural changes:**
 
-| Version | S | L | Connectance | Link Density |
-|---|---|---|---|---|
-| Original  | 192 | 7,241 | 0.1964 | 37.71 |
-| Standardized | 227 | 7,730 | 0.1500 | 34.05 |
+```{=latex}
+\begin{center}
+\begin{tabular}{lcccc}
+\toprule
+Version & S & L & Connectance & Link Density\\
+\midrule
+Original & 192 & 7,241 & 0.1964 & 37.71\\
+Standardized & 227 & 7,730 & 0.1500 & 34.05\\
+\bottomrule
+\end{tabular}
+\end{center}
+```
 
 The increase from 192 to 227 species (+35) and 7,241 to 7,730 links (+489) is entirely attributable to the added top trophic level taxa.
 
 \newpage
+
 
 ## Metric Formulas
 
@@ -80,6 +113,13 @@ $$
 
 Here, rows represent **predators**, and columns represent **prey**. This directed binary matrix forms the basis for computing all structural metrics.
 
+### Connectance (C)
+
+Connectance quantifies the proportion of realized trophic interactions relative to all possible ones:
+
+\begin{equation}
+C = \frac{L}{S^2}, \quad L = \sum_{i,j} a_{ij}.
+\end{equation}
 
 ### Mean Trophic Level (MTL)
 
@@ -97,15 +137,6 @@ MTL = \frac{1}{S} \sum_{i=1}^{S} TL_i.
 \end{equation}
 
 being $S$ the total number of trophic species in the food web.
-
-### Connectance (C)
-
-Connectance quantifies the proportion of realized trophic interactions relative to all possible ones:
-
-\begin{equation}
-C = \frac{L}{S^2}, \quad L = \sum_{i,j} a_{ij}.
-\end{equation}
-
 
 ### Link Density (LD)
 
@@ -229,22 +260,24 @@ Using this calibrated value, we generated 10,000 additional realizations and ret
 
 \begin{table}[ht]
 \centering
-\begin{tabular}{lcccccc}
+\scriptsize
+\begin{tabular}{lccccccc}
   \toprule
-site & C & LD & TLmean & SVDComplexity & RankDeficiency & Modularity \\ 
+site & C & LD & TLmean & SVDComplexity & RankDeficiency & Modularity & Max. Eigenvalue\\ 
   \midrule
-BurdwoodBank & \shortstack{0.014 \\ {\tiny(0.012--0.018)}} & \shortstack{4.463 \\ {\tiny(3.937--4.810)}} & \shortstack{2.470 \\ {\tiny(2.377--2.551)}} & \shortstack{0.079 \\ {\tiny(0.075--0.082)}} & \shortstack{0.635 \\ {\tiny(0.572--0.660)}} & \shortstack{0.334 \\ {\tiny(0.301--0.371)}} \\ 
-  GulfSanJorge & \shortstack{0.038 \\ {\tiny(0.035--0.042)}} & \shortstack{5.590 \\ {\tiny(4.750--6.121)}} & \shortstack{2.906 \\ {\tiny(2.653--3.025)}} & \shortstack{0.080 \\ {\tiny(0.075--0.084)}} & \shortstack{0.447 \\ {\tiny(0.419--0.481)}} & \shortstack{0.137 \\ {\tiny(0.074--0.212)}} \\ 
-  PotterCove & \shortstack{0.055 \\ {\tiny(0.050--0.060)}} & \shortstack{5.461 \\ {\tiny(4.639--5.935)}} & \shortstack{2.233 \\ {\tiny(2.094--2.530)}} & \shortstack{0.091 \\ {\tiny(0.085--0.096)}} & \shortstack{0.493 \\ {\tiny(0.451--0.533)}} & \shortstack{0.164 \\ {\tiny(0.054--0.243)}} \\ 
-  BeagleChannel & \shortstack{0.048 \\ {\tiny(0.045--0.052)}} & \shortstack{7.256 \\ {\tiny(6.433--7.855)}} & \shortstack{2.607 \\ {\tiny(2.480--2.798)}} & \shortstack{0.092 \\ {\tiny(0.088--0.096)}} & \shortstack{0.411 \\ {\tiny(0.386--0.439)}} & \shortstack{0.119 \\ {\tiny(0.058--0.180)}} \\ 
-  NorthernScotia & \shortstack{0.165 \\ {\tiny(0.157--0.174)}} & \shortstack{38.458 \\ {\tiny(34.339--41.574)}} & \shortstack{3.549 \\ {\tiny(3.431--3.683)}} & \shortstack{0.172 \\ {\tiny(0.167--0.175)}} & \shortstack{0.455 \\ {\tiny(0.434--0.476)}} & \shortstack{0.076 \\ {\tiny(0.001--0.113)}} \\ 
-  SouthernScotia & \shortstack{0.151 \\ {\tiny(0.143--0.158)}} & \shortstack{31.339 \\ {\tiny(27.805--33.969)}} & \shortstack{3.513 \\ {\tiny(3.374--3.649)}} & \shortstack{0.167 \\ {\tiny(0.162--0.171)}} & \shortstack{0.424 \\ {\tiny(0.400--0.447)}} & \shortstack{0.071 \\ {\tiny(0.049--0.120)}} \\ 
-  Weddell Sea & \shortstack{0.063 \\ {\tiny(0.059--0.075)}} & \shortstack{24.084 \\ {\tiny(21.360--26.175)}} & \shortstack{3.443 \\ {\tiny(3.170--3.757)}} & \shortstack{0.155 \\ {\tiny(0.148--0.159)}} & \shortstack{0.707 \\ {\tiny(0.669--0.724)}} & \shortstack{0.219 \\ {\tiny(0.171--0.245)}} \\ 
+BurdwoodBank & \shortstack{0.014 \\ {\tiny(0.012--0.018)}} & \shortstack{4.463 \\ {\tiny(3.937--4.810)}} & \shortstack{2.470 \\ {\tiny(2.377--2.551)}} & \shortstack{0.079 \\ {\tiny(0.075--0.082)}} & \shortstack{0.635 \\ {\tiny(0.572--0.660)}} & \shortstack{0.334 \\ {\tiny(0.301--0.371)}} & \shortstack{-0.083 \\ {\tiny(-0.233---0.006)}} \\ 
+  GulfSanJorge & \shortstack{0.038 \\ {\tiny(0.035--0.042)}} & \shortstack{5.590 \\ {\tiny(4.750--6.121)}} & \shortstack{2.906 \\ {\tiny(2.653--3.025)}} & \shortstack{0.080 \\ {\tiny(0.075--0.084)}} & \shortstack{0.447 \\ {\tiny(0.419--0.481)}} & \shortstack{0.137 \\ {\tiny(0.074--0.212)}} & \shortstack{-0.153 \\ {\tiny(-0.454---0.006)}} \\ 
+  PotterCove & \shortstack{0.055 \\ {\tiny(0.050--0.060)}} & \shortstack{5.461 \\ {\tiny(4.639--5.935)}} & \shortstack{2.233 \\ {\tiny(2.094--2.530)}} & \shortstack{0.091 \\ {\tiny(0.085--0.096)}} & \shortstack{0.493 \\ {\tiny(0.451--0.533)}} & \shortstack{0.164 \\ {\tiny(0.054--0.243)}} & \shortstack{-0.172 \\ {\tiny(-0.543---0.006)}} \\ 
+  Std BeagleChannel & \shortstack{0.048 \\ {\tiny(0.045--0.052)}} & \shortstack{7.256 \\ {\tiny(6.433--7.855)}} & \shortstack{2.607 \\ {\tiny(2.480--2.798)}} & \shortstack{0.092 \\ {\tiny(0.088--0.096)}} & \shortstack{0.411 \\ {\tiny(0.386--0.439)}} & \shortstack{0.119 \\ {\tiny(0.058--0.180)}} & \shortstack{-0.180 \\ {\tiny(-0.514---0.005)}} \\ 
+  Std NorthernScotia & \shortstack{0.165 \\ {\tiny(0.157--0.174)}} & \shortstack{38.458 \\ {\tiny(34.339--41.574)}} & \shortstack{3.549 \\ {\tiny(3.431--3.683)}} & \shortstack{0.172 \\ {\tiny(0.167--0.175)}} & \shortstack{0.455 \\ {\tiny(0.434--0.476)}} & \shortstack{0.076 \\ {\tiny(0.001--0.113)}} & \shortstack{-0.375 \\ {\tiny(-1.220---0.011)}} \\ 
+  Std SouthernScotia & \shortstack{0.151 \\ {\tiny(0.143--0.158)}} & \shortstack{31.339 \\ {\tiny(27.805--33.969)}} & \shortstack{3.513 \\ {\tiny(3.374--3.649)}} & \shortstack{0.167 \\ {\tiny(0.162--0.171)}} & \shortstack{0.424 \\ {\tiny(0.400--0.447)}} & \shortstack{0.071 \\ {\tiny(0.049--0.120)}} & \shortstack{-0.344 \\ {\tiny(-1.062---0.012)}} \\ 
+  Std Weddell Sea & \shortstack{0.063 \\ {\tiny(0.059--0.075)}} & \shortstack{24.084 \\ {\tiny(21.360--26.175)}} & \shortstack{3.443 \\ {\tiny(3.170--3.757)}} & \shortstack{0.155 \\ {\tiny(0.148--0.159)}} & \shortstack{0.707 \\ {\tiny(0.669--0.724)}} & \shortstack{0.219 \\ {\tiny(0.171--0.245)}} & \shortstack{-0.255 \\ {\tiny(-0.765---0.010)}} \\ 
    \bottomrule
 \end{tabular}
-\caption{Summary of network metrics across 1000 simulations for each metaweb. Values are means with 95\% intervals in parentheses.} 
+\caption{Summary of network metrics across 1000 simulations for each metaweb. For Maximal eigenvalues, the variability is generated by randomizations of interaction strength. Values are means with 95\% intervals in parentheses.} 
 \label{tab:metaweb_metrics}
 \end{table}
+
 
 \begin{table}[ht]
 \centering
