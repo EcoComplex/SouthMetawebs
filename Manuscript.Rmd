@@ -27,6 +27,10 @@ Leonardo A. Saravia ^1^^2^, Iara D. Rodriguez^5^, Manuela Funes^8^, Georgina Cor
 
 8. Instituto de Investigaciones Marinas y Costeras (CONICET-IIMyC), Juan B. Justo 2550 (7600) Mar del Plata, Argentina.
 
+## keywords
+
+Latitudinal gradient, Southwest Atlantic, Marine Food Webs, Modularity, Dynamic Stability, Complexity
+
 ## Abstract
 
 Understanding how food web structure varies across broad spatial gradients is essential for identifying general principles of ecosystem organization and resilience under global change. We analyzed seven highly resolved marine food webs spanning a latitudinal gradient from 48°S to 78°S in the Southwest Atlantic and Antarctic region to evaluate how ecosystem size, latitude, human impact, and number of species shape network structure and dynamic stability. We quantified multiple topological and dynamical properties—including connectance, link density, mean trophic level, modularity, dynamic stability (maximum eigenvalue), SVD-based complexity, and rank deficiency—and modeled their relationships with environmental predictors using a multivariate Bayesian framework. To account for the variability of food webs, we implemented a metaweb assembly model by simulating site-specific local networks.
