@@ -1,0 +1,241 @@
+---
+title: "Site-level Bayesian models (Fase 1 - post rechazo Ecography)"
+output: html_document
+editor_options:
+  chunk_output_type: console
+---
+
+<!--
+Reestructuracion del modelo en respuesta al rechazo de Ecography.
+
+Problema diagnosticado en BayesianMultivariate.Rmd: el modelo original usaba
+200 replicas simuladas por sitio con un intercepto aleatorio (1|site), lo que
+infla artificialmente la precision (R2 de 0.95-0.99 en varias metricas) sin
+que eso refleje que la informacion real es de 7 sitios independientes. Esto
+es exactamente lo que el Revisor 1 senala: "parameter estimates' uncertainties
+can be decreased arbitrarily by including more simulations".
+
+Solucion (sugerida textualmente por el Revisor 1): colapsar a nivel de sitio
+y usar el termino se() de brms para incorporar la incertidumbre de las
+simulaciones directamente, en vez de tratar cada replica como una observacion
+independiente. Tambien se elimina la matriz de correlacion residual
+(set_rescor) entre las 7 metricas, que con n=7 no es identificable.
+-->
+
+```{r setup, echo = FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(tidyverse)
+library(brms)
+options(brms.backend = "cmdstanr")
+```
+
+# 1. Carga y transformacion (identico a BayesianMultivariate.Rmd)
+
+```{r load-and-transform, eval=TRUE}
+network_info <- readRDS("Data/network_info.rds")
+stability_results_meig <- readRDS("Data/stability_results_meig.rds")
+simMetaWebMetrics <- readRDS("Data/simulations_metaWeb_metrics.rds") %>%
+  mutate(SVDComplexity = 1 - Entropy, RankDeficiency = 1 - relRank) %>%
+  filter(!(Metaweb %in% c("WeddellSea", "BeagleChannel", "NorthernScotia", "SouthernScotia")))
+
+stability_id <- stability_results_meig %>%
+  select(site, MEing_stable) %>%
+  group_by(site) %>%
+  mutate(Sim = row_number()) %>%
+  ungroup()
+
+sim_final <- simMetaWebMetrics %>%
+  select(-S) %>%
+  rename(site = Metaweb) %>%
+  inner_join(stability_id, by = c("site", "Sim")) %>%
+  group_by(site) %>%
+  slice_sample(n = 200) %>%
+  ungroup()
+
+env <- network_info %>%
+  select(site, latitude, area_km2, depth_m, impact_mean, S) %>%
+  mutate(log_area = log(area_km2))
+
+df_all <- sim_final %>%
+  left_join(env, by = "site") %>%
+  drop_na()
+
+d <- df_all %>%
+  mutate(
+    C_logit    = qlogis(pmin(pmax(C, 1e-6), 1 - 1e-6)),
+    Mod_logit  = qlogis(pmin(pmax(Modularity, 1e-6), 1 - 1e-6)),
+    Rank_logit = qlogis(pmin(pmax(RankDeficiency, 1e-6), 1 - 1e-6)),
+    LD_log     = log(LD),
+    TL_z       = as.numeric(scale(TLmean)),
+    SVD_z      = as.numeric(scale(SVDComplexity)),
+    MEpos      = -MEing_stable,
+    ME_log     = log(MEpos),
+    S_s           = as.numeric(scale(S)),
+    log_area_s    = as.numeric(scale(log_area)),
+    latitude_s    = as.numeric(scale(latitude)),
+    impact_mean_s = as.numeric(scale(impact_mean))
+  )
+
+stopifnot(n_distinct(d$site) == 7)
+cat("Sitios:", n_distinct(d$site), "- filas totales:", nrow(d), "\n")
+```
+
+# 2. Colapsar a nivel de sitio (n = 7)
+
+Para cada metrica transformada, la media entre las 200 replicas es el valor
+puntual del sitio y el SD entre replicas es la incertidumbre que se pasa a
+`se()`. Los predictores son constantes dentro de cada sitio, asi que se toma
+el primer valor.
+
+```{r site-level, eval=TRUE}
+responses <- c("C_logit", "Mod_logit", "Rank_logit", "LD_log", "TL_z", "SVD_z", "ME_log")
+
+site_level <- d %>%
+  group_by(site) %>%
+  summarise(
+    across(all_of(responses), list(mean = ~mean(.x, na.rm = TRUE),
+                                    sd   = ~sd(.x, na.rm = TRUE)),
+           .names = "{.col}_{.fn}"),
+    S_s           = first(S_s),
+    log_area_s    = first(log_area_s),
+    latitude_s    = first(latitude_s),
+    impact_mean_s = first(impact_mean_s),
+    S             = first(S),
+    log_area      = first(log_area),
+    latitude      = first(latitude),
+    impact_mean   = first(impact_mean),
+    .groups = "drop"
+  )
+
+# SD minima para evitar se() = 0 si alguna metrica no varia entre replicas
+site_level <- site_level %>%
+  mutate(across(ends_with("_sd"), ~ ifelse(.x < 1e-6, 1e-6, .x)))
+
+saveRDS(site_level, "Data/site_level_n7.rds")
+knitr::kable(site_level %>% select(site, ends_with("_mean")), digits = 3)
+```
+
+# 3. Modelos univariados con se() - sin matriz de correlacion, sin (1|site)
+
+```{r fit-univariate, eval=TRUE}
+fit_one <- function(resp, data) {
+  mean_var <- paste0(resp, "_mean")
+  sd_var   <- paste0(resp, "_sd")
+  form <- bf(as.formula(paste0(
+    mean_var, " | se(", sd_var, ", sigma = TRUE) ~ S_s + log_area_s + latitude_s + impact_mean_s"
+  )))
+  brm(
+    formula = form,
+    data = data,
+    family = gaussian(),
+    chains = 4, cores = 4,
+    iter = 4000, warmup = 2000,
+    control = list(adapt_delta = 0.95, max_treedepth = 15),
+    seed = 2025,
+    silent = 2, refresh = 0
+  )
+}
+
+fits_site <- setNames(
+  lapply(responses, fit_one, data = site_level),
+  responses
+)
+
+saveRDS(fits_site, "Data/brms_site_level_fits.rds")
+```
+
+# 4. Soporte posterior por predictor y metrica (n=7)
+
+```{r support-table, eval=TRUE}
+library(posterior)
+
+nice_names <- c(
+  S_s = "Trophic Species", log_area_s = "Area (log)",
+  latitude_s = "Latitude", impact_mean_s = "Human Impact",
+  C_logit = "Connectance", Mod_logit = "Modularity",
+  Rank_logit = "Rank Deficiency", LD_log = "Link Density",
+  TL_z = "Trophic Level", SVD_z = "SVD Complexity", ME_log = "Dyn. Stability"
+)
+
+support_table <- map_dfr(names(fits_site), function(resp) {
+  draws <- as_draws_df(fits_site[[resp]])
+  preds <- c("S_s", "log_area_s", "latitude_s", "impact_mean_s")
+  map_dfr(preds, function(p) {
+    col <- paste0("b_", p)
+    v <- draws[[col]]
+    prob_pos <- mean(v > 0); prob_neg <- mean(v < 0)
+    tibble(
+      response  = nice_names[resp],
+      predictor = nice_names[p],
+      prob_pos = prob_pos, prob_neg = prob_neg,
+      prob_max = pmax(prob_pos, prob_neg),
+      direction = ifelse(prob_pos > prob_neg, "positive", "negative")
+    )
+  })
+}) %>% arrange(desc(prob_max))
+
+saveRDS(support_table, "Data/support_table_n7.rds")
+knitr::kable(support_table, digits = 3)
+```
+
+# 5. Leave-one-site-out: estabilidad del soporte al sacar cada sitio
+
+Diagnostico directo a la objecion del Revisor 1 ("each foodweb will have a
+high leverage"). Se refitea cada uno de los 7 modelos sacando un sitio a la
+vez (n=6) y se compara la probabilidad de signo consistente contra el modelo
+completo. Con n=6 estos refits son solo diagnosticos de sensibilidad, no
+resultados a reportar como principales.
+
+```{r loo-site, eval=TRUE}
+loo_site_results <- map_dfr(unique(site_level$site), function(excl_site) {
+  data_sub <- site_level %>% filter(site != excl_site)
+  map_dfr(responses, function(resp) {
+    fit_sub <- tryCatch(fit_one(resp, data_sub), error = function(e) NULL)
+    if (is.null(fit_sub)) return(tibble())
+    draws <- as_draws_df(fit_sub)
+    preds <- c("S_s", "log_area_s", "latitude_s", "impact_mean_s")
+    map_dfr(preds, function(p) {
+      v <- draws[[paste0("b_", p)]]
+      tibble(
+        excluded_site = excl_site,
+        response = nice_names[resp],
+        predictor = nice_names[p],
+        prob_max = pmax(mean(v > 0), mean(v < 0)),
+        direction = ifelse(mean(v > 0) > mean(v < 0), "positive", "negative")
+      )
+    })
+  })
+})
+
+saveRDS(loo_site_results, "Data/loo_site_results.rds")
+
+# Cuales efectos del modelo completo (prob_max >= 0.90) dejan de sostenerse
+# (prob_max < 0.90 o cambia de signo) al sacar algun sitio
+fragile_effects <- support_table %>%
+  filter(prob_max >= 0.90) %>%
+  select(response, predictor, direction_full = direction) %>%
+  left_join(loo_site_results, by = c("response", "predictor")) %>%
+  mutate(fragile = prob_max < 0.90 | direction != direction_full) %>%
+  group_by(response, predictor, direction_full) %>%
+  summarise(n_fragile_of_7 = sum(fragile), .groups = "drop") %>%
+  arrange(desc(n_fragile_of_7))
+
+knitr::kable(fragile_effects)
+```
+
+# 6. VIF de los predictores crudos (n=7, a nivel de sitio)
+
+```{r vif, eval=TRUE}
+vif_manual <- function(data, predictors) {
+  sapply(predictors, function(p) {
+    other <- setdiff(predictors, p)
+    f <- as.formula(paste(p, "~", paste(other, collapse = " + ")))
+    r2 <- summary(lm(f, data = data))$r.squared
+    1 / (1 - r2)
+  })
+}
+
+preds_raw <- c("S", "log_area", "latitude", "impact_mean")
+vif_values <- vif_manual(site_level, preds_raw)
+knitr::kable(tibble(predictor = names(vif_values), VIF = round(vif_values, 2)))
+```
