@@ -327,10 +327,15 @@ network_info <- network_info %>% inner_join( tibble::tibble(
            "North Scotia Sea", "Potter Cove", "South Scotia Sea", "Weddell Sea"),
   temp_C = c(6.8, 6, 10.55, 4, -0.15, 0.5, -0.9)
 ))
-  
+saveRDS(network_info, "Data/network_info.rds")
+
 # Select relevant columns
+# S agregado (ademas de temp_C) para responder al pedido del Revisor 1 de
+# incluir "number of trophic species" en esta figura -- antes solo tenia
+# temp_C, latitude, log_area, impact_mean y depth_m (5 variables), lo cual
+# no coincidia con el caption de SuppMat.md.
 network_info %>% mutate(log_area = log(area_km2)) %>%
-  dplyr::select(temp_C,latitude, log_area, impact_mean,depth_m) %>%
+  dplyr::select(temp_C, S, latitude, log_area, impact_mean,depth_m) %>%
   ggpairs(
     upper = list(continuous = wrap("cor", size = 4)),  # correlation in upper panels
     lower = list(continuous = wrap("points", alpha = 0.7, size = 3)), # scatterplots
@@ -338,7 +343,7 @@ network_info %>% mutate(log_area = log(area_km2)) %>%
   ) +
   theme_bw()
 
-ggsave("Figures/correlation_network_info.png", width = 8, height = 6, dpi = 300)
+ggsave("Figures/correlation_network_info.png", width = 9, height = 7, dpi = 300)
 
 # Create RankDeficiency
 simMetaWebMetrics <- simMetaWebMetrics %>%
