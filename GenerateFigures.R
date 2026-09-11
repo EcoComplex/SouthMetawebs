@@ -450,3 +450,12 @@ fig_post_slopes <- p_post_slopes_site +
 
 ggsave("Figures/Bayesian_post_slopes.png", fig_post_slopes, width = 5, height = 10, dpi = 300, bg = "white")
 ggsave("Figures/Bayesian_post_slopes.svg", fig_post_slopes, width = 5, height = 10, bg = "white")
+
+# ---- 14. Figura de Modularidad por red (NO USADA en SuppMat.md) ----
+# Boxplot por sitio, aislado del panel de 7 metricas del bloque 11. Lo que
+# Leonardo pidio documentar en la seccion de Modularity era en realidad la
+# comparacion Infomap vs spinglass (CompareModularityAlgorithms.R), no esto.
+# Dejo el bloque por si sirve para otra cosa, pero no esta referenciado en
+# SuppMat.md.
+fig_modularity_dist <- distribution_plot("Modularity")
+ggsave("Figures/Modularity_distribution_by_site.png", fig_modularity_dist, width = 6, height = 5, dpi = 300, bg = "white")

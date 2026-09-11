@@ -170,13 +170,21 @@ where:
 
 (This is the standard Newman-Girvan modularity.)
 
+<!-- FIGURA: ya generada, correr CompareModularityAlgorithms.R si hace falta reproducirla. Requiere
+Data/simulations_metaWeb_metrics.rds (Infomap) y Data/simulations_metaWeb_metrics_spinglass.rds
+(ya calculado). El resumen numerico (Data/modularity_infomap_vs_spinglass_summary.csv) no esta en
+la carpeta Data -- si lo segui necesitando, correr el script de nuevo lo regenera junto con la
+figura. -->
+
+![Comparison of modularity (Newman-Girvan Q) distributions obtained with the Infomap algorithm (used throughout this study) and with the spinglass algorithm, computed on the same metaweb-derived replicates for each of the seven food webs. For most sites the two algorithms produce closely overlapping distributions. For Northern Scotia, spinglass returns a disproportionate fraction of replicates with modularity at or near zero that Infomap does not, indicating that community detection is comparatively less stable for this network regardless of the algorithm used.](Figures/modularity_infomap_vs_spinglass_comparison.png)
+
 ### Estimating Network Complexity
 
 We characterized structural complexity using two complementary metrics derived from the adjacency matrix. The first, SVD complexity, is based on the 
 distribution of singular values obtained by Singular Value Decomposition (SVD) of the adjacency matrix. Ecological networks with strong trophic hierarchy, 
-modularity, or body-size constraints tend to concentrate structural information in a few dominant dimensions, resulting in an uneven distribution of singular values. We captured this organized heterogeneity as $E = 1 - J$, where $J$ is the normalized Shannon entropy of the singular value spectrum-- Pielou's evenness [@Pielou1975]. Higher values of $E$ indicate that network structure is dominated by fewer independent dimensions, reflecting stronger ecological constraints, whereas random networks maximize $J$ and thus minimize $E$ (Figure S5).
+modularity, or body-size constraints tend to concentrate structural information in a few dominant dimensions, resulting in an uneven distribution of singular values. We captured this organized heterogeneity as $E = 1 - J$, where $J$ is the normalized Shannon entropy of the singular value spectrum-- Pielou's evenness [@Pielou1975]. Higher values of $E$ indicate that network structure is dominated by fewer independent dimensions, reflecting stronger ecological constraints, whereas random networks maximize $J$ and thus minimize $E$ (Figure S6).
 
-The second metric, **rank deficiency** ($D$), quantifies the proportion of linearly dependent rows and columns in the adjacency matrix, relative to the maximum possible rank (number of trophic species). A fully ranked matrix ($D = 0$) implies that every species has a unique interaction profile, whereas high deficiency ($D \to 1$) indicates substantial redundancy in trophic strategies. Together, SVD complexity and rank deficiency provide complementary views of the external and internal dimensionality of food web structure [@Strydom2021]. For a graphical illustration of how these metrics capture different aspects of network organization, see Figure S1.
+The second metric, **rank deficiency** ($D$), quantifies the proportion of linearly dependent rows and columns in the adjacency matrix, relative to the maximum possible rank (number of trophic species). A fully ranked matrix ($D = 0$) implies that every species has a unique interaction profile, whereas high deficiency ($D \to 1$) indicates substantial redundancy in trophic strategies. Together, SVD complexity and rank deficiency provide complementary views of the external and internal dimensionality of food web structure [@Strydom2021]. For a graphical illustration of how these metrics capture different aspects of network organization, see Figure S2.
 
 #### SVD Complexity
 
@@ -211,7 +219,7 @@ Pielou's evenness index [@Pielou1975]. We define SVD complexity as $E = 1 - J$.
 A random network with fixed connectance distributes structural information 
 evenly across many dimensions (high $J$, low $E$), whereas ecological networks 
 with trophic hierarchy or modular organization concentrate most information in 
-a few dimensions (low $J$, high $E$; see Figure S4).
+a few dimensions (low $J$, high $E$; see Figure S2).
 
 #### Rank Deficiency
 
@@ -318,7 +326,7 @@ the seven exclusions. Pairs are ordered by decreasing robustness and then by
 decreasing Prob max. Effects of dynamic stability on area, latitude and
 species richness, and all effects of the human impact index, did not reach the
 0.90 support threshold under the full dataset and are not shown here (see
-Table S1 and Results).}
+Results).}
 \label{tab:posterior_slopes}
 \end{table}
 
@@ -401,7 +409,7 @@ $$
 
 For each site $j$ and each transformed metric $k$, we then computed the replicate mean $\bar y_{jk}$ and replicate standard deviation $s_{jk}$ across the retained metaweb-derived replicates, floored at a small positive value ($10^{-6}$) to avoid degenerate zero-uncertainty sites. These site-level pairs $(\bar y_{jk}, s_{jk})$, with $n=7$ per metric, are the unit of analysis for all regression models described below.
 
-Continuous predictors were centered and scaled. These included the number of trophic species ($S$), the natural logarithm of area, latitude, and the human impact index. Depth and temperature were initially considered as covariates; however, depth was strongly correlated with log-transformed area, and temperature was strongly correlated with latitude (Figure S6). To avoid multicollinearity and improve parameter interpretability, both variables were excluded from the final model.
+Continuous predictors were centered and scaled. These included the number of trophic species ($S$), the natural logarithm of area, latitude, and the human impact index. Depth and temperature were initially considered as covariates; however, depth was strongly correlated with log-transformed area, and temperature was strongly correlated with latitude (Figure S7). To avoid multicollinearity and improve parameter interpretability, both variables were excluded from the final model.
 
 For each site $j$:
 
@@ -478,45 +486,25 @@ univariados de fits_site). El caption ya esta actualizado para el modelo site-le
 
 \newpage
 
-<!-- FIGURA A REGENERAR: correr GenerateFigures.R (marginal_plot() para C_logit, Rank_logit,
-Mod_logit y ME_log vs log_area_s, con fits_site). El caption ya esta actualizado. -->
+<!-- FIGURA A REGENERAR: correr GenerateFigures.R (bloque 12, marginal_plot_orig() para C_logit,
+Rank_logit, Mod_logit y ME_log vs log_area_s). -->
 
-![Marginal effects of log-transformed area on connectance, rank deficiency, modularity, and dynamic stability from the site-level Bayesian regressions. Solid black lines show posterior mean predictions, with shaded regions representing 95% credible intervals. Colored points indicate the site-level mean for each food web, and vertical bars denote the 95% quantiles of the metaweb-derived replicates used to construct the measurement-error term. Connectance is the only one of these four relationships that reached the 0.90 posterior support threshold and remained robust to leave-one-site-out exclusion (Table S2); it is also shown, together with the other area-robust relationships, in the main text (Figure 3). The negative association between area and modularity reached the nominal 0.90 threshold under the full dataset but did not survive exclusion of any single food web and is not interpreted as a genuine effect (see Discussion). Rank deficiency and dynamic stability did not reach the 0.90 support threshold for area in the site-level model.](Figures/Bayesian_C_RD_Mod_ST_vs_Area_mv.png)
+![Marginal effects of log-transformed area on connectance, rank deficiency, modularity, and dynamic stability, in each metric's original units. Solid black lines show posterior mean predictions from the site-level Bayesian regressions, back-transformed from the model scale; shaded regions represent 95% credible intervals. Colored points show the observed mean for each food web, computed directly from the metaweb-derived replicates, with vertical bars denoting their 95% quantiles. Connectance is the only one of these four relationships that reached the 0.90 posterior support threshold and remained robust to leave-one-site-out exclusion (Table S2); it is also shown, together with the other area-robust relationships, in the main text (Figure 3). The negative association between area and modularity reached the nominal 0.90 threshold under the full dataset but did not survive exclusion of any single food web and is not interpreted as a genuine effect (see Discussion). Rank deficiency and dynamic stability did not reach the 0.90 support threshold for area in the site-level model.](Figures/Bayesian_C_RD_Mod_ST_vs_Area_mv_origscale.png)
 
 <!-- FIGURA A REGENERAR: correr GenerateFigures.R (bloque 12, marginal_plot_orig() para C_logit,
-Rank_logit, Mod_logit y ME_log vs log_area_s). Companion en escala original de la figura anterior. -->
+Rank_logit, Mod_logit y ME_log vs latitude_s). -->
 
-![Marginal effects of log-transformed area on connectance, rank deficiency, modularity, and dynamic stability, shown in each metric's original units (compare the transformed-scale version above). Solid black lines show posterior mean predictions back-transformed from the model scale, with shaded regions representing 95% credible intervals. Colored points show the observed mean for each food web, computed directly from the metaweb-derived replicates rather than back-transformed from the model scale, with vertical bars denoting their 95% quantiles. As above, only connectance reached the 0.90 posterior support threshold and remained robust to leave-one-site-out exclusion (Table S2).](Figures/Bayesian_C_RD_Mod_ST_vs_Area_mv_origscale.png)
-
-<!-- FIGURA A REGENERAR: correr GenerateFigures.R (marginal_plot() para C_logit, Rank_logit,
-Mod_logit y ME_log vs latitude_s, con fits_site). El caption ya esta actualizado. -->
-
-![Marginal effects of latitude on connectance, rank deficiency, modularity, and dynamic stability from the site-level Bayesian regressions. Solid black lines show posterior mean predictions, with shaded regions indicating 95% credible intervals. Colored points represent the site-level mean for each food web, and vertical bars denote the 95% quantiles of the metaweb-derived replicates used to construct the measurement-error term. Connectance reached the 0.90 posterior support threshold for latitude under the full dataset but did not survive leave-one-site-out exclusion (Table S2); rank deficiency, modularity, and dynamic stability did not reach this threshold.](Figures/Bayesian_C_RD_Mod_ST_vs_Latitude_mv.png)
-
-<!-- FIGURA A REGENERAR: correr GenerateFigures.R (bloque 12, marginal_plot_orig() para C_logit,
-Rank_logit, Mod_logit y ME_log vs latitude_s). Companion en escala original de la figura anterior. -->
-
-![Marginal effects of latitude on connectance, rank deficiency, modularity, and dynamic stability, shown in each metric's original units (compare the transformed-scale version above). Solid black lines show posterior mean predictions back-transformed from the model scale, with shaded regions indicating 95% credible intervals. Colored points show the observed mean for each food web, computed directly from the metaweb-derived replicates rather than back-transformed from the model scale, with vertical bars denoting their 95% quantiles. As above, connectance reached the 0.90 posterior support threshold for latitude under the full dataset but did not survive leave-one-site-out exclusion (Table S2); rank deficiency, modularity, and dynamic stability did not reach this threshold.](Figures/Bayesian_C_RD_Mod_ST_vs_Latitude_mv_origscale.png)
-
-<!-- FIGURA A REGENERAR: correr GenerateFigures.R (marginal_plot() para las 7 metricas vs S_s, con
-fits_site). El caption ya esta actualizado. -->
-
-![Marginal effects of the number of trophic species (S) on the full set of food-web metrics from the site-level Bayesian regressions. Solid black lines show posterior mean predictions, with shaded regions indicating 95% credible intervals. Colored points represent the site-level mean for each food web, and vertical bars denote the 95% quantiles of the metaweb-derived replicates used to construct the measurement-error term. Modularity, rank deficiency, and connectance reached the 0.90 posterior support threshold for the number of species under the full dataset, but none of these effects survived leave-one-site-out exclusion (Table S2) and none is interpreted as a general pattern.](Figures/Bayesian_all_vs_S_mv.png)
+![Marginal effects of latitude on connectance, rank deficiency, modularity, and dynamic stability, in each metric's original units. Solid black lines show posterior mean predictions from the site-level Bayesian regressions, back-transformed from the model scale; shaded regions indicate 95% credible intervals. Colored points show the observed mean for each food web, computed directly from the metaweb-derived replicates, with vertical bars denoting their 95% quantiles. Connectance reached the 0.90 posterior support threshold for latitude under the full dataset but did not survive leave-one-site-out exclusion (Table S2); rank deficiency, modularity, and dynamic stability did not reach this threshold.](Figures/Bayesian_C_RD_Mod_ST_vs_Latitude_mv_origscale.png)
 
 <!-- FIGURA A REGENERAR: correr GenerateFigures.R (bloque 12, marginal_plot_orig() para las 7
-metricas vs S_s). Companion en escala original de la figura anterior. -->
+metricas vs S_s). -->
 
-![Marginal effects of the number of trophic species (S) on the full set of food-web metrics, shown in each metric's original units (compare the transformed-scale version above). Solid black lines show posterior mean predictions back-transformed from the model scale, with shaded regions indicating 95% credible intervals. Colored points show the observed mean for each food web, computed directly from the metaweb-derived replicates rather than back-transformed from the model scale, with vertical bars denoting their 95% quantiles. As above, modularity, rank deficiency, and connectance reached the 0.90 posterior support threshold under the full dataset, but none of these effects survived leave-one-site-out exclusion (Table S2).](Figures/Bayesian_all_vs_S_mv_origscale.png)
-
-<!-- FIGURA A REGENERAR: correr GenerateFigures.R (marginal_plot() para las 7 metricas vs
-impact_mean_s, con fits_site). El caption ya esta actualizado. -->
-
-![Marginal effects of the human impact index on the full set of food-web metrics from the site-level Bayesian regressions. Solid black lines show posterior mean predictions, with shaded regions indicating 95% credible intervals. Colored points represent the site-level mean for each food web, and vertical bars denote the 95% quantiles of the metaweb-derived replicates used to construct the measurement-error term. No predictor-response combination reached the 0.90 posterior support threshold (maximum posterior probability = 0.819, for SVD complexity).](Figures/Bayesian_all_vs_impact_mv.png)
+![Marginal effects of the number of trophic species (S) on the full set of food-web metrics, in each metric's original units. Solid black lines show posterior mean predictions from the site-level Bayesian regressions, back-transformed from the model scale; shaded regions indicate 95% credible intervals. Colored points show the observed mean for each food web, computed directly from the metaweb-derived replicates, with vertical bars denoting their 95% quantiles. Modularity, rank deficiency, and connectance reached the 0.90 posterior support threshold for the number of species under the full dataset, but none of these effects survived leave-one-site-out exclusion (Table S2) and none is interpreted as a general pattern.](Figures/Bayesian_all_vs_S_mv_origscale.png)
 
 <!-- FIGURA A REGENERAR: correr GenerateFigures.R (bloque 12, marginal_plot_orig() para las 7
-metricas vs impact_mean_s). Companion en escala original de la figura anterior. -->
+metricas vs impact_mean_s). -->
 
-![Marginal effects of the human impact index on the full set of food-web metrics, shown in each metric's original units (compare the transformed-scale version above). Solid black lines show posterior mean predictions back-transformed from the model scale, with shaded regions indicating 95% credible intervals. Colored points show the observed mean for each food web, computed directly from the metaweb-derived replicates rather than back-transformed from the model scale, with vertical bars denoting their 95% quantiles. As above, no predictor-response combination reached the 0.90 posterior support threshold (maximum posterior probability = 0.819, for SVD complexity).](Figures/Bayesian_all_vs_impact_mv_origscale.png)
+![Marginal effects of the human impact index on the full set of food-web metrics, in each metric's original units. Solid black lines show posterior mean predictions from the site-level Bayesian regressions, back-transformed from the model scale; shaded regions indicate 95% credible intervals. Colored points show the observed mean for each food web, computed directly from the metaweb-derived replicates, with vertical bars denoting their 95% quantiles. No predictor-response combination reached the 0.90 posterior support threshold (maximum posterior probability = 0.819, for SVD complexity).](Figures/Bayesian_all_vs_impact_mv_origscale.png)
 
 <!-- FIGURA ELIMINADA: Bayesian_ResCor.png (matriz de correlacion residual) ya no corresponde: el
 modelo site-level ajusta cada metrica de forma independiente y no estima una matriz de correlacion
