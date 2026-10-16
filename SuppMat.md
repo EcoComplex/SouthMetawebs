@@ -52,7 +52,7 @@ Standardized & 430 & 11,284 & 0.0610 & 26.24\\
 \end{center}
 ```
 
-The reduction from 490 to 430 species (−60) and from 16,041 to 11,284 links (−4,757 net) is entirely attributable to the collapse of 62 phytoplankton taxa into 2 functional groups. The 112 links added in the standardized version correspond to interactions reassigned to the two new functional groups that were not directly recoverable from the original link list.
+The reduction from 490 to 430 species ($-60$) and from 16,041 to 11,284 links ($-4{,}757$ net) is entirely attributable to the collapse of 62 phytoplankton taxa into 2 functional groups. The 112 links added in the standardized version correspond to interactions reassigned to the two new functional groups that were not directly recoverable from the original link list.
 
 ### Northern Scotia Sea
 
@@ -97,7 +97,6 @@ Standardized & 227 & 7,730 & 0.1500 & 34.05\\
 The increase from 192 to 227 species (+35) and 7,241 to 7,730 links (+489) is entirely attributable to the added top trophic level taxa.
 
 \newpage
-
 
 ## Metric Formulas
 
@@ -146,7 +145,6 @@ Link density measures the average number of trophic links per species:
 LD = \frac{L}{S}.
 \end{equation}
 
-
 ###  Modularity (Q)
 
 Modularity describes the extent to which the network is organized into modules with dense intra-module links and sparse inter-module links.
@@ -160,7 +158,6 @@ A widely used definition for modularity in ecological networks is:
 Q = \sum_{s=1}^{M} \left[ \frac{l_s}{L} - \left( \frac{d_s}{2L} \right)^2 \right]
 \end{equation}
 
-
 where:
 
 * $M$ = total number of modules.
@@ -169,12 +166,6 @@ where:
 * $L$ = total number of links in the network.
 
 (This is the standard Newman-Girvan modularity.)
-
-<!-- FIGURA: ya generada, correr CompareModularityAlgorithms.R si hace falta reproducirla. Requiere
-Data/simulations_metaWeb_metrics.rds (Infomap) y Data/simulations_metaWeb_metrics_spinglass.rds
-(ya calculado). El resumen numerico (Data/modularity_infomap_vs_spinglass_summary.csv) no esta en
-la carpeta Data -- si lo segui necesitando, correr el script de nuevo lo regenera junto con la
-figura. -->
 
 ![Comparison of modularity (Newman-Girvan Q) distributions obtained with the Infomap algorithm (used throughout this study) and with the spinglass algorithm, computed on the same metaweb-derived replicates for each of the seven food webs. For most sites the two algorithms produce closely overlapping distributions. For Northern Scotia, spinglass returns a disproportionate fraction of replicates with modularity at or near zero that Infomap does not, indicating that community detection is comparatively less stable for this network regardless of the algorithm used.](Figures/modularity_infomap_vs_spinglass_comparison.png)
 
@@ -246,13 +237,11 @@ To estimate $\textit{SelfReg}$, we performed a grid search over values from $-7$
 
 Using this calibrated value, we generated 10,000 additional realizations and retained only stable systems to obtain the distribution of $\lambda_{\max}$ for each network. Because $\lambda_{\max} < 0$ for all retained systems, we multiplied values by $-1$ and modeled $\log(-\lambda_{\max})$, placing the stability metric on a positive, approximately log-normal scale.
 
-
 \newpage
 
 ![Figure explaining SVD complexity and Rank Deficiency](Figures/svd_complexity_figure_v4.png)
 
 \newpage
-
 
 ![Distribution of metaweb-simulated network metrics (SVD complexity and modularity) with the observed value indicated by the red dashed line.](Figures/empirical_vs_simulated_metrics_SVDC_Mod.png) 
 
@@ -276,24 +265,15 @@ site & C & LD & TLmean & SVDComplexity & RankDeficiency & Modularity & Max. Eige
 BurdwoodBank & \shortstack{0.014 \\ {\tiny(0.012--0.018)}} & \shortstack{4.463 \\ {\tiny(3.937--4.810)}} & \shortstack{2.470 \\ {\tiny(2.377--2.551)}} & \shortstack{0.079 \\ {\tiny(0.075--0.082)}} & \shortstack{0.635 \\ {\tiny(0.572--0.660)}} & \shortstack{0.334 \\ {\tiny(0.301--0.371)}} & \shortstack{-0.083 \\ {\tiny(-0.233---0.006)}} \\ 
   GulfSanJorge & \shortstack{0.038 \\ {\tiny(0.035--0.042)}} & \shortstack{5.590 \\ {\tiny(4.750--6.121)}} & \shortstack{2.906 \\ {\tiny(2.653--3.025)}} & \shortstack{0.080 \\ {\tiny(0.075--0.084)}} & \shortstack{0.447 \\ {\tiny(0.419--0.481)}} & \shortstack{0.137 \\ {\tiny(0.074--0.212)}} & \shortstack{-0.153 \\ {\tiny(-0.454---0.006)}} \\ 
   PotterCove & \shortstack{0.055 \\ {\tiny(0.050--0.060)}} & \shortstack{5.461 \\ {\tiny(4.639--5.935)}} & \shortstack{2.233 \\ {\tiny(2.094--2.530)}} & \shortstack{0.091 \\ {\tiny(0.085--0.096)}} & \shortstack{0.493 \\ {\tiny(0.451--0.533)}} & \shortstack{0.164 \\ {\tiny(0.054--0.243)}} & \shortstack{-0.172 \\ {\tiny(-0.543---0.006)}} \\ 
-  Std BeagleChannel & \shortstack{0.048 \\ {\tiny(0.045--0.052)}} & \shortstack{7.256 \\ {\tiny(6.433--7.855)}} & \shortstack{2.607 \\ {\tiny(2.480--2.798)}} & \shortstack{0.092 \\ {\tiny(0.088--0.096)}} & \shortstack{0.411 \\ {\tiny(0.386--0.439)}} & \shortstack{0.119 \\ {\tiny(0.058--0.180)}} & \shortstack{-0.180 \\ {\tiny(-0.514---0.005)}} \\ 
-  Std NorthernScotia & \shortstack{0.165 \\ {\tiny(0.157--0.174)}} & \shortstack{38.458 \\ {\tiny(34.339--41.574)}} & \shortstack{3.549 \\ {\tiny(3.431--3.683)}} & \shortstack{0.172 \\ {\tiny(0.167--0.175)}} & \shortstack{0.455 \\ {\tiny(0.434--0.476)}} & \shortstack{0.076 \\ {\tiny(0.001--0.113)}} & \shortstack{-0.375 \\ {\tiny(-1.220---0.011)}} \\ 
-  Std SouthernScotia & \shortstack{0.151 \\ {\tiny(0.143--0.158)}} & \shortstack{31.339 \\ {\tiny(27.805--33.969)}} & \shortstack{3.513 \\ {\tiny(3.374--3.649)}} & \shortstack{0.167 \\ {\tiny(0.162--0.171)}} & \shortstack{0.424 \\ {\tiny(0.400--0.447)}} & \shortstack{0.071 \\ {\tiny(0.049--0.120)}} & \shortstack{-0.344 \\ {\tiny(-1.062---0.012)}} \\ 
-  Std Weddell Sea & \shortstack{0.063 \\ {\tiny(0.059--0.075)}} & \shortstack{24.084 \\ {\tiny(21.360--26.175)}} & \shortstack{3.443 \\ {\tiny(3.170--3.757)}} & \shortstack{0.155 \\ {\tiny(0.148--0.159)}} & \shortstack{0.707 \\ {\tiny(0.669--0.724)}} & \shortstack{0.219 \\ {\tiny(0.171--0.245)}} & \shortstack{-0.255 \\ {\tiny(-0.765---0.010)}} \\ 
+  BeagleChannel & \shortstack{0.048 \\ {\tiny(0.045--0.052)}} & \shortstack{7.256 \\ {\tiny(6.433--7.855)}} & \shortstack{2.607 \\ {\tiny(2.480--2.798)}} & \shortstack{0.092 \\ {\tiny(0.088--0.096)}} & \shortstack{0.411 \\ {\tiny(0.386--0.439)}} & \shortstack{0.119 \\ {\tiny(0.058--0.180)}} & \shortstack{-0.180 \\ {\tiny(-0.514---0.005)}} \\ 
+  NorthernScotia & \shortstack{0.165 \\ {\tiny(0.157--0.174)}} & \shortstack{38.458 \\ {\tiny(34.339--41.574)}} & \shortstack{3.549 \\ {\tiny(3.431--3.683)}} & \shortstack{0.172 \\ {\tiny(0.167--0.175)}} & \shortstack{0.455 \\ {\tiny(0.434--0.476)}} & \shortstack{0.076 \\ {\tiny(0.001--0.113)}} & \shortstack{-0.375 \\ {\tiny(-1.220---0.011)}} \\ 
+  SouthernScotia & \shortstack{0.151 \\ {\tiny(0.143--0.158)}} & \shortstack{31.339 \\ {\tiny(27.805--33.969)}} & \shortstack{3.513 \\ {\tiny(3.374--3.649)}} & \shortstack{0.167 \\ {\tiny(0.162--0.171)}} & \shortstack{0.424 \\ {\tiny(0.400--0.447)}} & \shortstack{0.071 \\ {\tiny(0.049--0.120)}} & \shortstack{-0.344 \\ {\tiny(-1.062---0.012)}} \\ 
+  Weddell Sea & \shortstack{0.063 \\ {\tiny(0.059--0.075)}} & \shortstack{24.084 \\ {\tiny(21.360--26.175)}} & \shortstack{3.443 \\ {\tiny(3.170--3.757)}} & \shortstack{0.155 \\ {\tiny(0.148--0.159)}} & \shortstack{0.707 \\ {\tiny(0.669--0.724)}} & \shortstack{0.219 \\ {\tiny(0.171--0.245)}} & \shortstack{-0.255 \\ {\tiny(-0.765---0.010)}} \\ 
    \bottomrule
 \end{tabular}
 \caption{Summary of network metrics across 1000 simulations for each metaweb. For Maximal eigenvalues, the variability is generated by randomizations of interaction strength. Values are means with 95\% intervals in parentheses.} 
 \label{tab:metaweb_metrics}
 \end{table}
-
-<!-- TABLA S2 ACTUALIZADA: reemplaza la vieja tabla del modelo multivariado (tab:posterior_slopes).
-Incluye ahora la columna de leave-one-site-out (fallas de 7 exclusiones) y el criterio de robustez
-"falla en <=3 de 7 exclusiones". Para las 5 relaciones de Área los conteos exactos de fallas (2 o 3
-de 7) surgen directamente del texto del Manuscript.Rmd. Para las 7 filas de Latitud/Especies, el
-texto original solo reporta la cota "fallan en al menos 5 de 7"; no tengo el conteo exacto por fila
-(6 vs 7, por ejemplo) porque no quedó registrada la tabla de fragilidad completa que pegaste en el
-chat. Dejé ">=5" en esas filas, consistente con lo ya escrito en el manuscrito -- si tenés a mano el
-conteo exacto por efecto, decímelo y lo actualizo. -->
 
 \begin{table}[ht]
 \centering
@@ -302,18 +282,17 @@ conteo exacto por efecto, decímelo y lo actualizo. -->
   \toprule
   Response & Predictor & Prob pos & Prob neg & Prob max & Direction & LOSO failures (of 7) & Robust ($\leq$3 failures) \\
   \midrule
-  Trophic Level    & Area (log) & 0.974 & 0.026 & 0.974 & positive & 2        & Yes \\
-  SVD Complexity   & Area (log) & 0.965 & 0.035 & 0.965 & positive & 2        & Yes \\
-  Connectance      & Area (log) & 0.956 & 0.044 & 0.956 & positive & 3        & Yes \\
-  Link Density     & Area (log) & 0.949 & 0.051 & 0.949 & positive & 2        & Yes \\
-  Modularity       & Area (log) & 0.069 & 0.931 & 0.931 & negative & 7        & No \\
-  SVD Complexity   & Latitude   & 0.939 & 0.061 & 0.939 & positive & $\geq$5  & No \\
-  Modularity       & Species    & 0.938 & 0.062 & 0.938 & positive & $\geq$5  & No \\
-  Connectance      & Species    & 0.075 & 0.925 & 0.925 & negative & $\geq$5  & No \\
-  Connectance      & Latitude   & 0.923 & 0.077 & 0.923 & positive & $\geq$5  & No \\
-  Rank Deficiency  & Species    & 0.914 & 0.086 & 0.914 & positive & $\geq$5  & No \\
-  Link Density     & Latitude   & 0.908 & 0.092 & 0.908 & positive & $\geq$5  & No \\
-  Trophic Level    & Latitude   & 0.900 & 0.100 & 0.900 & positive & $\geq$5  & No \\
+  Trophic Level    & Area (log) & 0.991 & 0.009 & 0.991 & positive & 0 & Yes \\
+  SVD Complexity   & Area (log) & 0.983 & 0.017 & 0.983 & positive & 0 & Yes \\
+  Link Density     & Area (log) & 0.982 & 0.018 & 0.982 & positive & 0 & Yes \\
+  Connectance      & Area (log) & 0.965 & 0.035 & 0.965 & positive & 0 & Yes \\
+  Rank Deficiency  & Species    & 0.960 & 0.040 & 0.960 & positive & 1 & Yes \\
+  Modularity       & Species    & 0.954 & 0.046 & 0.954 & positive & 1 & Yes \\
+  SVD Complexity   & Latitude   & 0.955 & 0.045 & 0.955 & positive & 3 & Yes \\
+  Link Density     & Latitude   & 0.940 & 0.060 & 0.940 & positive & 3 & Yes \\
+  Connectance      & Species    & 0.066 & 0.934 & 0.934 & negative & 3 & Yes \\
+  Connectance      & Latitude   & 0.934 & 0.066 & 0.934 & positive & 5 & No \\
+  Trophic Level    & Latitude   & 0.914 & 0.086 & 0.914 & positive & 5 & No \\
   \bottomrule
 \end{tabular}
 \caption{Posterior probabilities of directional effects for predictor--response
@@ -323,10 +302,10 @@ model), together with the number of leave-one-site-out refits (of seven) in
 which the effect failed to reach this threshold with a consistent sign. An
 effect is classified as robust when it failed to hold in no more than three of
 the seven exclusions. Pairs are ordered by decreasing robustness and then by
-decreasing Prob max. Effects of dynamic stability on area, latitude and
-species richness, and all effects of the human impact index, did not reach the
-0.90 support threshold under the full dataset and are not shown here (see
-Results).}
+decreasing Prob max. Effects of area, latitude and species richness on dynamic stability, the
+association between area and modularity, and all effects of the human impact
+index did not reach the 0.90 support threshold under the full dataset and are
+not shown here (see Results).}
 \label{tab:posterior_slopes}
 \end{table}
 
@@ -345,8 +324,8 @@ Results).}
 \caption{Variance inflation factors (VIF) for the four predictors used in the
 site-level Bayesian regressions ($n=7$ food webs), computed as
 $1/(1-R^2_l)$ from an ordinary least-squares regression of each standardized
-predictor $l$ on the remaining three. All values are well below conventional
-thresholds for concerning collinearity (commonly VIF $>5$--10).}
+predictor $l$ on the remaining three. Only the number of trophic species slightly
+exceeds the conservative threshold of 3 proposed by Zuur et al. (2010).}
 \label{tab:vif}
 \end{table}
 
@@ -356,16 +335,9 @@ thresholds for concerning collinearity (commonly VIF $>5$--10).}
 
 \newpage
 
-<!-- FIGURA A REGENERAR: correr a mano en RStudio el chunk "CheckCorrelation_createTables" de
-metawebassemblysimulations.Rmd (tiene eval=FALSE, no corre solo al knitear). Ese chunk agrega
-temp_C via join por `name`, guarda network_info.rds, y escribe la figura con
-select(temp_C, S, latitude, log_area, impact_mean, depth_m). La version actual del PNG todavia
-no incluye S. El caption ya esta actualizado para las 6 variables. -->
-
 ![Pairwise relationships among environmental and network covariates considered prior to model fitting. Panels show bivariate scatterplots (lower triangle), smoothed density distributions (diagonal), and Pearson correlation coefficients (upper triangle) for mean sea surface temperature, the number of trophic species (S), latitude, log-transformed area, mean human impact index, and mean depth. Temperature and depth were strongly correlated with latitude and log-transformed area, respectively, and were excluded from the statistical model on that basis (see Supplementary Methods S1).](Figures/correlation_network_info.png)
 
 \newpage
-
 
 # **Supplementary Methods S1: Site-Level Bayesian Measurement-Error Models**
 
@@ -380,7 +352,7 @@ $$
 
 representing respectively: connectance, SVD complexity, modularity, mean trophic level, link density, rank deficiency, and the dynamic stability metric (maximum eigenvalue).
 
-Following the principle of using monotone transformations that preserve order and scale structure, we applied the following transformations to each metric, computed across the retained metaweb-derived replicates of each site:
+We applied the following monotonic transformations, which preserve the order of values, to each metric, computed across the retained metaweb-derived replicates of each site:
 
 1. Proportions → logit-transform
 
@@ -423,7 +395,7 @@ S_{j},
 \big),
 $$
 
-all standardised to mean 0 and unit variance.
+all standardized to mean 0 and unit variance.
 
 ### Site-level measurement-error model
 
@@ -445,13 +417,36 @@ We used weakly informative priors for regularized estimation:
 
 $$
 \beta_{kl} \sim \mathcal{N}(0, 1), \qquad
-\beta_{0k} \sim \mathcal{N}(0, 1), \qquad
-\sigma_k \sim \text{Exponential}(1).
+\sigma_k \sim \text{Exponential}(1),
 $$
 
-Standardization ensures regression coefficients lie on comparable scales and priors correspond to plausible effect sizes.
+and the `brms` default Student-t prior for the intercept $\beta_{0k}$, which is centered on the observed responses because the responses are on their transformed (not standardized) scales. Standardization of the predictors ensures that slopes lie on comparable scales and that the $\mathcal{N}(0, 1)$ prior corresponds to plausible effect sizes.
 
-Each of the seven models was fitted in **brms** [@Burkner2017] using the **CmdStan** backend, with 4 chains and 4,000 iterations (2,000 warmup), `adapt_delta = 0.95` and `max_treedepth = 15`. Convergence was assessed with R-hat and effective sample size diagnostics for all parameters.
+Each of the seven models was fitted in **brms** [@Burkner2017] using the **CmdStan** backend, with 4 chains and 4,000 iterations (2,000 warmup), `adapt_delta = 0.95` and `max_treedepth = 15`. Convergence was assessed with R-hat and effective sample size diagnostics for all parameters. All $\hat{R}$ values were $\leq 1.005$, minimum bulk and tail ESS exceeded 1,100, and no divergent transitions occurred (Table S4).
+
+\begin{table}[ht]
+\centering
+\scriptsize
+\begin{tabular}{lrrrr}
+  \toprule
+  Response & Max. $\hat{R}$ & Min. bulk ESS & Min. tail ESS & Divergent transitions \\
+  \midrule
+  Connectance        & 1.001 & 1369 & 2688 & 0 \\
+  Modularity         & 1.001 & 1568 & 2290 & 0 \\
+  Rank Deficiency    & 1.003 & 1117 & 1678 & 0 \\
+  Link Density       & 1.003 & 1478 & 3144 & 0 \\
+  Trophic Level      & 1.003 & 1257 & 1608 & 0 \\
+  SVD Complexity     & 1.004 & 1551 & 2576 & 0 \\
+  Dynamic Stability  & 1.001 & 4223 & 2480 & 0 \\
+  \bottomrule
+\end{tabular}
+\caption{Convergence diagnostics for the seven site-level Bayesian regressions
+($n=7$ food webs per model; 4 chains, 2,000 post-warmup draws each). For each
+model, the maximum $\hat{R}$ and the minimum bulk and tail effective sample
+sizes (ESS) across the intercept, the four slopes and the residual standard
+deviation, and the number of divergent transitions.}
+\label{tab:convergence}
+\end{table}
 
 ### Posterior support
 
@@ -475,39 +470,20 @@ $$
 VIF_l = \frac{1}{1 - R^2_l},
 $$
 
-where $R^2_l$ is the coefficient of determination from an ordinary least-squares regression of predictor $l$ on the remaining three predictors. Resulting values (Table S3) ranged from 1.68 to 3.10, well below conventional thresholds for concerning collinearity.
+where $R^2_l$ is the coefficient of determination from an ordinary least-squares regression of predictor $l$ on the remaining three predictors. Resulting values (Table S3) ranged from 1.68 to 3.10; only the number of trophic species slightly exceeded the conservative threshold of 3 proposed by @Zuur2010.
 
 \newpage
-
-<!-- FIGURA A REGENERAR: correr GenerateFigures.R (pp_check() sobre cada uno de los 7 modelos
-univariados de fits_site). El caption ya esta actualizado para el modelo site-level. -->
 
 ![Posterior predictive checks for the seven site-level Bayesian regression models. Each panel shows density overlays of observed (black) and posterior predicted (blue) values for one network metric.](Figures/Bayesian_pp_checks.png)
 
 \newpage
 
-<!-- FIGURA A REGENERAR: correr GenerateFigures.R (bloque 12, marginal_plot_orig() para C_logit,
-Rank_logit, Mod_logit y ME_log vs log_area_s). -->
+![Partial effects of ecosystem area on rank deficiency, modularity, and dynamic stability, in each metric's original units. Solid black lines show posterior mean predictions from the site-level Bayesian regressions with the other three predictors held at their mean, back-transformed to each metric's original scale; shaded regions indicate 95% credible intervals. Points are partial residuals: the observed mean of each food web after removing the estimated contribution of the other three predictors, with vertical bars showing the 95% quantiles of the metaweb-derived replicates shifted by the same amount. Area is shown in km^2^ on a logarithmic scale; the models used standardized log-transformed area. None of these three relationships reached the 0.90 posterior support threshold (Table S2); the four area relationships that did are shown in the main text (Figure 3).](Figures/Bayesian_RD_Mod_ST_vs_Area_partial.png)
 
-![Marginal effects of log-transformed area on connectance, rank deficiency, modularity, and dynamic stability, in each metric's original units. Solid black lines show posterior mean predictions from the site-level Bayesian regressions, back-transformed from the model scale; shaded regions represent 95% credible intervals. Colored points show the observed mean for each food web, computed directly from the metaweb-derived replicates, with vertical bars denoting their 95% quantiles. Connectance is the only one of these four relationships that reached the 0.90 posterior support threshold and remained robust to leave-one-site-out exclusion (Table S2); it is also shown, together with the other area-robust relationships, in the main text (Figure 3). The negative association between area and modularity reached the nominal 0.90 threshold under the full dataset but did not survive exclusion of any single food web and is not interpreted as a genuine effect (see Discussion). Rank deficiency and dynamic stability did not reach the 0.90 support threshold for area in the site-level model.](Figures/Bayesian_C_RD_Mod_ST_vs_Area_mv_origscale.png)
+![Partial effects of latitude on the seven food web metrics, in each metric's original units. Solid black lines show posterior mean predictions from the site-level Bayesian regressions with the other three predictors held at their mean, back-transformed to each metric's original scale; shaded regions indicate 95% credible intervals. Points are partial residuals: the observed mean of each food web after removing the estimated contribution of the other three predictors, with vertical bars showing the 95% quantiles of the metaweb-derived replicates shifted by the same amount. The models used standardized latitude. The positive associations of latitude with SVD complexity and link density reached the 0.90 posterior support threshold and met the leave-one-site-out robustness criterion, each failing in three of the seven refits; those with connectance and mean trophic level reached the threshold but failed in five refits (Table S2). Rank deficiency, modularity, and dynamic stability did not reach the threshold.](Figures/Bayesian_all_vs_latitude_partial.png)
 
-<!-- FIGURA A REGENERAR: correr GenerateFigures.R (bloque 12, marginal_plot_orig() para C_logit,
-Rank_logit, Mod_logit y ME_log vs latitude_s). -->
+![Partial effects of the number of trophic species (S) on the seven food web metrics, in each metric's original units. Solid black lines show posterior mean predictions from the site-level Bayesian regressions with the other three predictors held at their mean, back-transformed to each metric's original scale; shaded regions indicate 95% credible intervals. Points are partial residuals: the observed mean of each food web after removing the estimated contribution of the other three predictors, with vertical bars showing the 95% quantiles of the metaweb-derived replicates shifted by the same amount. The models used standardized S. Rank deficiency and modularity (positive) and connectance (negative) reached the 0.90 posterior support threshold and met the leave-one-site-out robustness criterion (Table S2); the first two failed only when Burdwood Bank was excluded, and connectance failed in three refits. The remaining metrics did not reach the threshold.](Figures/Bayesian_all_vs_S_partial.png)
 
-![Marginal effects of latitude on connectance, rank deficiency, modularity, and dynamic stability, in each metric's original units. Solid black lines show posterior mean predictions from the site-level Bayesian regressions, back-transformed from the model scale; shaded regions indicate 95% credible intervals. Colored points show the observed mean for each food web, computed directly from the metaweb-derived replicates, with vertical bars denoting their 95% quantiles. Connectance reached the 0.90 posterior support threshold for latitude under the full dataset but did not survive leave-one-site-out exclusion (Table S2); rank deficiency, modularity, and dynamic stability did not reach this threshold.](Figures/Bayesian_C_RD_Mod_ST_vs_Latitude_mv_origscale.png)
-
-<!-- FIGURA A REGENERAR: correr GenerateFigures.R (bloque 12, marginal_plot_orig() para las 7
-metricas vs S_s). -->
-
-![Marginal effects of the number of trophic species (S) on the full set of food-web metrics, in each metric's original units. Solid black lines show posterior mean predictions from the site-level Bayesian regressions, back-transformed from the model scale; shaded regions indicate 95% credible intervals. Colored points show the observed mean for each food web, computed directly from the metaweb-derived replicates, with vertical bars denoting their 95% quantiles. Modularity, rank deficiency, and connectance reached the 0.90 posterior support threshold for the number of species under the full dataset, but none of these effects survived leave-one-site-out exclusion (Table S2) and none is interpreted as a general pattern.](Figures/Bayesian_all_vs_S_mv_origscale.png)
-
-<!-- FIGURA A REGENERAR: correr GenerateFigures.R (bloque 12, marginal_plot_orig() para las 7
-metricas vs impact_mean_s). -->
-
-![Marginal effects of the human impact index on the full set of food-web metrics, in each metric's original units. Solid black lines show posterior mean predictions from the site-level Bayesian regressions, back-transformed from the model scale; shaded regions indicate 95% credible intervals. Colored points show the observed mean for each food web, computed directly from the metaweb-derived replicates, with vertical bars denoting their 95% quantiles. No predictor-response combination reached the 0.90 posterior support threshold (maximum posterior probability = 0.819, for SVD complexity).](Figures/Bayesian_all_vs_impact_mv_origscale.png)
-
-<!-- FIGURA ELIMINADA: Bayesian_ResCor.png (matriz de correlacion residual) ya no corresponde: el
-modelo site-level ajusta cada metrica de forma independiente y no estima una matriz de correlacion
-residual conjunta (ver Supplementary Methods S1). -->
+![Partial effects of the human impact index on the seven food web metrics, in each metric's original units. Solid black lines show posterior mean predictions from the site-level Bayesian regressions with the other three predictors held at their mean, back-transformed to each metric's original scale; shaded regions indicate 95% credible intervals. Points are partial residuals: the observed mean of each food web after removing the estimated contribution of the other three predictors, with vertical bars showing the 95% quantiles of the metaweb-derived replicates shifted by the same amount. The models used the standardized index. No metric reached the 0.90 posterior support threshold (maximum posterior probability = 0.866, for SVD complexity).](Figures/Bayesian_all_vs_impact_mean_partial.png)
 
 ### References

@@ -326,6 +326,105 @@ ggsave("Figures/Bayesian_all_vs_impact_mv_origscale.png", fig_impact_orig, width
 
 cat("Listo. Figuras en escala original: Figures/*_origscale.png\n")
 
+# ---- 12b. Residuos parciales en escala original (alternativa a la Figura 3) ----
+# Residuo parcial de cada red para el predictor `pred`: valor observado (media
+# de las replicas, en escala transformada) menos la contribucion de los OTROS
+# tres predictores, usando la media posterior de sus pendientes. Asi los puntos
+# quedan en la misma escala que la curva del efecto marginal (otros
+# predictores = 0) y muestran cuanto de la tendencia sostienen los datos una
+# vez descontados los otros predictores. Las barras (cuantiles 2.5 y 97.5 de
+# las replicas) se desplazan en la misma cantidad. Todo se destransforma con
+# inv_transform. Para area el eje x se rotula en km2 (escala log), aunque la
+# posicion es la del log(area) estandarizado que usa el modelo.
+partial_plot_orig <- function(resp, pred) {
+  fit <- fits_site[[resp]]
+  all_preds <- c("S_s", "log_area_s", "latitude_s", "impact_mean_s")
+  other_preds <- setdiff(all_preds, pred)
+
+  newdata <- tibble(!!pred := seq(min(site_level[[pred]]), max(site_level[[pred]]), length.out = 100))
+  for (op in other_preds) newdata[[op]] <- 0
+  newdata[[paste0(resp, "_sd")]] <- 0
+  f <- inv_transform[[resp]]
+  pred_fit <- fitted(fit, newdata = newdata, re_formula = NA) %>% as_tibble() %>%
+    mutate(across(c(Estimate, Q2.5, Q97.5), f))
+  newdata <- bind_cols(newdata, pred_fit)
+
+  b <- fixef(fit)[, "Estimate"]
+  adj <- as.vector(as.matrix(site_plot_data[, other_preds]) %*% b[other_preds])
+  pr <- site_plot_data %>%
+    transmute(site, x = .data[[pred]],
+              y   = f(.data[[paste0(resp, "_mean")]] - adj),
+              ylo = f(.data[[paste0(resp, "_q025")]] - adj),
+              yhi = f(.data[[paste0(resp, "_q975")]] - adj))
+
+  p <- ggplot() +
+    geom_ribbon(data = newdata, aes(x = .data[[pred]], ymin = Q2.5, ymax = Q97.5), alpha = 0.2) +
+    geom_line(data = newdata, aes(x = .data[[pred]], y = Estimate), linewidth = 0.8) +
+    geom_errorbar(data = pr, aes(x = x, ymin = ylo, ymax = yhi, color = site), width = 0, alpha = 0.6) +
+    geom_point(data = pr, aes(x = x, y = y, color = site), size = 2.2) +
+    labs(x = predictor_names[[pred]], y = raw_nice_names2[[resp]], color = "Food web") +
+    theme_bw(base_size = 11)
+
+  if (pred == "log_area_s") {
+    # El modelo usa log(area) estandarizado; el eje se rotula en km2 ubicando
+    # cada potencia de 10 en su posicion estandarizada (se explica en el pie).
+    # La estandarizacion se hizo sobre todas las replicas (BayesianSiteLevel.Rmd),
+    # no sobre los 7 sitios, asi que la relacion exacta se toma del propio dato.
+    std <- coef(lm(log_area_s ~ log_area, data = site_level))
+    km2 <- 10^(1:6)
+    p <- p + scale_x_continuous(name = expression(Area~(km^2)),
+                                breaks = std[1] + std[2] * log(km2),
+                                labels = parse(text = paste0("10^", 1:6)))
+  }
+  p
+}
+
+fig3_partial <- (partial_plot_orig("TL_z", "log_area_s") + partial_plot_orig("SVD_z", "log_area_s") +
+                 partial_plot_orig("C_logit", "log_area_s") + partial_plot_orig("LD_log", "log_area_s")) +
+  plot_layout(ncol = 2, guides = "collect")
+ggsave("Figures/Bayesian_TL_SVDC_LD_vs_Area_partial_origscale.png", fig3_partial, width = 9, height = 7, dpi = 300)
+
+# ---- 12c. Figuras S de residuos parciales para los cuatro predictores ----
+# Mismo calculo que partial_plot_orig() (bloque 12b), con el eje x rotulado en
+# las unidades originales de cada predictor: area en km2 (escala log), latitud
+# en grados S, numero de especies troficas e indice de impacto humano. La
+# posicion sigue siendo la del predictor estandarizado que usa el modelo; la
+# relacion exacta (la estandarizacion se hizo sobre las replicas) se toma de
+# site_level con lm().
+raw_pred <- c(S_s = "S", log_area_s = "log_area", latitude_s = "latitude", impact_mean_s = "impact_mean")
+raw_pred_names <- list(
+  S_s           = "Number of trophic species",
+  log_area_s    = expression(Area~(km^2)),
+  latitude_s    = "Latitude (°S)",
+  impact_mean_s = "Human impact index"
+)
+
+x_scale_orig <- function(pred) {
+  std <- coef(lm(as.formula(paste(pred, "~", raw_pred[[pred]])), data = site_level))
+  if (pred == "log_area_s") {
+    raw_breaks <- log(10^(1:6)); labs_x <- parse(text = paste0("10^", 1:6))
+  } else {
+    raw_breaks <- pretty(site_level[[raw_pred[[pred]]]], n = 5); labs_x <- format(raw_breaks)
+  }
+  scale_x_continuous(name = raw_pred_names[[pred]], breaks = std[1] + std[2] * raw_breaks, labels = labs_x)
+}
+
+partial_plot_supp <- function(resp, pred) {
+  suppressMessages(partial_plot_orig(resp, pred) + x_scale_orig(pred))
+}
+
+supp_resp <- c("C_logit", "LD_log", "TL_z", "SVD_z", "Rank_logit", "Mod_logit", "ME_log")
+
+fig_area_supp <- wrap_plots(lapply(c("Rank_logit", "Mod_logit", "ME_log"), partial_plot_supp, pred = "log_area_s"), ncol = 3) +
+  plot_layout(guides = "collect")
+ggsave("Figures/Bayesian_RD_Mod_ST_vs_Area_partial.png", fig_area_supp, width = 11, height = 3.8, dpi = 300)
+
+for (pp in c("latitude_s", "S_s", "impact_mean_s")) {
+  fig_pp <- wrap_plots(lapply(supp_resp, partial_plot_supp, pred = pp), ncol = 3) +
+    plot_layout(guides = "collect")
+  ggsave(paste0("Figures/Bayesian_all_vs_", sub("_s$", "", pp), "_partial.png"), fig_pp, width = 11, height = 10, dpi = 300)
+}
+
 # ---- 13. Bayesian_post_slopes.png con el criterio nuevo (soporte + LOSO) ----
 # Recrea la figura de bandas de fondo (Figures/Bayesian_post_slopes.png,
 # celeste/rosa/gris) que antes generaba plot_mcmc_areas_ordered() en
@@ -410,7 +509,11 @@ ord_site <- tibble(param = names(draws_wide)) %>%
 
 limits_vec_site <- rev(ord_site$param)
 
-p_post_slopes_site <- mcmc_areas(draws_wide, pars = ord_site$param, prob_outer = 0.9)
+# prob = 0.8: el intervalo central sombreado excluye el 0 exactamente cuando la
+# probabilidad posterior de signo consistente supera 0.90 (umbral del texto).
+# prob_outer = 0.99: las curvas muestran casi toda la posterior (con 0.9 se
+# cortaban las colas).
+p_post_slopes_site <- mcmc_areas(draws_wide, pars = ord_site$param, prob = 0.8, prob_outer = 0.99)
 
 pos_df <- tibble(param = limits_vec_site, ypos = seq_along(limits_vec_site))
 
@@ -448,8 +551,51 @@ fig_post_slopes <- p_post_slopes_site +
   geom_vline(xintercept = 0, linetype = 1, linewidth = 1) +
   labs(x = "Posterior distribution", y = NULL)
 
-ggsave("Figures/Bayesian_post_slopes.png", fig_post_slopes, width = 5, height = 10, dpi = 300, bg = "white")
-ggsave("Figures/Bayesian_post_slopes.svg", fig_post_slopes, width = 5, height = 10, bg = "white")
+
+# ---- 13b. Figura 2 en cuatro paneles (un panel por predictor) ----
+# Reemplaza la columna unica de 28 filas (demasiado alta para la pagina).
+# Mismas posteriores, mismo criterio de bandas (prob_max >= 0.90 y robusto a
+# LOSO), metricas en el mismo orden en los cuatro paneles y mismo eje x. El
+# predictor va como nombre del eje x de cada panel.
+metric_order <- c("C_logit", "LD_log", "TL_z", "SVD_z", "Rank_logit", "Mod_logit", "ME_log")
+pred_order   <- c("log_area_s", "latitude_s", "S_s", "impact_mean_s")
+pred_titles  <- c(log_area_s = "Area (log)", latitude_s = "Latitude",
+                  S_s = "Number of trophic species", impact_mean_s = "Human impact")
+x_lim <- range(sapply(draws_wide, quantile, probs = c(0.005, 0.995)))
+
+post_panel <- function(pred, show_y = TRUE) {
+  pars <- paste0(metric_order, "__", pred)
+  lims <- rev(pars)
+  rt <- robust_table %>% filter(param %in% pars)
+  lab <- setNames(site_nice_names[metric_order], pars)
+  bg <- tibble(param = lims, ypos = seq_along(lims)) %>%
+    left_join(rt %>% select(param, robust, direction), by = "param") %>%
+    mutate(band = dplyr::case_when(robust %in% TRUE & direction == "positive" ~ "positive",
+                                   robust %in% TRUE & direction == "negative" ~ "negative",
+                                   TRUE ~ "neutral"))
+  p <- mcmc_areas(draws_wide, pars = pars, prob = 0.8, prob_outer = 0.99)
+  bands <- list(
+    make_band(dplyr::filter(bg, band == "positive"), "#2166ac", 0.6),
+    make_band(dplyr::filter(bg, band == "negative"), "#d6604d", 0.6),
+    make_band(dplyr::filter(bg, band == "neutral"),  "#f5f5f5", 0.6)
+  ) %>% purrr::compact()
+  p$layers <- c(bands, p$layers)
+  p + scale_y_discrete(limits = lims, labels = lab) +
+    coord_cartesian(xlim = x_lim) +
+    geom_vline(xintercept = 0, linewidth = 0.8) +
+    labs(x = pred_titles[[pred]], y = NULL) +
+    theme_bw(base_size = 11) +
+    theme(panel.grid.major.y = element_blank(), panel.grid.minor = element_blank(),
+          axis.text.y = if (show_y) element_text() else element_blank(),
+          axis.ticks.y = if (show_y) element_line() else element_blank())
+}
+
+# Nombres de metricas solo en la columna izquierda (mismo orden en todos los
+# paneles); patchwork alinea las areas de los paneles, que quedan del mismo ancho.
+fig_post_slopes_4 <- wrap_plots(mapply(post_panel, pred_order, c(TRUE, FALSE, TRUE, FALSE),
+                                       SIMPLIFY = FALSE), ncol = 2)
+ggsave("Figures/Bayesian_post_slopes.png", fig_post_slopes_4, width = 7, height = 6, dpi = 300, bg = "white")
+ggsave("Figures/Bayesian_post_slopes.svg", fig_post_slopes_4, width = 7, height = 6, bg = "white")
 
 # ---- 14. Figura de Modularidad por red (NO USADA en SuppMat.md) ----
 # Boxplot por sitio, aislado del panel de 7 metricas del bloque 11. Lo que

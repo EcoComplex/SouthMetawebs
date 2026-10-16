@@ -128,6 +128,8 @@ fit_one <- function(resp, data) {
     formula = form,
     data = data,
     family = gaussian(),
+    prior = c(prior(normal(0, 1), class = "b"),
+              prior(exponential(1), class = "sigma")),
     chains = 4, cores = 4,
     iter = 4000, warmup = 2000,
     control = list(adapt_delta = 0.95, max_treedepth = 15),
@@ -178,6 +180,36 @@ saveRDS(support_table, "Data/support_table_n7.rds")
 knitr::kable(support_table, digits = 3)
 ```
 
+# 4b. Diagnosticos de convergencia de los 7 modelos (n=7)
+
+R-hat, tamano efectivo de muestra (bulk y tail) y transiciones divergentes,
+calculados sobre las pendientes, el intercepto y sigma. Se puede correr solo
+este chunk despues de haber ajustado los modelos: si `fits_site` no esta en
+memoria se lee de `Data/brms_site_level_fits.rds`.
+
+```{r convergence, eval=TRUE}
+if (!exists("fits_site")) fits_site <- readRDS("Data/brms_site_level_fits.rds")
+
+conv_one <- function(fit) {
+  dr <- as_draws_df(fit, variable = c("^b_", "^sigma$"), regex = TRUE)
+  sm <- posterior::summarise_draws(dr, "rhat", "ess_bulk", "ess_tail")
+  np <- nuts_params(fit)
+  tibble(
+    max_rhat     = max(sm$rhat, na.rm = TRUE),
+    min_ess_bulk = min(sm$ess_bulk, na.rm = TRUE),
+    min_ess_tail = min(sm$ess_tail, na.rm = TRUE),
+    n_divergent  = sum(np$Value[np$Parameter == "divergent__"])
+  )
+}
+
+convergence_table <- imap_dfr(fits_site, function(fit, resp) {
+  conv_one(fit) %>% mutate(response = nice_names[resp], .before = 1)
+})
+
+saveRDS(convergence_table, "Data/convergence_n7.rds")
+knitr::kable(convergence_table, digits = c(0, 3, 0, 0, 0))
+```
+
 # 5. Leave-one-site-out: estabilidad del soporte al sacar cada sitio
 
 Diagnostico directo a la objecion del Revisor 1 ("each foodweb will have a
@@ -193,6 +225,7 @@ loo_site_results <- map_dfr(unique(site_level$site), function(excl_site) {
     fit_sub <- tryCatch(fit_one(resp, data_sub), error = function(e) NULL)
     if (is.null(fit_sub)) return(tibble())
     draws <- as_draws_df(fit_sub)
+    cv <- conv_one(fit_sub)
     preds <- c("S_s", "log_area_s", "latitude_s", "impact_mean_s")
     map_dfr(preds, function(p) {
       v <- draws[[paste0("b_", p)]]
@@ -201,13 +234,26 @@ loo_site_results <- map_dfr(unique(site_level$site), function(excl_site) {
         response = nice_names[resp],
         predictor = nice_names[p],
         prob_max = pmax(mean(v > 0), mean(v < 0)),
-        direction = ifelse(mean(v > 0) > mean(v < 0), "positive", "negative")
+        direction = ifelse(mean(v > 0) > mean(v < 0), "positive", "negative"),
+        max_rhat = cv$max_rhat,
+        min_ess_bulk = cv$min_ess_bulk,
+        n_divergent = cv$n_divergent
       )
     })
   })
 })
 
 saveRDS(loo_site_results, "Data/loo_site_results.rds")
+
+# Resumen de convergencia de los 49 refits LOSO (cada fila se repite por
+# predictor, asi que se toma una fila por sitio excluido y metrica)
+loo_convergence <- loo_site_results %>%
+  distinct(excluded_site, response, max_rhat, min_ess_bulk, n_divergent) %>%
+  summarise(n_refits = n(),
+            max_rhat = max(max_rhat),
+            min_ess_bulk = min(min_ess_bulk),
+            refits_with_divergences = sum(n_divergent > 0))
+knitr::kable(loo_convergence, digits = 3)
 
 # Cuales efectos del modelo completo (prob_max >= 0.90) dejan de sostenerse
 # (prob_max < 0.90 o cambia de signo) al sacar algun sitio
