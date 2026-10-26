@@ -1,63 +1,45 @@
 ---
 title: "Load Networks Description"
-format: html
-editor: visual
-editor_options: 
+output: html_document
+editor_options:
   chunk_output_type: console
 ---
 
-# Loading networks
+Loads the seven food webs analyzed in the manuscript and computes their
+empirical metrics. Beagle Channel, Weddell Sea and the two Scotia Sea food
+webs are the standardized versions (see `R/compare_networks_refined.R`); their
+site identifiers keep the `Std` prefix used in all the result files.
 
-```{r loadNetworks, eval = FALSE}
+Writes `Data/network_info.rds`, which `HalpernHumanImpact.Rmd` and
+`Stabilitysimulations.Rmd` complete with the human impact index and the
+self-damping value.
+
+```{r setup, message = FALSE}
 library(readxl)
 library(multiweb)
 library(tidyverse)
 library(igraph)
-library(ggrepel )
-network_info <- tibble::tibble(
-  file = list.files("Data", full.names = TRUE, pattern = "_links_original_"),
-  site = c("BeagleChannel", "BurdwoodBank", "GulfSanJorge",
-           "NorthernScotia", "PotterCove", "SouthernScotia", "WeddellSea"),
-  latitude = c(54.5, 54.5, 46, 51.5, 62.2, 58.5, 76.0),
-    area_km2 = c(1200, 32000, 34000, 1500000, 9, 1500000, 200400),
-  depth_m = c(140, 200, 100, 3000, 100, 3000, 500),
-  temp_C = c(6.8, 6, 10.55, 4, -0.15, 0.5, -0.9)
+```
+
+```{r loadNetworks, eval = FALSE}
+# eval = FALSE: overwrites Data/network_info.rds; run by hand, then re-run
+# HalpernHumanImpact.Rmd and Stabilitysimulations.Rmd.
+
+# Depth is the approximate maximum depth of the area; temperature is the mean
+# temperature from the literature.
+network_info <- tibble::tribble(
+  ~site,                ~name,              ~file,                                          ~latitude, ~area_km2, ~depth_m, ~temp_C,
+  "GulfSanJorge",       "San Jorge Gulf",   "Data/GulfSanJorge_links_original_2024_06_24_Time_04_30_55.xlsx", 46.0,   34000,  100, 10.55,
+  "Std NorthernScotia", "North Scotia Sea", "Data/NorthernScotia_links_standardized.csv",       51.5, 1500000, 3000,  4.00,
+  "BurdwoodBank",       "Burdwood Bank",    "Data/BurdwoodBank_links_original_2024_06_24_Time_04_30_53.xlsx", 54.5,   32000,  200,  6.00,
+  "Std BeagleChannel",  "Beagle Channel",   "Data/BeagleChannel_links_standarized.csv",         54.5,    1200,  140,  6.80,
+  "Std SouthernScotia", "South Scotia Sea", "Data/SouthernScotia_links_standardized.csv",       58.5, 1500000, 3000,  0.50,
+  "PotterCove",         "Potter Cove",      "Data/PotterCove_links_original_2024_06_24_Time_04_31_10.xlsx",   62.2,       9,  100, -0.15,
+  "Std Weddell Sea",    "Weddell Sea",      "Data/WeddellSea_links_standarized.csv",            76.0,  200400,  500, -0.90
 )
-# Depth is approx max depth of the area
-
-# Read two standarized csv networks in data folder and add it to network info
-network_info <- network_info %>%
-  bind_rows(
-    tibble(
-      file = c("Data/BeagleChannel_links_standarized.csv", "Data/WeddellSea_links_standarized.csv"),
-      site = c("Std BeagleChannel", "Std Weddell Sea"),
-      latitude = c(54.5, 76.0),
-      area_km2 = c(1200,200400),
-      depth_m = c(140, 500)
-      )
-    )
-
-# Read two standarized csv networks in data folder and add it to network info
-network_info <- network_info %>%
-  bind_rows(
-    tibble(
-      file = c("Data/NorthernScotia_links_standardized.csv", "Data/SouthernScotia_links_standardized.csv"),
-      site = c("Std NorthernScotia", "Std SouthernScotia"),
-      latitude = c(51.5, 58.5),
-      area_km2 = c(1500000,1500000),
-      depth_m = c(3000, 3000)
-      )
-  )
-    
-
 
 load_networks <- function(file) {
-  # if the file is a csv, read it as a data frame
-  if (grepl("\\.csv$", file)) {
-    df <- read.csv(file, stringsAsFactors = FALSE)
-  } else { 
-    df <- readxl::read_excel(file)
-  }
+  df <- if (grepl("\\.csv$", file)) read.csv(file, stringsAsFactors = FALSE) else readxl::read_excel(file)
   graph_from_data_frame(df, directed = TRUE)
 }
 
@@ -82,203 +64,20 @@ network_info <- network_info %>%
         Modularity = modularity(mod),
         Groups = length(mod),
         QSS = qss$QSS,
-        MaxEigen = qss$MEing,
+        MaxEigen = qss$MEing
       )
     })
   ) %>%
-  tidyr::unnest(metrics)
+  tidyr::unnest(metrics) %>%
+  mutate(relRank = Rank / S,
+         RankDeficiency = 1 - relRank,
+         SVDComplexity = 1 - Entropy)
 
-network_info$depth_m[network_info$name == "Potter Cove"] <- 100
-# Save the networks
 saveRDS(network_info, "Data/network_info.rds")
-
-
 ```
 
-## latitudinal plots of food web metrics
-
-```{r}
-require(quantreg)
-n_info <- filter(network_info, !(site %in% c("WeddellSea","BeagleChannel","NorthernScotia","SouthernScotia")))
-
-mod_qr <- rq(TLmean ~ latitude+log(area_km2), data = n_info, tau = 0.5)
-summary(mod_qr,se="boot")
-
-mod_qr <- rq(Entropy ~ latitude+log(area_km2), data = n_info, tau = 0.5)
-summary(mod_qr,se="boot")
-
-mod_qr <- rq(Modularity ~ latitude+log(area_km2), data = n_info, tau = 0.5)
-summary(mod_qr,se="boot")
-
-mod_qr <- rq(C ~ latitude+log(area_km2), data = n_info, tau = 0.5)
-summary(mod_qr,se="boot")
-
-mod_qr <- rq(LD ~ latitude+log(area_km2), data = n_info, tau = 0.5)
-summary(mod_qr,se="boot")
-
-# Remove networks with "std" in the site name
-# n_info <- network_info %>% filter(!grepl("std", site, ignore.case = TRUE))
-# mod_qr <- rq(TLmean ~ latitude, data = n_info, tau = 0.5)
-# summary(mod_qr,se="boot")
-
-
-pal <- viridis::viridis(4)
-p_entropy <- ggplot(n_info, aes(x = latitude, y = Entropy)) +
-  geom_point(size = 3, color = pal[1]) +
-  #geom_line(group = 1, color = pal[1], linetype = "dashed") +
-  geom_text_repel(aes(label = site), # Specify the 'site' column for labels
-                  box.padding = 0.5, # Adjust padding around the text
-                  point.padding = 0.5, # Adjust padding around the point
-                  min.segment.length = 0, # Draw segments even for points close to labels
-                  max.overlaps = Inf, # Allow all labels to be drawn (use with caution on dense plots)
-                  size = 4, # Adjust label text size
-                  color = pal[1]) + # Set label color to match points/line
-  scale_x_reverse() +
-  labs(x = "Latitude (°S)", y = "SVD Entropy") +
-  theme_bw(base_size = 14)+
-  geom_smooth(method = "lm", se = FALSE, color = pal[2], linetype = "dotted")
-
-p_modularity <- ggplot(n_info, aes(x = latitude, y = Modularity)) +
-  geom_point(size = 3, color = pal[3]) +
-  #geom_line(group = 1, color = pal[3], linetype = "dashed") +
-  scale_x_reverse() +
-  labs(x = "Latitude (°S)", y = "Modularity") +
-  theme_bw(base_size = 14) +
-  geom_smooth(method = "lm", se = FALSE, color = pal[2], linetype = "dotted")
-
-p_connectance <- ggplot(n_info, aes(x = latitude, y = C)) +
-  geom_point(size = 3, color = pal[2]) +
-  #geom_line(group = 1, color = pal[2], linetype = "dashed") +
-  scale_x_reverse() +
-  labs(x = "Latitude (°S)", y = "Connectance") +
-  theme_bw(base_size = 14) +
-  geom_smooth(method = "lm", se = FALSE, color = pal[2], linetype = "dotted")
-
-p_LD <- ggplot(n_info, aes(x = latitude, y = LD)) +
-  geom_point(size = 3, color = pal[4]) +
-  # geom_text_repel(aes(label = site), # Specify the 'site' column for labels
-  #                 box.padding = 0.5, # Adjust padding around the text
-  #                 point.padding = 0.5, # Adjust padding around the point
-  #                 min.segment.length = 0, # Draw segments even for points close to labels
-  #                 max.overlaps = Inf, # Allow all labels to be drawn (use with caution on dense plots)
-  #                 size = 4, # Adjust label text size
-  #                 color = pal[4]) + # Set label color to match points/line
-  #geom_line(group = 1, color = pal[2], linetype = "dashed") +
-  scale_x_reverse() +
-  labs(x = "Latitude (°S)", y = "Link Density") +
-  theme_bw(base_size = 14) +
-  geom_smooth(method = "lm", se = FALSE, color = pal[2], linetype = "dotted")
-
-p_TL <- ggplot(n_info, aes(x = latitude, y = TLmean, color=site)) +
-  geom_point(size = 3) +
-  scale_color_viridis_d() +
-  #geom_line(group = 1, color = pal[2], linetype = "dashed") +
-  scale_x_reverse() +
-  labs(x = "Latitude (°S)", y = "Mean Trophic Level") +
-  theme_bw(base_size = 14) +
-  geom_smooth(method = "lm", se = FALSE, color = pal[2], linetype = "dotted")
-
-# Combine all three using cowplot
-cowplot::plot_grid(
-  p_entropy, p_modularity, p_connectance,
-  labels = c("A", "B", "C"),
-  ncol = 1,
-  align = "hv"
-)
-
-cowplot::plot_grid(
-  p_TL, p_LD, 
-  labels = c("A", "B", "C"),
-  ncol = 1,
-  align = "hv"
-)
-
-```
-
-## Plot networks
-
-```{r plot_all_networks, message=FALSE, warning=FALSE}
-library(patchwork)
-network_info <- filter(network_info, !(site %in% c("WeddellSea","BeagleChannel","NorthernScotia","SouthernScotia")))
-
-network_info <- network_info[order(network_info$latitude), ]
-# Function to generate plots with modularity, remove node labels, and add network name as title
-make_network_plot <- function(g, site_name) {
-  mod <- run_infomap(g)
-  #mod <- cluster_spinglass(g)
-  p <- multiweb::plot_troph_level_ggplot(g, modules=TRUE, community_obj = mod)
-  p <- p + ggtitle(site_name)
-  p
-}
-
-plots <- mapply(
-  make_network_plot,
-  network_info$igraph,
-  network_info$name,
-  SIMPLIFY = FALSE
-)
-
-# Combine all plots using patchwork
-require(patchwork)
-combined_plot <- wrap_plots(plots, axis_titles="collect_x")
-
-ggsave("Figures/networks_tlevel_modules.png", 
-          plot = combined_plot, 
-          height = 8, 
-          width = 16,
-          bg = "white", dpi=300)
-
-# BurwoodBank
-ggsave("Figures/BurdwoodBank_tlevel_modules.png", 
-       plot = plots[[which(network_info$site == "BurdwoodBank")]], 
-       height = 5, 
-       width = 6,
-       bg = "white", dpi=300)
-
-#GulfSanJorge
-ggsave("Figures/GulfSanJorge_tlevel_modules.png", 
-       plot = plots[[which(network_info$site == "GulfSanJorge")]], 
-       height = 5, 
-       width = 6,
-       bg = "white", dpi=300)
-
-#PotterCove
-ggsave("Figures/PotterCove_tlevel_modules.png", 
-       plot = plots[[which(network_info$site == "PotterCove")]], 
-       height = 5, 
-       width = 6,
-       bg = "white", dpi=300)
-#
-ggsave("Figures/BeagleChannel_tlevel_modules.png", 
-       plot = plots[[which(network_info$site == "Std BeagleChannel")]], 
-       height = 5, 
-       width = 6,
-       bg = "white", dpi=300)
-
-ggsave("Figures/WeddellSea_tlevel_modules.png", 
-       plot = plots[[which(network_info$site == "Std Weddell Sea")]], 
-       height = 5, 
-       width = 6,
-       bg = "white", dpi=300)
-
-ggsave("Figures/NorthernScotia_tlevel_modules.png", 
-       plot = plots[[which(network_info$site == "Std NorthernScotia")]], 
-       height = 5, 
-       width = 6,
-       bg = "white", dpi=300)
-       
-ggsave("Figures/SouthernScotia_tlevel_modules.png", 
-       plot = plots[[which(network_info$site == "Std SouthernScotia")]], 
-       height = 5, 
-       width = 6,
-       bg = "white", dpi=300)
-
-knitr::kable( network_info %>% dplyr::select(site, C, S, LD, TLmean, Vulnerability, Generality, Entropy, Modularity, Groups, QSS, MaxEigen), 
-          caption = "Food web metrics for each network", digits = 2) %>%
-  kableExtra::kable_styling("striped", full_width = F) %>%
-  kableExtra::column_spec(1:12, width = "3cm")
-
-calc_topological_indices(network_info$igraph) %>%  
-                 dplyr::select(Size,Top,Basal,Links,Cannib) %>% 
-                 bind_cols(    network_info %>% dplyr::select(site, latitude)) %>% arrange(desc(latitude))
+```{r metricsTable}
+network_info <- readRDS("Data/network_info.rds")
+knitr::kable(network_info %>% dplyr::select(site, S, C, LD, TLmean, SVDComplexity, RankDeficiency, Modularity),
+             caption = "Empirical metrics of the seven food webs", digits = 3)
 ```

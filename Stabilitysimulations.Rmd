@@ -1,33 +1,31 @@
 ---
 title: "Stability Simulations"
 output: html_document
-editor_options: 
+editor_options:
   chunk_output_type: console
 ---
+
+Dynamic stability of each food web: maximum real eigenvalue of randomly
+parameterized community matrices. For each food web, the self-damping value at
+which 5% of the matrices are stable (QSS = 0.05) is interpolated from a grid of
+self-damping values, and then 10,000 matrices are simulated at that value.
+
+Reads `Data/network_info.rds`; adds `selfDamping` to it and writes
+`Data/stability_results.rds` (grid) and `Data/stability_results_meig.rds`
+(replicates used in the analysis).
 
 ## Setup
 
 ```{r setup, echo = FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 
-
-# Check and install required packages
-required_packages <- c(
-  "lhs", "dplyr", "purrr", "igraph", "ggplot2", "tibble", "doFuture","devtools","abc", "tidyverse"
-)
+required_packages <- c("purrr", "igraph", "ggplot2", "tibble", "future", "future.apply", "devtools", "tidyverse")
 for (pkg in required_packages) {
   if (!requireNamespace(pkg, quietly = TRUE)) {
     install.packages(pkg, repos = "https://cloud.r-project.org")
   }
   require(pkg, character.only = TRUE)
 }
-
-
-# Install meweasmo from GitHub if not installed
-if (!requireNamespace("meweasmo", quietly = TRUE)) {
-  devtools::install_github("lsaravia/meweasmo")
-}
-library(meweasmo)
 
 # Install multiweb from GitHub if not installed
 if (!requireNamespace("multiweb", quietly = TRUE)) {
@@ -37,148 +35,98 @@ library(multiweb)
 
 source("R/network_fun.r")
 
-# load network_info
 network_info <- readRDS("Data/network_info.rds")
-
-# All networks with "std" ones 
-#network_info <- network_info %>% filter(!(site %in% c("WeddellSea","BeagleChannel")))
-# Only networks with "std" in the site name
-#network_info <- network_info %>% filter(grepl("std", site, ignore.case = TRUE))
-
 ```
 
-## Parameter Ranges and Simulation Settings and Run Simulations
+## QSS over a grid of self-damping values
 
-```{r simulStability4060, eval=FALSE, message=FALSE, warning=TRUE}
-stability_results <- readRDS("Data/stability_results.rds") 
+The grid is wider for the larger, more connected food webs, which need
+stronger self-damping to reach stable matrices. Values at which no matrix is
+stable (QSS = 0) are not returned.
 
-#network_info <- anti_join(network_info, stability_results %>% filter(QSS>=0.05), by = "site")
-#network_info <- filter(network_info, site=="NorthernScotia")
-unique(network_info$site)
+```{r simulStability, eval=FALSE, message=FALSE, warning=TRUE}
+# eval = FALSE: long simulation, run by hand.
+selfDamping_grid <- list(
+  "GulfSanJorge"       = seq(-1, -30, by = -1),
+  "BurdwoodBank"       = seq(-1, -30, by = -1),
+  "Std BeagleChannel"  = seq(-1, -30, by = -1),
+  "PotterCove"         = seq(-1, -30, by = -1),
+  "Std Weddell Sea"    = seq(-30, -50, by = -1),
+  "Std NorthernScotia" = seq(-40, -60, by = -1),
+  "Std SouthernScotia" = seq(-40, -60, by = -1)
+)
+stopifnot(setequal(names(selfDamping_grid), network_info$site))
 
-# Parameter ranges (adjust as needed)
-require(future)
-num_cores <- future::availableCores()
-plan(multisession, workers = num_cores)  # or your preferred plan
+plan(multisession, workers = future::availableCores())
 
-# Run the stability analysis
-stability_res <- calculate_network_stability_parallel(network_info$igraph, network_info$site,
-                                                          nsim = 10000,
-                                                          selfDamping_range = seq(-40, -60, by = -1))
+stability_results <- purrr::map_dfr(seq_len(nrow(network_info)), function(i) {
+  calculate_network_stability_parallel(network_info$igraph[i], network_info$site[i],
+                                       nsim = 10000,
+                                       selfDamping_range = selfDamping_grid[[network_info$site[i]]])
+})
 
+plan(sequential)
 
-plan(sequential)  # Reset to sequential plan after parallel processing
-
-# Join to the metadata
-# network_info <- dplyr::left_join(network_info, stability_results, by = "site")
-## Fit Metaweb Assembly Model
-
-stability_results <- stability_results %>% bind_rows(stability_res)
 saveRDS(stability_results, "Data/stability_results.rds")
 ```
 
-# Plot Stability Results
+```{r PlotStabilityResults, message=FALSE, warning=TRUE}
+stability_results <- readRDS("Data/stability_results.rds")
 
-```{r PlotStabilityResults, eval=FALSE, message=FALSE, warning=TRUE}
-
-#
-#
 ggplot(stability_results, aes(x = selfDamping, y = QSS)) +
   geom_line(aes(group = site), color = "gray70") +
   geom_point(aes(color = QSS), size = 2) +
-  facet_wrap(~ site, scales = "free_y") +
+  geom_hline(yintercept = 0.05, linetype = 2) +
+  facet_wrap(~ site, scales = "free") +
   scale_color_viridis_c(option = "C", end = 0.9) +
-  scale_x_continuous(trans = "reverse") +  # reverse axis so -1 is rightmost
-  labs(
-    title = "QSS vs Self-Damping by Site",
-    x = "Self-Damping",
-    y = "QSS"
-  ) +
-  theme_bw(base_size = 13) +
-  theme(
-    strip.text = element_text(face = "bold"),
-    legend.position = "bottom"
-  )
-
-# Filter around the QSS ≈ 0.05 threshold (e.g., between 0.03 and 0.07)
-near_qss <- stability_results %>%
-  filter(QSS >= 0.00 & QSS <= 0.1)
-
-# Plot MEing_stable vs selfDamping
-ggplot(near_qss, aes(x = selfDamping, y = MEing_stable)) +
-  geom_line(aes(group = site), color = "gray60") +
-  geom_point(aes(color = QSS), size = 2.5) +
-  facet_wrap(~ site, scales = "free_y") +
-  scale_color_viridis_c(option = "B", end = 0.9) +
   scale_x_continuous(trans = "reverse") +
-  labs(
-    title = "Mean Real Part of Max Eigenvalue vs Self-Damping",
-    subtitle = "Filtered near QSS ≈ 0.05",
-    x = "Self-Damping",
-    y = "MEing (stable matrices only)"
-  ) +
+  labs(title = "QSS vs Self-Damping by Site", x = "Self-Damping", y = "QSS") +
   theme_bw(base_size = 13) +
-  theme(
-    strip.text = element_text(face = "bold"),
-    legend.position = "bottom"
-  )
-
-# Save the plot 
+  theme(strip.text = element_text(face = "bold"), legend.position = "bottom")
 ```
 
-# Interpolate Self-Damping at QSS = 0.05
+## Interpolate self-damping at QSS = 0.05
 
 ```{r InterpolateSelfDamping, eval=FALSE, message=FALSE, warning=TRUE}
-
-stability_results <- readRDS("Data/stability_results.rds") %>% filter( !(site %in% c("SouthernScotia","NorthernScotia")))
-unique(stability_results$site)
-
-# Function to perform interpolation for one site
-
-# Function to perform interpolation for one site
+# eval = FALSE: overwrites Data/network_info.rds; run by hand.
 interpolate_selfDamping <- function(df_site, target_qss = 0.05) {
   df_site <- df_site %>% arrange(selfDamping)
-  
-  # Find pairs of rows where QSS crosses the threshold
+
+  # Rows where QSS crosses the threshold; use the first crossing
   i <- which(diff(df_site$QSS > target_qss) != 0)
-  
-  if (length(i) == 0) return(tibble(site = df_site$site[1], selfDamping_interp = NA_real_))
-  
-  # Use the first crossing
+  if (length(i) == 0) return(tibble(site = df_site$site[1], selfDamping = NA_real_))
   i <- i[1]
+
   x0 <- df_site$QSS[i]
   x1 <- df_site$QSS[i + 1]
   y0 <- df_site$selfDamping[i]
   y1 <- df_site$selfDamping[i + 1]
-  
-  # Linear interpolation formula
+
   slope <- (y1 - y0) / (x1 - x0)
-  y_interp <- y0 + slope * (target_qss - x0)
-  
-  tibble(site = df_site$site[1], selfDamping = y_interp)
+  tibble(site = df_site$site[1], selfDamping = y0 + slope * (target_qss - x0))
 }
 
-# Apply interpolation per site
 selfDamping_at_qss05 <- stability_results %>%
   group_by(site) %>%
   group_split() %>%
   map_dfr(~ interpolate_selfDamping(.x, target_qss = 0.05))
 
-selfDamping_at_qss05
-network_info <- network_info %>% inner_join(selfDamping_at_qss05)
-saveRDS(network_info, "Data/network_info.rds")
+stopifnot(!anyNA(selfDamping_at_qss05$selfDamping))
 
+network_info <- network_info %>%
+  dplyr::select(-any_of(c("selfDamping", "MEing_stable"))) %>%
+  inner_join(selfDamping_at_qss05, by = "site")
+
+saveRDS(network_info, "Data/network_info.rds")
 ```
 
-# Calc Max eigenvalues for Self-Damping at QSS = 0.05
+## Maximum eigenvalues at the interpolated self-damping
 
-```{r calcEigenSelfDamping, eval=TRUE, message=FALSE, warning=TRUE}
+```{r calcEigenSelfDamping, eval=FALSE, message=FALSE, warning=TRUE}
+# eval = FALSE: long simulation, run by hand.
+network_info <- readRDS("Data/network_info.rds")
 
-#network_info <- readRDS("Data/network_info.rds") 
-
-require(future)
-num_cores <- future::availableCores()
-plan(multisession, workers = num_cores)  # or your preferred plan
+plan(multisession, workers = future::availableCores())
 
 stability_results_meig <- simulate_qss_fixed_selfDamping(
   networks = network_info$igraph,
@@ -186,9 +134,8 @@ stability_results_meig <- simulate_qss_fixed_selfDamping(
   selfDamping_values = network_info$selfDamping,
   nsim = 10000
 )
-plan(sequential)  # Reset to sequential plan after parallel processing
+
+plan(sequential)
 
 saveRDS(stability_results_meig, "Data/stability_results_meig.rds")
-
 ```
-

@@ -1,0 +1,10146 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="1400"
+   height="1700"
+   viewBox="0 0 1400 1700"
+   font-family="'Georgia', 'Times New Roman', serif"
+   version="1.1"
+   id="svg963"
+   sodipodi:docname="svd_complexity_figure_v4.svg"
+   inkscape:version="1.4.3 (0d15f75, 2025-12-25)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs963" />
+  <sodipodi:namedview
+     id="namedview963"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="0.65137011"
+     inkscape:cx="804.45816"
+     inkscape:cy="1033.9744"
+     inkscape:window-width="1366"
+     inkscape:window-height="630"
+     inkscape:window-x="0"
+     inkscape:window-y="30"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg963"
+     showgrid="false" />
+  <rect
+     x="963"
+     y="220"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect517" />
+  <!-- PAGE BACKGROUND -->
+  <rect
+     width="1400"
+     height="1700"
+     fill="#FAFAF7"
+     id="rect1" />
+  <!-- ══════════════════════════════════════════════════════
+       TITLE
+  ══════════════════════════════════════════════════════ -->
+  <text
+     x="700"
+     y="48"
+     text-anchor="middle"
+     font-size="26"
+     font-weight="700"
+     fill="#1a1a1a"
+     id="text1">Two networks, same species and connectance — very different structure</text>
+  <text
+     x="700"
+     y="72"
+     text-anchor="middle"
+     font-size="15"
+     fill="#555"
+     font-style="italic"
+     id="text2">rows = prey · columns = predators · filled cell = &quot;column species eats row species&quot;  ·  S = 20, C ≈ 0.10</text>
+  <!-- ══════════════════════════════════════════════════════
+       SECTION 1 — MATRICES
+       20×20, cell=27px, gap=1px → total = 20*27+19*1 = 559px wide, 559px tall
+       Left panel origin: col-header y=112, first cell y=118, row-header x=54
+         col x positions: 62 + k*28  for k=0..19
+       Right panel: offset +680
+  ══════════════════════════════════════════════════════ -->
+  <!-- PANEL BACKGROUNDS -->
+  <rect
+     x="24"
+     y="88"
+     width="628"
+     height="628"
+     rx="14"
+     fill="#FFF5F2"
+     stroke="#E8C4B8"
+     stroke-width="1.5"
+     id="rect2" />
+  <rect
+     x="702.73737"
+     y="88.026512"
+     width="673.23615"
+     height="627.94696"
+     rx="15.008449"
+     fill="#f0faf7"
+     stroke="#a8d5c5"
+     stroke-width="1.5"
+     id="rect3" />
+  <!-- Panel titles -->
+  <text
+     x="338"
+     y="108"
+     text-anchor="middle"
+     font-size="19px"
+     font-weight="700"
+     fill="#c04a2a"
+     id="text3">Random network</text>
+  <text
+     x="1062"
+     y="108"
+     text-anchor="middle"
+     font-size="19px"
+     font-weight="700"
+     fill="#207a5e"
+     id="text4">Ecological network</text>
+  <!--
+    COORDINATE SYSTEM (both panels):
+    col headers y = 130
+    first cell top y = 136
+    cell size = 27×27, step = 28
+    row header x: LEFT=51  RIGHT=731
+    first col x: LEFT=59   RIGHT=739
+
+    LEFT = Random (g1 from generate_er_basal)
+    RIGHT = Ecological (gn from generate_niche)
+
+    ══ RANDOM adjacency matrix g1 ══
+    Row\Col  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20
+      1      .  .  .  .  .  .  .  .  .  1  .  .  .  .  .  .  .  .  .  .
+      2      .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+      3      .  .  .  .  .  .  .  .  .  .  .  1  .  .  1  .  .  .  1  .
+      4      .  .  .  .  .  .  .  .  1  .  .  .  .  1  .  .  .  .  .  .
+      5      .  .  .  1  .  .  .  .  .  .  1  .  .  .  .  .  .  .  .  .
+      6      .  .  .  .  .  .  .  .  .  1  .  .  1  .  .  .  .  .  .  .
+      7      .  .  .  .  .  .  .  .  .  .  .  .  1  1  .  .  1  .  .  1
+      8      .  .  .  1  .  1  1  .  .  .  .  .  .  .  .  .  1  1  1  .
+      9      .  1  .  .  .  1  .  .  .  .  .  .  .  .  .  .  1  .  .  .
+     10      .  .  .  .  .  .  .  .  .  .  1  .  .  .  .  1  .  .  .  .
+     11      1  .  1  .  .  .  .  .  1  .  .  .  .  .  .  .  1  .  .  .
+     12      .  .  .  .  .  .  .  .  .  1  .  .  .  .  .  .  .  1  .  .
+     13      .  1  .  1  .  .  .  .  .  .  1  .  .  .  .  .  1  .  .  .
+     14      .  .  .  .  .  .  .  1  .  .  .  .  .  .  .  .  .  .  .  1
+     15      .  .  .  .  .  .  .  .  .  1  1  .  .  .  .  .  .  .  .  .
+     16      .  .  .  1  .  .  .  .  .  .  .  .  .  .  .  .  .  .  1  .
+     17      .  .  .  .  .  .  .  .  .  .  .  .  1  .  .  .  .  .  .  .
+     18      .  .  .  .  .  1  .  .  .  .  1  .  .  .  .  .  .  .  .  .
+     19      .  .  .  .  .  .  .  .  1  .  .  .  .  1  .  .  .  .  .  .
+     20      .  .  .  .  .  .  1  .  .  .  .  .  .  .  1  .  1  .  .  .
+    Rank=16, Entropy=0.943, Complexity=0.057, D=0.20
+
+    ══ ECOLOGICAL adjacency matrix gn ══
+    Row\Col  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20
+      1      .  1  .  1  .  .  .  .  .  .  .  .  .  .  .  .  1  .  .  .
+      2      .  .  .  1  .  .  .  .  .  .  .  .  .  1  .  .  1  .  1  .
+      3      .  .  .  .  .  .  .  .  .  .  .  .  .  1  .  .  1  .  1  .
+      4      .  .  .  .  .  .  1  1  .  .  .  .  .  1  .  .  1  .  .  .
+      5      .  .  .  .  .  .  .  .  .  .  .  .  .  1  .  .  1  .  .  1
+      6      .  .  .  .  .  .  .  .  .  .  .  .  .  1  .  .  1  .  .  1
+      7      .  .  .  .  .  .  .  .  .  .  .  .  .  1  .  .  1  .  .  1
+      8      .  .  .  .  .  .  .  .  .  .  .  .  .  1  .  .  1  .  .  1
+      9      .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  1  .  .  .  1
+     10      .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  1  .  .  .  1
+     11      .  .  .  .  .  .  .  .  .  .  .  1  .  .  1  .  .  .  .  .
+     12      .  .  .  .  .  .  .  .  .  .  .  1  .  .  1  .  .  1  .  .
+     13      .  .  .  .  .  .  .  .  .  .  .  1  .  .  1  .  .  1  .  .
+     14      .  .  .  .  .  .  .  .  .  .  .  1  .  .  1  .  .  1  .  .
+     15      .  .  .  .  .  .  .  .  .  .  .  .  .  .  1  .  .  1  .  .
+     16      .  .  .  .  .  .  .  .  .  .  .  .  .  .  1  .  .  1  .  .
+     17      .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  1  .  .
+     18      .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  1  .  .
+     19      .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  1  .  .
+     20      .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  1  .  .
+    Rank=9, Entropy=0.919, Complexity=0.081, D=0.55
+  -->
+  <!-- ════════ HELPER DEFS ════════
+    Left panel:  col k (0-indexed) center x = 72 + k*28
+                 row r (0-indexed) top y    = 136 + r*28
+    Right panel: col k center x = 752 + k*28
+                 row r top y    = 136 + r*28
+    Cell rect: x = center-13, y = top, width=26, height=26, rx=3
+  ════════ -->
+  <!-- ── Col headers LEFT ── -->
+  <text
+     x="51"
+     y="130"
+     text-anchor="middle"
+     font-size="9"
+     fill="#aaa"
+     font-style="italic"
+     id="text5">r\c</text>
+  <text
+     x="72"
+     y="130"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text6">1</text>
+  <text
+     x="100"
+     y="130"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text7">2</text>
+  <text
+     x="128"
+     y="130"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text8">3</text>
+  <text
+     x="156"
+     y="130"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text9">4</text>
+  <text
+     x="184"
+     y="130"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text10">5</text>
+  <text
+     x="212"
+     y="130"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text11">6</text>
+  <text
+     x="240"
+     y="130"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text12">7</text>
+  <text
+     x="268"
+     y="130"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text13">8</text>
+  <text
+     x="296"
+     y="130"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text14">9</text>
+  <text
+     x="324"
+     y="130"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text15">10</text>
+  <text
+     x="352"
+     y="130"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text16">11</text>
+  <text
+     x="380"
+     y="130"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text17">12</text>
+  <text
+     x="408"
+     y="130"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text18">13</text>
+  <text
+     x="436"
+     y="130"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text19">14</text>
+  <text
+     x="464"
+     y="130"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text20">15</text>
+  <text
+     x="492"
+     y="130"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text21">16</text>
+  <text
+     x="520"
+     y="130"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text22">17</text>
+  <text
+     x="548"
+     y="130"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text23">18</text>
+  <text
+     x="576"
+     y="130"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text24">19</text>
+  <text
+     x="604"
+     y="130"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text25">20</text>
+  <!-- ── Col headers RIGHT ── -->
+  <text
+     x="731"
+     y="130"
+     text-anchor="middle"
+     font-size="9"
+     fill="#aaa"
+     font-style="italic"
+     id="text26">r\c</text>
+  <text
+     x="752"
+     y="130"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text27">1</text>
+  <text
+     x="780"
+     y="130"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text28">2</text>
+  <text
+     x="808"
+     y="130"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text29">3</text>
+  <text
+     x="836"
+     y="130"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text30">4</text>
+  <text
+     x="864"
+     y="130"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text31">5</text>
+  <text
+     x="892"
+     y="130"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text32">6</text>
+  <text
+     x="920"
+     y="130"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text33">7</text>
+  <text
+     x="948"
+     y="130"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text34">8</text>
+  <text
+     x="976"
+     y="130"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text35">9</text>
+  <text
+     x="1004"
+     y="130"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text36">10</text>
+  <text
+     x="1032"
+     y="130"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text37">11</text>
+  <text
+     x="1060"
+     y="130"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text38">12</text>
+  <text
+     x="1088"
+     y="130"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text39">13</text>
+  <text
+     x="1116"
+     y="130"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text40">14</text>
+  <text
+     x="1144"
+     y="130"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text41">15</text>
+  <text
+     x="1172"
+     y="130"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text42">16</text>
+  <text
+     x="1200"
+     y="130"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text43">17</text>
+  <text
+     x="1228"
+     y="130"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text44">18</text>
+  <text
+     x="1256"
+     y="130"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text45">19</text>
+  <text
+     x="1284"
+     y="130"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text46">20</text>
+  <!-- ════ MACRO: draw a filled cell. I'll place all cells explicitly. ════
+    RANDOM: empty=#F5D5CB/stroke=#DDB5A8  filled=#E05A30
+    ECOLOG: empty=#D8EDE7/stroke=#A8D5C5  teal=#2A9D7A  purple=#7B52C1
+    Row r top y = 136 + (r-1)*28   (r=1..20)
+    Col k left x = 59 + (k-1)*28  (k=1..20)
+    LEFT: + 0    RIGHT: + 680
+  ════ -->
+  <!-- I encode each row as a sequence: 0=empty 1=filled -->
+  <!-- Using <use> is not available, so I'll draw rect groups row by row -->
+  <!-- Shorthand: F=empty coral, C=filled coral | E=empty teal, T=teal, P=purple -->
+  <!-- ═══════════════════ RANDOM MATRIX rows 1-20 ═══════════════════ -->
+  <!-- Row 1: . . . . . . . . . 1 . . . . . . . . . . -->
+  <text
+     x="51"
+     y="151"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text47">1</text>
+  <rect
+     x="59"
+     y="136"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect47" />
+  <rect
+     x="87"
+     y="136"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect48" />
+  <rect
+     x="115"
+     y="136"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect49" />
+  <rect
+     x="143"
+     y="136"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect50" />
+  <rect
+     x="171"
+     y="136"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect51" />
+  <rect
+     x="199"
+     y="136"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect52" />
+  <rect
+     x="227"
+     y="136"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect53" />
+  <rect
+     x="255"
+     y="136"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect54" />
+  <rect
+     x="283"
+     y="136"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect55" />
+  <rect
+     x="311"
+     y="136"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#E05A30"
+     id="rect56" />
+  <rect
+     x="339"
+     y="136"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect57" />
+  <rect
+     x="367"
+     y="136"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect58" />
+  <rect
+     x="395"
+     y="136"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect59" />
+  <rect
+     x="423"
+     y="136"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect60" />
+  <rect
+     x="451"
+     y="136"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect61" />
+  <rect
+     x="479"
+     y="136"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect62" />
+  <rect
+     x="507"
+     y="136"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect63" />
+  <rect
+     x="535"
+     y="136"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect64" />
+  <rect
+     x="563"
+     y="136"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect65" />
+  <rect
+     x="591"
+     y="136"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect66" />
+  <!-- Row 2: all empty -->
+  <text
+     x="51"
+     y="179"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text66">2</text>
+  <rect
+     x="59"
+     y="164"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect67" />
+  <rect
+     x="87"
+     y="164"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect68" />
+  <rect
+     x="115"
+     y="164"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect69" />
+  <rect
+     x="143"
+     y="164"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect70" />
+  <rect
+     x="171"
+     y="164"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect71" />
+  <rect
+     x="199"
+     y="164"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect72" />
+  <rect
+     x="227"
+     y="164"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect73" />
+  <rect
+     x="255"
+     y="164"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect74" />
+  <rect
+     x="283"
+     y="164"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect75" />
+  <rect
+     x="311"
+     y="164"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect76" />
+  <rect
+     x="339"
+     y="164"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect77" />
+  <rect
+     x="367"
+     y="164"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect78" />
+  <rect
+     x="395"
+     y="164"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect79" />
+  <rect
+     x="423"
+     y="164"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect80" />
+  <rect
+     x="451"
+     y="164"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect81" />
+  <rect
+     x="479"
+     y="164"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect82" />
+  <rect
+     x="507"
+     y="164"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect83" />
+  <rect
+     x="535"
+     y="164"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect84" />
+  <rect
+     x="563"
+     y="164"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect85" />
+  <rect
+     x="591"
+     y="164"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect86" />
+  <!-- Row 3: . . . . . . . . . . . 1 . . 1 . . . 1 . -->
+  <text
+     x="51"
+     y="207"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text86">3</text>
+  <rect
+     x="59"
+     y="192"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect87" />
+  <rect
+     x="87"
+     y="192"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect88" />
+  <rect
+     x="115"
+     y="192"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect89" />
+  <rect
+     x="143"
+     y="192"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect90" />
+  <rect
+     x="171"
+     y="192"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect91" />
+  <rect
+     x="199"
+     y="192"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect92" />
+  <rect
+     x="227"
+     y="192"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect93" />
+  <rect
+     x="255"
+     y="192"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect94" />
+  <rect
+     x="283"
+     y="192"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect95" />
+  <rect
+     x="311"
+     y="192"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect96" />
+  <rect
+     x="339"
+     y="192"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect97" />
+  <rect
+     x="367"
+     y="192"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#E05A30"
+     id="rect98" />
+  <rect
+     x="395"
+     y="192"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect99" />
+  <rect
+     x="423"
+     y="192"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect100" />
+  <rect
+     x="451"
+     y="192"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#E05A30"
+     id="rect101" />
+  <rect
+     x="479"
+     y="192"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect102" />
+  <rect
+     x="507"
+     y="192"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect103" />
+  <rect
+     x="535"
+     y="192"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect104" />
+  <rect
+     x="563"
+     y="192"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#E05A30"
+     id="rect105" />
+  <rect
+     x="591"
+     y="192"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect106" />
+  <!-- Row 4: . . . . . . . . 1 . . . . 1 . . . . . . -->
+  <text
+     x="51"
+     y="235"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text106">4</text>
+  <rect
+     x="59"
+     y="220"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect107" />
+  <rect
+     x="87"
+     y="220"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect108" />
+  <rect
+     x="115"
+     y="220"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect109" />
+  <rect
+     x="143"
+     y="220"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect110" />
+  <rect
+     x="171"
+     y="220"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect111" />
+  <rect
+     x="199"
+     y="220"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect112" />
+  <rect
+     x="227"
+     y="220"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect113" />
+  <rect
+     x="255"
+     y="220"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect114" />
+  <rect
+     x="283"
+     y="220"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#E05A30"
+     id="rect115" />
+  <rect
+     x="311"
+     y="220"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect116" />
+  <rect
+     x="339"
+     y="220"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect117" />
+  <rect
+     x="367"
+     y="220"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect118" />
+  <rect
+     x="395"
+     y="220"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect119" />
+  <rect
+     x="423"
+     y="220"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#E05A30"
+     id="rect120" />
+  <rect
+     x="451"
+     y="220"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect121" />
+  <rect
+     x="479"
+     y="220"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect122" />
+  <rect
+     x="507"
+     y="220"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect123" />
+  <rect
+     x="535"
+     y="220"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect124" />
+  <rect
+     x="563"
+     y="220"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect125" />
+  <rect
+     x="591"
+     y="220"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect126" />
+  <!-- Row 5: . . . 1 . . . . . . 1 . . . . . . . . . -->
+  <text
+     x="51"
+     y="263"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text126">5</text>
+  <rect
+     x="59"
+     y="248"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect127" />
+  <rect
+     x="87"
+     y="248"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect128" />
+  <rect
+     x="115"
+     y="248"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect129" />
+  <rect
+     x="143"
+     y="248"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#E05A30"
+     id="rect130" />
+  <rect
+     x="171"
+     y="248"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect131" />
+  <rect
+     x="199"
+     y="248"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect132" />
+  <rect
+     x="227"
+     y="248"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect133" />
+  <rect
+     x="255"
+     y="248"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect134" />
+  <rect
+     x="283"
+     y="248"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect135" />
+  <rect
+     x="311"
+     y="248"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect136" />
+  <rect
+     x="339"
+     y="248"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#E05A30"
+     id="rect137" />
+  <rect
+     x="367"
+     y="248"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect138" />
+  <rect
+     x="395"
+     y="248"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect139" />
+  <rect
+     x="423"
+     y="248"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect140" />
+  <rect
+     x="451"
+     y="248"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect141" />
+  <rect
+     x="479"
+     y="248"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect142" />
+  <rect
+     x="507"
+     y="248"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect143" />
+  <rect
+     x="535"
+     y="248"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect144" />
+  <rect
+     x="563"
+     y="248"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect145" />
+  <rect
+     x="591"
+     y="248"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect146" />
+  <!-- Row 6: . . . . . . . . . 1 . . 1 . . . . . . . -->
+  <text
+     x="51"
+     y="291"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text146">6</text>
+  <rect
+     x="59"
+     y="276"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect147" />
+  <rect
+     x="87"
+     y="276"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect148" />
+  <rect
+     x="115"
+     y="276"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect149" />
+  <rect
+     x="143"
+     y="276"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect150" />
+  <rect
+     x="171"
+     y="276"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect151" />
+  <rect
+     x="199"
+     y="276"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect152" />
+  <rect
+     x="227"
+     y="276"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect153" />
+  <rect
+     x="255"
+     y="276"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect154" />
+  <rect
+     x="283"
+     y="276"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect155" />
+  <rect
+     x="311"
+     y="276"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#E05A30"
+     id="rect156" />
+  <rect
+     x="339"
+     y="276"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect157" />
+  <rect
+     x="367"
+     y="276"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect158" />
+  <rect
+     x="395"
+     y="276"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#E05A30"
+     id="rect159" />
+  <rect
+     x="423"
+     y="276"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect160" />
+  <rect
+     x="451"
+     y="276"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect161" />
+  <rect
+     x="479"
+     y="276"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect162" />
+  <rect
+     x="507"
+     y="276"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect163" />
+  <rect
+     x="535"
+     y="276"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect164" />
+  <rect
+     x="563"
+     y="276"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect165" />
+  <rect
+     x="591"
+     y="276"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect166" />
+  <!-- Row 7: . . . . . . . . . . . . 1 1 . . 1 . . 1 -->
+  <text
+     x="51"
+     y="319"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text166">7</text>
+  <rect
+     x="59"
+     y="304"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect167" />
+  <rect
+     x="87"
+     y="304"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect168" />
+  <rect
+     x="115"
+     y="304"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect169" />
+  <rect
+     x="143"
+     y="304"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect170" />
+  <rect
+     x="171"
+     y="304"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect171" />
+  <rect
+     x="199"
+     y="304"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect172" />
+  <rect
+     x="227"
+     y="304"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect173" />
+  <rect
+     x="255"
+     y="304"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect174" />
+  <rect
+     x="283"
+     y="304"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect175" />
+  <rect
+     x="311"
+     y="304"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect176" />
+  <rect
+     x="339"
+     y="304"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect177" />
+  <rect
+     x="367"
+     y="304"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect178" />
+  <rect
+     x="395"
+     y="304"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#E05A30"
+     id="rect179" />
+  <rect
+     x="423"
+     y="304"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#E05A30"
+     id="rect180" />
+  <rect
+     x="451"
+     y="304"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect181" />
+  <rect
+     x="479"
+     y="304"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect182" />
+  <rect
+     x="507"
+     y="304"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#E05A30"
+     id="rect183" />
+  <rect
+     x="535"
+     y="304"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect184" />
+  <rect
+     x="563"
+     y="304"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect185" />
+  <rect
+     x="591"
+     y="304"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#E05A30"
+     id="rect186" />
+  <!-- Row 8: . . . 1 . 1 1 . . . . . . . . . 1 1 1 . -->
+  <text
+     x="51"
+     y="347"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text186">8</text>
+  <rect
+     x="59"
+     y="332"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect187" />
+  <rect
+     x="87"
+     y="332"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect188" />
+  <rect
+     x="115"
+     y="332"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect189" />
+  <rect
+     x="143"
+     y="332"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#E05A30"
+     id="rect190" />
+  <rect
+     x="171"
+     y="332"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect191" />
+  <rect
+     x="199"
+     y="332"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#E05A30"
+     id="rect192" />
+  <rect
+     x="227"
+     y="332"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#E05A30"
+     id="rect193" />
+  <rect
+     x="255"
+     y="332"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect194" />
+  <rect
+     x="283"
+     y="332"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect195" />
+  <rect
+     x="311"
+     y="332"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect196" />
+  <rect
+     x="339"
+     y="332"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect197" />
+  <rect
+     x="367"
+     y="332"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect198" />
+  <rect
+     x="395"
+     y="332"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect199" />
+  <rect
+     x="423"
+     y="332"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect200" />
+  <rect
+     x="451"
+     y="332"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect201" />
+  <rect
+     x="479"
+     y="332"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect202" />
+  <rect
+     x="507"
+     y="332"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#E05A30"
+     id="rect203" />
+  <rect
+     x="535"
+     y="332"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#E05A30"
+     id="rect204" />
+  <rect
+     x="563"
+     y="332"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#E05A30"
+     id="rect205" />
+  <rect
+     x="591"
+     y="332"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect206" />
+  <!-- Row 9: . 1 . . . 1 . . . . . . . . . . 1 . . . -->
+  <text
+     x="51"
+     y="375"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text206">9</text>
+  <rect
+     x="59"
+     y="360"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect207" />
+  <rect
+     x="87"
+     y="360"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#E05A30"
+     id="rect208" />
+  <rect
+     x="115"
+     y="360"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect209" />
+  <rect
+     x="143"
+     y="360"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect210" />
+  <rect
+     x="171"
+     y="360"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect211" />
+  <rect
+     x="199"
+     y="360"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#E05A30"
+     id="rect212" />
+  <rect
+     x="227"
+     y="360"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect213" />
+  <rect
+     x="255"
+     y="360"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect214" />
+  <rect
+     x="283"
+     y="360"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect215" />
+  <rect
+     x="311"
+     y="360"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect216" />
+  <rect
+     x="339"
+     y="360"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect217" />
+  <rect
+     x="367"
+     y="360"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect218" />
+  <rect
+     x="395"
+     y="360"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect219" />
+  <rect
+     x="423"
+     y="360"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect220" />
+  <rect
+     x="451"
+     y="360"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect221" />
+  <rect
+     x="479"
+     y="360"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect222" />
+  <rect
+     x="507"
+     y="360"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#E05A30"
+     id="rect223" />
+  <rect
+     x="535"
+     y="360"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect224" />
+  <rect
+     x="563"
+     y="360"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect225" />
+  <rect
+     x="591"
+     y="360"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect226" />
+  <!-- Row 10: . . . . . . . . . . 1 . . . . 1 . . . . -->
+  <text
+     x="51"
+     y="403"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text226">10</text>
+  <rect
+     x="59"
+     y="388"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect227" />
+  <rect
+     x="87"
+     y="388"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect228" />
+  <rect
+     x="115"
+     y="388"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect229" />
+  <rect
+     x="143"
+     y="388"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect230" />
+  <rect
+     x="171"
+     y="388"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect231" />
+  <rect
+     x="199"
+     y="388"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect232" />
+  <rect
+     x="227"
+     y="388"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect233" />
+  <rect
+     x="255"
+     y="388"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect234" />
+  <rect
+     x="283"
+     y="388"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect235" />
+  <rect
+     x="311"
+     y="388"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect236" />
+  <rect
+     x="339"
+     y="388"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#E05A30"
+     id="rect237" />
+  <rect
+     x="367"
+     y="388"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect238" />
+  <rect
+     x="395"
+     y="388"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect239" />
+  <rect
+     x="423"
+     y="388"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect240" />
+  <rect
+     x="451"
+     y="388"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect241" />
+  <rect
+     x="479"
+     y="388"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#E05A30"
+     id="rect242" />
+  <rect
+     x="507"
+     y="388"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect243" />
+  <rect
+     x="535"
+     y="388"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect244" />
+  <rect
+     x="563"
+     y="388"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect245" />
+  <rect
+     x="591"
+     y="388"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect246" />
+  <!-- Row 11: 1 . 1 . . . . . 1 . . . . . . . 1 . . . -->
+  <text
+     x="51"
+     y="431"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text246">11</text>
+  <rect
+     x="59"
+     y="416"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#E05A30"
+     id="rect247" />
+  <rect
+     x="87"
+     y="416"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect248" />
+  <rect
+     x="115"
+     y="416"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#E05A30"
+     id="rect249" />
+  <rect
+     x="143"
+     y="416"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect250" />
+  <rect
+     x="171"
+     y="416"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect251" />
+  <rect
+     x="199"
+     y="416"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect252" />
+  <rect
+     x="227"
+     y="416"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect253" />
+  <rect
+     x="255"
+     y="416"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect254" />
+  <rect
+     x="283"
+     y="416"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#E05A30"
+     id="rect255" />
+  <rect
+     x="311"
+     y="416"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect256" />
+  <rect
+     x="339"
+     y="416"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect257" />
+  <rect
+     x="367"
+     y="416"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect258" />
+  <rect
+     x="395"
+     y="416"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect259" />
+  <rect
+     x="423"
+     y="416"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect260" />
+  <rect
+     x="451"
+     y="416"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect261" />
+  <rect
+     x="479"
+     y="416"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect262" />
+  <rect
+     x="507"
+     y="416"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#E05A30"
+     id="rect263" />
+  <rect
+     x="535"
+     y="416"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect264" />
+  <rect
+     x="563"
+     y="416"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect265" />
+  <rect
+     x="591"
+     y="416"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect266" />
+  <!-- Row 12: . . . . . . . . . 1 . . . . . . . 1 . . -->
+  <text
+     x="51"
+     y="459"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text266">12</text>
+  <rect
+     x="59"
+     y="444"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect267" />
+  <rect
+     x="87"
+     y="444"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect268" />
+  <rect
+     x="115"
+     y="444"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect269" />
+  <rect
+     x="143"
+     y="444"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect270" />
+  <rect
+     x="171"
+     y="444"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect271" />
+  <rect
+     x="199"
+     y="444"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect272" />
+  <rect
+     x="227"
+     y="444"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect273" />
+  <rect
+     x="255"
+     y="444"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect274" />
+  <rect
+     x="283"
+     y="444"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect275" />
+  <rect
+     x="311"
+     y="444"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#E05A30"
+     id="rect276" />
+  <rect
+     x="339"
+     y="444"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect277" />
+  <rect
+     x="367"
+     y="444"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect278" />
+  <rect
+     x="395"
+     y="444"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect279" />
+  <rect
+     x="423"
+     y="444"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect280" />
+  <rect
+     x="451"
+     y="444"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect281" />
+  <rect
+     x="479"
+     y="444"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect282" />
+  <rect
+     x="507"
+     y="444"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect283" />
+  <rect
+     x="535"
+     y="444"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#E05A30"
+     id="rect284" />
+  <rect
+     x="563"
+     y="444"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect285" />
+  <rect
+     x="591"
+     y="444"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect286" />
+  <!-- Row 13: . 1 . 1 . . . . . . 1 . . . . . 1 . . . -->
+  <text
+     x="51"
+     y="487"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text286">13</text>
+  <rect
+     x="59"
+     y="472"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect287" />
+  <rect
+     x="87"
+     y="472"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#E05A30"
+     id="rect288" />
+  <rect
+     x="115"
+     y="472"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect289" />
+  <rect
+     x="143"
+     y="472"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#E05A30"
+     id="rect290" />
+  <rect
+     x="171"
+     y="472"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect291" />
+  <rect
+     x="199"
+     y="472"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect292" />
+  <rect
+     x="227"
+     y="472"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect293" />
+  <rect
+     x="255"
+     y="472"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect294" />
+  <rect
+     x="283"
+     y="472"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect295" />
+  <rect
+     x="311"
+     y="472"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect296" />
+  <rect
+     x="339"
+     y="472"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#E05A30"
+     id="rect297" />
+  <rect
+     x="367"
+     y="472"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect298" />
+  <rect
+     x="395"
+     y="472"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect299" />
+  <rect
+     x="423"
+     y="472"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect300" />
+  <rect
+     x="451"
+     y="472"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect301" />
+  <rect
+     x="479"
+     y="472"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect302" />
+  <rect
+     x="507"
+     y="472"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#E05A30"
+     id="rect303" />
+  <rect
+     x="535"
+     y="472"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect304" />
+  <rect
+     x="563"
+     y="472"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect305" />
+  <rect
+     x="591"
+     y="472"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect306" />
+  <!-- Row 14: . . . . . . . 1 . . . . . . . . . . . 1 -->
+  <text
+     x="51"
+     y="515"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text306">14</text>
+  <rect
+     x="59"
+     y="500"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect307" />
+  <rect
+     x="87"
+     y="500"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect308" />
+  <rect
+     x="115"
+     y="500"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect309" />
+  <rect
+     x="143"
+     y="500"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect310" />
+  <rect
+     x="171"
+     y="500"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect311" />
+  <rect
+     x="199"
+     y="500"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect312" />
+  <rect
+     x="227"
+     y="500"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect313" />
+  <rect
+     x="255"
+     y="500"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#E05A30"
+     id="rect314" />
+  <rect
+     x="283"
+     y="500"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect315" />
+  <rect
+     x="311"
+     y="500"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect316" />
+  <rect
+     x="339"
+     y="500"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect317" />
+  <rect
+     x="367"
+     y="500"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect318" />
+  <rect
+     x="395"
+     y="500"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect319" />
+  <rect
+     x="423"
+     y="500"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect320" />
+  <rect
+     x="451"
+     y="500"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect321" />
+  <rect
+     x="479"
+     y="500"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect322" />
+  <rect
+     x="507"
+     y="500"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect323" />
+  <rect
+     x="535"
+     y="500"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect324" />
+  <rect
+     x="563"
+     y="500"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect325" />
+  <rect
+     x="591"
+     y="500"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#E05A30"
+     id="rect326" />
+  <!-- Row 15: . . . . . . . . . 1 1 . . . . . . . . . -->
+  <text
+     x="51"
+     y="543"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text326">15</text>
+  <rect
+     x="59"
+     y="528"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect327" />
+  <rect
+     x="87"
+     y="528"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect328" />
+  <rect
+     x="115"
+     y="528"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect329" />
+  <rect
+     x="143"
+     y="528"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect330" />
+  <rect
+     x="171"
+     y="528"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect331" />
+  <rect
+     x="199"
+     y="528"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect332" />
+  <rect
+     x="227"
+     y="528"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect333" />
+  <rect
+     x="255"
+     y="528"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect334" />
+  <rect
+     x="283"
+     y="528"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect335" />
+  <rect
+     x="311"
+     y="528"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#E05A30"
+     id="rect336" />
+  <rect
+     x="339"
+     y="528"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#E05A30"
+     id="rect337" />
+  <rect
+     x="367"
+     y="528"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect338" />
+  <rect
+     x="395"
+     y="528"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect339" />
+  <rect
+     x="423"
+     y="528"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect340" />
+  <rect
+     x="451"
+     y="528"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect341" />
+  <rect
+     x="479"
+     y="528"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect342" />
+  <rect
+     x="507"
+     y="528"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect343" />
+  <rect
+     x="535"
+     y="528"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect344" />
+  <rect
+     x="563"
+     y="528"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect345" />
+  <rect
+     x="591"
+     y="528"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect346" />
+  <!-- Row 16: . . . 1 . . . . . . . . . . . . . . 1 . -->
+  <text
+     x="51"
+     y="571"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text346">16</text>
+  <rect
+     x="59"
+     y="556"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect347" />
+  <rect
+     x="87"
+     y="556"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect348" />
+  <rect
+     x="115"
+     y="556"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect349" />
+  <rect
+     x="143"
+     y="556"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#E05A30"
+     id="rect350" />
+  <rect
+     x="171"
+     y="556"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect351" />
+  <rect
+     x="199"
+     y="556"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect352" />
+  <rect
+     x="227"
+     y="556"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect353" />
+  <rect
+     x="255"
+     y="556"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect354" />
+  <rect
+     x="283"
+     y="556"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect355" />
+  <rect
+     x="311"
+     y="556"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect356" />
+  <rect
+     x="339"
+     y="556"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect357" />
+  <rect
+     x="367"
+     y="556"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect358" />
+  <rect
+     x="395"
+     y="556"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect359" />
+  <rect
+     x="423"
+     y="556"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect360" />
+  <rect
+     x="451"
+     y="556"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect361" />
+  <rect
+     x="479"
+     y="556"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect362" />
+  <rect
+     x="507"
+     y="556"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect363" />
+  <rect
+     x="535"
+     y="556"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect364" />
+  <rect
+     x="563"
+     y="556"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#E05A30"
+     id="rect365" />
+  <rect
+     x="591"
+     y="556"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect366" />
+  <!-- Row 17: . . . . . . . . . . . . 1 . . . . . . . -->
+  <text
+     x="51"
+     y="599"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text366">17</text>
+  <rect
+     x="59"
+     y="584"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect367" />
+  <rect
+     x="87"
+     y="584"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect368" />
+  <rect
+     x="115"
+     y="584"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect369" />
+  <rect
+     x="143"
+     y="584"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect370" />
+  <rect
+     x="171"
+     y="584"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect371" />
+  <rect
+     x="199"
+     y="584"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect372" />
+  <rect
+     x="227"
+     y="584"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect373" />
+  <rect
+     x="255"
+     y="584"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect374" />
+  <rect
+     x="283"
+     y="584"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect375" />
+  <rect
+     x="311"
+     y="584"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect376" />
+  <rect
+     x="339"
+     y="584"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect377" />
+  <rect
+     x="367"
+     y="584"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect378" />
+  <rect
+     x="395"
+     y="584"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#E05A30"
+     id="rect379" />
+  <rect
+     x="423"
+     y="584"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect380" />
+  <rect
+     x="451"
+     y="584"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect381" />
+  <rect
+     x="479"
+     y="584"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect382" />
+  <rect
+     x="507"
+     y="584"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect383" />
+  <rect
+     x="535"
+     y="584"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect384" />
+  <rect
+     x="563"
+     y="584"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect385" />
+  <rect
+     x="591"
+     y="584"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect386" />
+  <!-- Row 18: . . . . . 1 . . . . 1 . . . . . . . . . -->
+  <text
+     x="51"
+     y="627"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text386">18</text>
+  <rect
+     x="59"
+     y="612"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect387" />
+  <rect
+     x="87"
+     y="612"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect388" />
+  <rect
+     x="115"
+     y="612"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect389" />
+  <rect
+     x="143"
+     y="612"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect390" />
+  <rect
+     x="171"
+     y="612"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect391" />
+  <rect
+     x="199"
+     y="612"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#E05A30"
+     id="rect392" />
+  <rect
+     x="227"
+     y="612"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect393" />
+  <rect
+     x="255"
+     y="612"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect394" />
+  <rect
+     x="283"
+     y="612"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect395" />
+  <rect
+     x="311"
+     y="612"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect396" />
+  <rect
+     x="339"
+     y="612"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#E05A30"
+     id="rect397" />
+  <rect
+     x="367"
+     y="612"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect398" />
+  <rect
+     x="395"
+     y="612"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect399" />
+  <rect
+     x="423"
+     y="612"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect400" />
+  <rect
+     x="451"
+     y="612"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect401" />
+  <rect
+     x="479"
+     y="612"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect402" />
+  <rect
+     x="507"
+     y="612"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect403" />
+  <rect
+     x="535"
+     y="612"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect404" />
+  <rect
+     x="563"
+     y="612"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect405" />
+  <rect
+     x="591"
+     y="612"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect406" />
+  <!-- Row 19: . . . . . . . . 1 . . . . 1 . . . . . . -->
+  <text
+     x="51"
+     y="655"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text406">19</text>
+  <rect
+     x="59"
+     y="640"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect407" />
+  <rect
+     x="87"
+     y="640"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect408" />
+  <rect
+     x="115"
+     y="640"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect409" />
+  <rect
+     x="143"
+     y="640"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect410" />
+  <rect
+     x="171"
+     y="640"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect411" />
+  <rect
+     x="199"
+     y="640"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect412" />
+  <rect
+     x="227"
+     y="640"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect413" />
+  <rect
+     x="255"
+     y="640"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect414" />
+  <rect
+     x="283"
+     y="640"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#E05A30"
+     id="rect415" />
+  <rect
+     x="311"
+     y="640"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect416" />
+  <rect
+     x="339"
+     y="640"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect417" />
+  <rect
+     x="367"
+     y="640"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect418" />
+  <rect
+     x="395"
+     y="640"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect419" />
+  <rect
+     x="423"
+     y="640"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#E05A30"
+     id="rect420" />
+  <rect
+     x="451"
+     y="640"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect421" />
+  <rect
+     x="479"
+     y="640"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect422" />
+  <rect
+     x="507"
+     y="640"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect423" />
+  <rect
+     x="535"
+     y="640"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect424" />
+  <rect
+     x="563"
+     y="640"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect425" />
+  <rect
+     x="591"
+     y="640"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect426" />
+  <!-- Row 20: . . . . . . 1 . . . . . . . 1 . 1 . . . -->
+  <text
+     x="51"
+     y="683"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text426">20</text>
+  <rect
+     x="59"
+     y="668"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect427" />
+  <rect
+     x="87"
+     y="668"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect428" />
+  <rect
+     x="115"
+     y="668"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect429" />
+  <rect
+     x="143"
+     y="668"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect430" />
+  <rect
+     x="171"
+     y="668"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect431" />
+  <rect
+     x="199"
+     y="668"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect432" />
+  <rect
+     x="227"
+     y="668"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#E05A30"
+     id="rect433" />
+  <rect
+     x="255"
+     y="668"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect434" />
+  <rect
+     x="283"
+     y="668"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect435" />
+  <rect
+     x="311"
+     y="668"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect436" />
+  <rect
+     x="339"
+     y="668"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect437" />
+  <rect
+     x="367"
+     y="668"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect438" />
+  <rect
+     x="395"
+     y="668"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect439" />
+  <rect
+     x="423"
+     y="668"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect440" />
+  <rect
+     x="451"
+     y="668"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#E05A30"
+     id="rect441" />
+  <rect
+     x="479"
+     y="668"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect442" />
+  <rect
+     x="507"
+     y="668"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#E05A30"
+     id="rect443" />
+  <rect
+     x="535"
+     y="668"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect444" />
+  <rect
+     x="563"
+     y="668"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect445" />
+  <rect
+     x="591"
+     y="668"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="0.7"
+     id="rect446" />
+  <!-- ═══════════════════ ECOLOGICAL MATRIX rows 1-20 ═══════════════════ -->
+  <!-- Right panel col 1-20 x = 739 + (k-1)*28 -->
+  <!-- empty=#D8EDE7/stroke=#A8D5C5  teal=#2A9D7A  basal cols 1-8 highlighted -->
+  <!-- Basal species columns 1-8 shaded background -->
+  <rect
+     x="739"
+     y="132"
+     width="224"
+     height="564"
+     rx="5"
+     fill="#E8E8E8"
+     opacity="0.35"
+     id="rect447" />
+  <rect
+     x="738.9989"
+     y="131.99893"
+     width="223.04262"
+     height="564.00214"
+     rx="4.9786301"
+     fill="none"
+     stroke="#aaaaaa"
+     stroke-width="1"
+     stroke-dasharray="4, 3"
+     id="rect448" />
+  <text
+     x="824.13354"
+     y="116.78865"
+     text-anchor="middle"
+     font-size="10px"
+     fill="#888888"
+     font-style="italic"
+     id="text448">8 basal cols → zero diet vectors</text>
+  <!-- Row 1: . 1 . 1 . . . . . . . . . . . . 1 . . . -->
+  <text
+     x="731"
+     y="151"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text449">1</text>
+  <rect
+     x="739"
+     y="136"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect449" />
+  <rect
+     x="767.08813"
+     y="135.75102"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#d8ede7"
+     stroke="#a8d5c5"
+     stroke-width="0.7"
+     id="rect449-9" />
+  <rect
+     x="1075.0856"
+     y="135.91443"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#2a9d7a"
+     id="rect450-2" />
+  <rect
+     x="795"
+     y="136"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect451" />
+  <rect
+     x="823"
+     y="136.17885"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#d8ede7"
+     stroke="#a8d5c5"
+     stroke-width="0.7"
+     id="rect454-4-9" />
+  <rect
+     x="851"
+     y="136"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect453" />
+  <rect
+     x="879"
+     y="136"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect454" />
+  <rect
+     x="907"
+     y="136"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect455" />
+  <rect
+     x="935"
+     y="136"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect456" />
+  <rect
+     x="963"
+     y="136"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect457" />
+  <rect
+     x="991"
+     y="136"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect458" />
+  <rect
+     x="1019"
+     y="136"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect459" />
+  <rect
+     x="1047"
+     y="136"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect460" />
+  <rect
+     x="1103"
+     y="136"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect462" />
+  <rect
+     x="1131"
+     y="136"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect463" />
+  <rect
+     x="1159"
+     y="136"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect464" />
+  <rect
+     x="1187"
+     y="136"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#2A9D7A"
+     id="rect465" />
+  <rect
+     x="1215"
+     y="136"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect466" />
+  <rect
+     x="1243"
+     y="136"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect467" />
+  <rect
+     x="1271"
+     y="136"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect468" />
+  <!-- Row 2: . . . 1 . . . . . . . . . 1 . . 1 . 1 . -->
+  <text
+     x="731"
+     y="179"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text468">2</text>
+  <rect
+     x="739"
+     y="164"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect469" />
+  <rect
+     x="767"
+     y="164"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#d8ede7"
+     stroke="#a8d5c5"
+     stroke-width="0.7"
+     id="rect470" />
+  <rect
+     x="795"
+     y="164"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect471" />
+  <rect
+     x="823"
+     y="164.08942"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#d8ede7"
+     stroke="#a8d5c5"
+     stroke-width="0.7"
+     id="rect454-4" />
+  <rect
+     x="851"
+     y="164"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect473" />
+  <rect
+     x="879"
+     y="164"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect474" />
+  <rect
+     x="907"
+     y="164"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect475" />
+  <rect
+     x="935"
+     y="164"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect476" />
+  <rect
+     x="963"
+     y="164"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect477" />
+  <rect
+     x="991"
+     y="164"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect478" />
+  <rect
+     x="1019"
+     y="164"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect479" />
+  <rect
+     x="1047"
+     y="164"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect480" />
+  <rect
+     x="1075"
+     y="164"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect481" />
+  <rect
+     x="1103"
+     y="164"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#2A9D7A"
+     id="rect482" />
+  <rect
+     x="1131"
+     y="164"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect483" />
+  <rect
+     x="1159"
+     y="164"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect484" />
+  <rect
+     x="1187"
+     y="164"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#2A9D7A"
+     id="rect485" />
+  <rect
+     x="1215"
+     y="164"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect486" />
+  <rect
+     x="1243"
+     y="164"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#2A9D7A"
+     id="rect487" />
+  <rect
+     x="1271"
+     y="164"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect488" />
+  <!-- Row 3: . . . . . . . . . . . . . 1 . . 1 . 1 . -->
+  <text
+     x="731"
+     y="207"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text488">3</text>
+  <rect
+     x="739"
+     y="192"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect489" />
+  <rect
+     x="767"
+     y="192"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect490" />
+  <rect
+     x="795"
+     y="192"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect491" />
+  <rect
+     x="823"
+     y="192"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect492" />
+  <rect
+     x="851"
+     y="192"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect493" />
+  <rect
+     x="879"
+     y="192"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect494" />
+  <rect
+     x="907"
+     y="192"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect495" />
+  <rect
+     x="935"
+     y="192"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect496" />
+  <rect
+     x="963"
+     y="192"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect497" />
+  <rect
+     x="962.97925"
+     y="191.85213"
+     width="26.191904"
+     height="26.57571"
+     rx="3.0221426"
+     fill="#2a9d7a"
+     id="rect515-9"
+     style="stroke-width:1.01473" />
+  <rect
+     x="991"
+     y="192"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect498" />
+  <rect
+     x="1019"
+     y="192"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect499" />
+  <rect
+     x="1047"
+     y="192"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect500" />
+  <rect
+     x="1075"
+     y="192"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect501" />
+  <rect
+     x="1103"
+     y="192"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#2A9D7A"
+     id="rect502" />
+  <rect
+     x="1131"
+     y="192"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect503" />
+  <rect
+     x="1159"
+     y="192"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect504" />
+  <rect
+     x="1187"
+     y="192"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#2A9D7A"
+     id="rect505" />
+  <rect
+     x="1215"
+     y="192"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect506" />
+  <rect
+     x="1243"
+     y="192"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#2A9D7A"
+     id="rect507" />
+  <rect
+     x="1271"
+     y="192"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect508" />
+  <!-- Row 4: . . . . . . 1 1 . . . . . 1 . . 1 . . . -->
+  <text
+     x="731"
+     y="235"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text508">4</text>
+  <rect
+     x="739"
+     y="220"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect509" />
+  <rect
+     x="767"
+     y="220"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect510" />
+  <rect
+     x="795"
+     y="220"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect511" />
+  <rect
+     x="823"
+     y="220"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect512" />
+  <rect
+     x="851"
+     y="220"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect513" />
+  <rect
+     x="879"
+     y="220"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect514" />
+  <rect
+     x="962.59131"
+     y="220.17114"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#2a9d7a"
+     id="rect515-1" />
+  <rect
+     x="935.05176"
+     y="220.52115"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#d8ede7"
+     stroke="#a8d5c5"
+     stroke-width="0.7"
+     id="rect514-8" />
+  <rect
+     x="907"
+     y="220"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#d8ede7"
+     stroke="#a8d5c5"
+     stroke-width="0.7"
+     id="rect514-8-0" />
+  <rect
+     x="991"
+     y="220"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect518" />
+  <rect
+     x="1019"
+     y="220"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect519" />
+  <rect
+     x="1047"
+     y="220"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect520" />
+  <rect
+     x="1075"
+     y="220"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect521" />
+  <rect
+     x="1103"
+     y="220"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#2A9D7A"
+     id="rect522" />
+  <rect
+     x="1131"
+     y="220"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect523" />
+  <rect
+     x="1159"
+     y="220"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect524" />
+  <rect
+     x="1187"
+     y="220"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#2A9D7A"
+     id="rect525" />
+  <rect
+     x="1215"
+     y="220"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect526" />
+  <rect
+     x="1243"
+     y="220"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect527" />
+  <rect
+     x="1271"
+     y="220"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect528" />
+  <!-- Row 5: . . . . . . . . . . . . . 1 . . 1 . . 1 -->
+  <text
+     x="731"
+     y="263"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text528">5</text>
+  <rect
+     x="739"
+     y="248"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect529" />
+  <rect
+     x="767"
+     y="248"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect530" />
+  <rect
+     x="795"
+     y="248"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect531" />
+  <rect
+     x="823"
+     y="248"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect532" />
+  <rect
+     x="851"
+     y="248"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect533" />
+  <rect
+     x="879"
+     y="248"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect534" />
+  <rect
+     x="907"
+     y="248"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect535" />
+  <rect
+     x="935"
+     y="248"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect536" />
+  <rect
+     x="963"
+     y="248"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect537" />
+  <rect
+     x="991"
+     y="248"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect538" />
+  <g
+     id="g3">
+    <rect
+       x="990.78735"
+       y="219.87289"
+       width="26.767612"
+       height="26.383806"
+       rx="3.0885706"
+       fill="#2a9d7a"
+       id="rect515-9-6"
+       style="stroke-width:1.02212" />
+    <rect
+       x="990.88507"
+       y="247.9377"
+       width="26.959517"
+       height="26"
+       rx="3.1107135"
+       fill="#2a9d7a"
+       id="rect516-2"
+       style="stroke-width:1.01829" />
+  </g>
+  <rect
+     x="1019"
+     y="248"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect539" />
+  <rect
+     x="1047"
+     y="248"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect540" />
+  <rect
+     x="1075"
+     y="248"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect541" />
+  <rect
+     x="1103"
+     y="248"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#2A9D7A"
+     id="rect542" />
+  <rect
+     x="1131"
+     y="248"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect543" />
+  <rect
+     x="1159"
+     y="248"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect544" />
+  <rect
+     x="1187"
+     y="248"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#2A9D7A"
+     id="rect545" />
+  <rect
+     x="1215"
+     y="248"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect546" />
+  <rect
+     x="1243"
+     y="248"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect547" />
+  <rect
+     x="1271"
+     y="248"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#2A9D7A"
+     id="rect548" />
+  <!-- Row 6: . . . . . . . . . . . . . 1 . . 1 . . 1 -->
+  <text
+     x="731"
+     y="291"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text548">6</text>
+  <rect
+     x="739"
+     y="276"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect549" />
+  <rect
+     x="767"
+     y="276"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect550" />
+  <rect
+     x="795"
+     y="276"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect551" />
+  <rect
+     x="823"
+     y="276"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect552" />
+  <rect
+     x="851"
+     y="276"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect553" />
+  <rect
+     x="879"
+     y="276"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect554" />
+  <rect
+     x="907"
+     y="276"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect555" />
+  <rect
+     x="935"
+     y="276"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect556" />
+  <rect
+     x="963"
+     y="276"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect557" />
+  <rect
+     x="991"
+     y="276"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect558" />
+  <rect
+     x="1019"
+     y="276"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect559" />
+  <rect
+     x="1047"
+     y="276"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect560" />
+  <rect
+     x="1075"
+     y="276"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect561" />
+  <rect
+     x="1103"
+     y="276"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#2A9D7A"
+     id="rect562" />
+  <rect
+     x="1131"
+     y="276"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect563" />
+  <rect
+     x="1159"
+     y="276"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect564" />
+  <rect
+     x="1187"
+     y="276"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#2A9D7A"
+     id="rect565" />
+  <rect
+     x="1215"
+     y="276"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect566" />
+  <rect
+     x="1243"
+     y="276"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect567" />
+  <rect
+     x="1271"
+     y="276"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#2A9D7A"
+     id="rect568" />
+  <!-- Row 7: . . . . . . . . . . . . . 1 . . 1 . . 1 -->
+  <text
+     x="731"
+     y="319"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text568">7</text>
+  <rect
+     x="739"
+     y="304"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect569" />
+  <rect
+     x="767"
+     y="304"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect570" />
+  <rect
+     x="795"
+     y="304"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect571" />
+  <rect
+     x="823"
+     y="304"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect572" />
+  <rect
+     x="851"
+     y="304"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect573" />
+  <rect
+     x="879"
+     y="304"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect574" />
+  <rect
+     x="907"
+     y="304"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect575" />
+  <rect
+     x="935"
+     y="304"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect576" />
+  <rect
+     x="963"
+     y="304"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect577" />
+  <rect
+     x="991"
+     y="304"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect578" />
+  <rect
+     x="1019"
+     y="304"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect579" />
+  <rect
+     x="1047"
+     y="304"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect580" />
+  <rect
+     x="1075"
+     y="304"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect581" />
+  <rect
+     x="1103"
+     y="304"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#2A9D7A"
+     id="rect582" />
+  <rect
+     x="1131"
+     y="304"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect583" />
+  <rect
+     x="1159"
+     y="304"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect584" />
+  <rect
+     x="1187"
+     y="304"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#2A9D7A"
+     id="rect585" />
+  <rect
+     x="1215"
+     y="304"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect586" />
+  <rect
+     x="1243"
+     y="304"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect587" />
+  <rect
+     x="1271"
+     y="304"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#2A9D7A"
+     id="rect588" />
+  <!-- Row 8: . . . . . . . . . . . . . 1 . . 1 . . 1 -->
+  <text
+     x="731"
+     y="347"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text588">8</text>
+  <rect
+     x="739"
+     y="332"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect589" />
+  <rect
+     x="767"
+     y="332"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect590" />
+  <rect
+     x="795"
+     y="332"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect591" />
+  <rect
+     x="823"
+     y="332"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect592" />
+  <rect
+     x="851"
+     y="332"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect593" />
+  <rect
+     x="879"
+     y="332"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect594" />
+  <rect
+     x="907"
+     y="332"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect595" />
+  <rect
+     x="935"
+     y="332"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect596" />
+  <rect
+     x="963"
+     y="332"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect597" />
+  <rect
+     x="991"
+     y="332"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect598" />
+  <rect
+     x="1019"
+     y="332"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect599" />
+  <rect
+     x="1047"
+     y="332"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect600" />
+  <rect
+     x="1075"
+     y="332"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect601" />
+  <rect
+     x="1103"
+     y="332"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#2A9D7A"
+     id="rect602" />
+  <rect
+     x="1131"
+     y="332"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect603" />
+  <rect
+     x="1159"
+     y="332"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect604" />
+  <rect
+     x="1187"
+     y="332"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#2A9D7A"
+     id="rect605" />
+  <rect
+     x="1215"
+     y="332"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect606" />
+  <rect
+     x="1243"
+     y="332"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect607" />
+  <rect
+     x="1271"
+     y="332"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#2A9D7A"
+     id="rect608" />
+  <!-- Row 9: . . . . . . . . . . . . . . . 1 . . . 1 -->
+  <text
+     x="731"
+     y="375"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text608">9</text>
+  <rect
+     x="739"
+     y="360"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect609" />
+  <rect
+     x="767"
+     y="360"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect610" />
+  <rect
+     x="795"
+     y="360"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect611" />
+  <rect
+     x="823"
+     y="360"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect612" />
+  <rect
+     x="851"
+     y="360"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect613" />
+  <rect
+     x="879"
+     y="360"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect614" />
+  <rect
+     x="907"
+     y="360"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect615" />
+  <rect
+     x="935"
+     y="360"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect616" />
+  <rect
+     x="963"
+     y="360"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect617" />
+  <rect
+     x="991"
+     y="360"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect618" />
+  <rect
+     x="1019"
+     y="360"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect619" />
+  <rect
+     x="1047"
+     y="360"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect620" />
+  <rect
+     x="1075"
+     y="360"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect621" />
+  <rect
+     x="1103"
+     y="360"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect622" />
+  <rect
+     x="1131"
+     y="360"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect623" />
+  <rect
+     x="1159"
+     y="360"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#2A9D7A"
+     id="rect624" />
+  <rect
+     x="1187"
+     y="360"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect625" />
+  <rect
+     x="1215"
+     y="360"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect626" />
+  <rect
+     x="1243"
+     y="360"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect627" />
+  <rect
+     x="1271"
+     y="360"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#2A9D7A"
+     id="rect628" />
+  <!-- Row 10: . . . . . . . . . . . . . . . 1 . . . 1 -->
+  <text
+     x="731"
+     y="403"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text628">10</text>
+  <rect
+     x="739"
+     y="388"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect629" />
+  <rect
+     x="767"
+     y="388"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect630" />
+  <rect
+     x="795"
+     y="388"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect631" />
+  <rect
+     x="823"
+     y="388"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect632" />
+  <rect
+     x="851"
+     y="388"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect633" />
+  <rect
+     x="879"
+     y="388"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect634" />
+  <rect
+     x="907"
+     y="388"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect635" />
+  <rect
+     x="935"
+     y="388"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect636" />
+  <rect
+     x="963"
+     y="388"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect637" />
+  <rect
+     x="991"
+     y="388"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect638" />
+  <rect
+     x="1019"
+     y="388"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect639" />
+  <rect
+     x="1047"
+     y="388"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect640" />
+  <rect
+     x="1075"
+     y="388"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect641" />
+  <rect
+     x="1103"
+     y="388"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect642" />
+  <rect
+     x="1131"
+     y="388"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect643" />
+  <rect
+     x="1159"
+     y="388"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#2A9D7A"
+     id="rect644" />
+  <rect
+     x="1187"
+     y="388"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect645" />
+  <rect
+     x="1215"
+     y="388"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect646" />
+  <rect
+     x="1243"
+     y="388"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect647" />
+  <rect
+     x="1271"
+     y="388"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#2A9D7A"
+     id="rect648" />
+  <!-- Row 11: . . . . . . . . . . . 1 . . 1 . . . . . -->
+  <text
+     x="731"
+     y="431"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text648">11</text>
+  <rect
+     x="739"
+     y="416"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect649" />
+  <rect
+     x="767"
+     y="416"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect650" />
+  <rect
+     x="795"
+     y="416"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect651" />
+  <rect
+     x="823"
+     y="416"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect652" />
+  <rect
+     x="851"
+     y="416"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect653" />
+  <rect
+     x="879"
+     y="416"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect654" />
+  <rect
+     x="907"
+     y="416"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect655" />
+  <rect
+     x="935"
+     y="416"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect656" />
+  <rect
+     x="963"
+     y="416"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect657" />
+  <rect
+     x="991"
+     y="416"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect658" />
+  <rect
+     x="1075"
+     y="416"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect661" />
+  <rect
+     x="1103"
+     y="416"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect662" />
+  <rect
+     x="1131"
+     y="416"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#2A9D7A"
+     id="rect663" />
+  <rect
+     x="1159"
+     y="416"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect664" />
+  <rect
+     x="1187"
+     y="416"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect665" />
+  <rect
+     x="1215"
+     y="416"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect666" />
+  <rect
+     x="1243"
+     y="416"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect667" />
+  <rect
+     x="1271"
+     y="416"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect668" />
+  <!-- Row 12: . . . . . . . . . . . 1 . . 1 . . 1 . . -->
+  <text
+     x="731"
+     y="459"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text668">12</text>
+  <rect
+     x="739"
+     y="444"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect669" />
+  <rect
+     x="767"
+     y="444"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect670" />
+  <rect
+     x="795"
+     y="444"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect671" />
+  <rect
+     x="823"
+     y="444"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect672" />
+  <rect
+     x="851"
+     y="444"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect673" />
+  <rect
+     x="879"
+     y="444"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect674" />
+  <rect
+     x="907"
+     y="444"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect675" />
+  <rect
+     x="935"
+     y="444"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect676" />
+  <rect
+     x="963"
+     y="444"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect677" />
+  <rect
+     x="991"
+     y="444"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect678" />
+  <rect
+     x="1075"
+     y="444"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect681" />
+  <rect
+     x="1103"
+     y="444"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect682" />
+  <rect
+     x="1131"
+     y="444"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#2A9D7A"
+     id="rect683" />
+  <rect
+     x="1159"
+     y="444"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect684" />
+  <rect
+     x="1187"
+     y="444"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect685" />
+  <rect
+     x="1215"
+     y="444"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#2A9D7A"
+     id="rect686" />
+  <rect
+     x="1243"
+     y="444"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect687" />
+  <rect
+     x="1271"
+     y="444"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect688" />
+  <!-- Row 13: . . . . . . . . . . . 1 . . 1 . . 1 . . -->
+  <text
+     x="731"
+     y="487"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text688">13</text>
+  <rect
+     x="739"
+     y="472"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect689" />
+  <rect
+     x="767"
+     y="472"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect690" />
+  <rect
+     x="795"
+     y="472"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect691" />
+  <rect
+     x="823"
+     y="472"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect692" />
+  <rect
+     x="851"
+     y="472"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect693" />
+  <rect
+     x="879"
+     y="472"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect694" />
+  <rect
+     x="907"
+     y="472"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect695" />
+  <rect
+     x="935"
+     y="472"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect696" />
+  <rect
+     x="963"
+     y="472"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect697" />
+  <rect
+     x="991"
+     y="472"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect698" />
+  <rect
+     x="1075"
+     y="472"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect701" />
+  <rect
+     x="1103"
+     y="472"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect702" />
+  <rect
+     x="1131"
+     y="472"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#2A9D7A"
+     id="rect703" />
+  <rect
+     x="1159"
+     y="472"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect704" />
+  <rect
+     x="1187"
+     y="472"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect705" />
+  <rect
+     x="1215"
+     y="472"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#2A9D7A"
+     id="rect706" />
+  <rect
+     x="1243"
+     y="472"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect707" />
+  <rect
+     x="1271"
+     y="472"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect708" />
+  <!-- Row 14: . . . . . . . . . . . 1 . . 1 . . 1 . . -->
+  <text
+     x="731"
+     y="515"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text708">14</text>
+  <rect
+     x="739"
+     y="500"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect709" />
+  <rect
+     x="767"
+     y="500"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect710" />
+  <rect
+     x="795"
+     y="500"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect711" />
+  <rect
+     x="823"
+     y="500"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect712" />
+  <rect
+     x="851"
+     y="500"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect713" />
+  <rect
+     x="879"
+     y="500"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect714" />
+  <rect
+     x="907"
+     y="500"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect715" />
+  <rect
+     x="935"
+     y="500"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect716" />
+  <rect
+     x="963"
+     y="500"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect717" />
+  <rect
+     x="991"
+     y="500"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect718" />
+  <g
+     id="g2">
+    <rect
+       x="1019"
+       y="416"
+       width="26"
+       height="26"
+       rx="3"
+       fill="#D8EDE7"
+       stroke="#A8D5C5"
+       stroke-width="0.7"
+       id="rect659" />
+    <rect
+       x="1019"
+       y="444"
+       width="26"
+       height="26"
+       rx="3"
+       fill="#D8EDE7"
+       stroke="#A8D5C5"
+       stroke-width="0.7"
+       id="rect679" />
+    <rect
+       x="1019"
+       y="472"
+       width="26"
+       height="26"
+       rx="3"
+       fill="#D8EDE7"
+       stroke="#A8D5C5"
+       stroke-width="0.7"
+       id="rect699" />
+    <rect
+       x="1019"
+       y="500"
+       width="26"
+       height="26"
+       rx="3"
+       fill="#D8EDE7"
+       stroke="#A8D5C5"
+       stroke-width="0.7"
+       id="rect719" />
+  </g>
+  <g
+     id="g2-3"
+     transform="translate(27.911943,0.73697993)">
+    <rect
+       x="1019"
+       y="416"
+       width="26"
+       height="26"
+       rx="3"
+       fill="#d8ede7"
+       stroke="#a8d5c5"
+       stroke-width="0.7"
+       id="rect659-3" />
+    <rect
+       x="1019"
+       y="444"
+       width="26"
+       height="26"
+       rx="3"
+       fill="#d8ede7"
+       stroke="#a8d5c5"
+       stroke-width="0.7"
+       id="rect679-8" />
+    <rect
+       x="1019"
+       y="472"
+       width="26"
+       height="26"
+       rx="3"
+       fill="#d8ede7"
+       stroke="#a8d5c5"
+       stroke-width="0.7"
+       id="rect699-5" />
+    <rect
+       x="1019"
+       y="500"
+       width="26"
+       height="26"
+       rx="3"
+       fill="#d8ede7"
+       stroke="#a8d5c5"
+       stroke-width="0.7"
+       id="rect719-8" />
+  </g>
+  <g
+     id="g1"
+     transform="translate(0,-140)">
+    <rect
+       x="1047"
+       y="416"
+       width="26"
+       height="26"
+       rx="3"
+       fill="#2a9d7a"
+       id="rect660" />
+    <rect
+       x="1047"
+       y="444"
+       width="26"
+       height="26"
+       rx="3"
+       fill="#2a9d7a"
+       id="rect680" />
+    <rect
+       x="1047"
+       y="472"
+       width="26"
+       height="26"
+       rx="3"
+       fill="#2a9d7a"
+       id="rect700" />
+    <rect
+       x="1047"
+       y="500"
+       width="26"
+       height="26"
+       rx="3"
+       fill="#2a9d7a"
+       id="rect720" />
+  </g>
+  <rect
+     x="1075"
+     y="500"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect721" />
+  <rect
+     x="1103"
+     y="500"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect722" />
+  <rect
+     x="1131"
+     y="500"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#2A9D7A"
+     id="rect723" />
+  <rect
+     x="1159"
+     y="500"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect724" />
+  <rect
+     x="1187"
+     y="500"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect725" />
+  <rect
+     x="1215"
+     y="500"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#2A9D7A"
+     id="rect726" />
+  <rect
+     x="1243"
+     y="500"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect727" />
+  <rect
+     x="1271"
+     y="500"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect728" />
+  <!-- Row 15: . . . . . . . . . . . . . . 1 . . 1 . . -->
+  <text
+     x="731"
+     y="543"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text728">15</text>
+  <rect
+     x="739"
+     y="528"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect729" />
+  <rect
+     x="767"
+     y="528"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect730" />
+  <rect
+     x="795"
+     y="528"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect731" />
+  <rect
+     x="823"
+     y="528"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect732" />
+  <rect
+     x="851"
+     y="528"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect733" />
+  <rect
+     x="879"
+     y="528"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect734" />
+  <rect
+     x="907"
+     y="528"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect735" />
+  <rect
+     x="935"
+     y="528"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect736" />
+  <rect
+     x="963"
+     y="528"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect737" />
+  <rect
+     x="991"
+     y="528"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect738" />
+  <rect
+     x="1019"
+     y="528"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect739" />
+  <rect
+     x="1047"
+     y="528"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect740" />
+  <rect
+     x="1075"
+     y="528"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect741" />
+  <rect
+     x="1159"
+     y="528"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect744" />
+  <rect
+     x="1187"
+     y="528"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect745" />
+  <rect
+     x="1215"
+     y="528"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#2A9D7A"
+     id="rect746" />
+  <rect
+     x="1243"
+     y="528"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect747" />
+  <rect
+     x="1271"
+     y="528"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect748" />
+  <!-- Row 16: . . . . . . . . . . . . . . 1 . . 1 . . -->
+  <text
+     x="731"
+     y="571"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text748">16</text>
+  <rect
+     x="739"
+     y="556"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect749" />
+  <rect
+     x="767"
+     y="556"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect750" />
+  <rect
+     x="795"
+     y="556"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect751" />
+  <rect
+     x="823"
+     y="556"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect752" />
+  <rect
+     x="851"
+     y="556"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect753" />
+  <rect
+     x="879"
+     y="556"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect754" />
+  <rect
+     x="907"
+     y="556"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect755" />
+  <rect
+     x="935"
+     y="556"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect756" />
+  <rect
+     x="963"
+     y="556"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect757" />
+  <rect
+     x="991"
+     y="556"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect758" />
+  <rect
+     x="1019"
+     y="556"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect759" />
+  <rect
+     x="1047"
+     y="556"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect760" />
+  <rect
+     x="1075"
+     y="556"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect761" />
+  <g
+     id="g4">
+    <rect
+       x="1103"
+       y="528"
+       width="26"
+       height="26"
+       rx="3"
+       fill="#D8EDE7"
+       stroke="#A8D5C5"
+       stroke-width="0.7"
+       id="rect742" />
+    <rect
+       x="1103"
+       y="556"
+       width="26"
+       height="26"
+       rx="3"
+       fill="#D8EDE7"
+       stroke="#A8D5C5"
+       stroke-width="0.7"
+       id="rect762" />
+  </g>
+  <g
+     id="g4-3"
+     transform="translate(28)">
+    <rect
+       x="1103"
+       y="528"
+       width="26"
+       height="26"
+       rx="3"
+       fill="#d8ede7"
+       stroke="#a8d5c5"
+       stroke-width="0.7"
+       id="rect742-8" />
+    <rect
+       x="1103"
+       y="556"
+       width="26"
+       height="26"
+       rx="3"
+       fill="#d8ede7"
+       stroke="#a8d5c5"
+       stroke-width="0.7"
+       id="rect762-3" />
+  </g>
+  <rect
+     x="1159"
+     y="556"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect764" />
+  <rect
+     x="1187"
+     y="556"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect765" />
+  <rect
+     x="1215"
+     y="556"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#2A9D7A"
+     id="rect766" />
+  <rect
+     x="1243"
+     y="556"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect767" />
+  <rect
+     x="1271"
+     y="556"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect768" />
+  <!-- Rows 17-20: . . . . . . . . . . . . . . . . . 1 . . -->
+  <text
+     x="731"
+     y="599"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text768">17</text>
+  <rect
+     x="739"
+     y="584"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect769" />
+  <rect
+     x="767"
+     y="584"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect770" />
+  <rect
+     x="795"
+     y="584"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect771" />
+  <rect
+     x="823"
+     y="584"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect772" />
+  <rect
+     x="851"
+     y="584"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect773" />
+  <rect
+     x="879"
+     y="584"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect774" />
+  <rect
+     x="907"
+     y="584"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect775" />
+  <rect
+     x="935"
+     y="584"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect776" />
+  <rect
+     x="963"
+     y="584"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect777" />
+  <rect
+     x="991"
+     y="584"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect778" />
+  <rect
+     x="1019"
+     y="584"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect779" />
+  <rect
+     x="1047"
+     y="584"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect780" />
+  <rect
+     x="1075"
+     y="584"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect781" />
+  <rect
+     x="1103"
+     y="584"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect782" />
+  <rect
+     x="1131"
+     y="584"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect783" />
+  <rect
+     x="1159"
+     y="584"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect784" />
+  <rect
+     x="1187"
+     y="584"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect785" />
+  <rect
+     x="1215"
+     y="584"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#7B52C1"
+     id="rect786" />
+  <rect
+     x="1243"
+     y="584"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect787" />
+  <rect
+     x="1271"
+     y="584"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect788" />
+  <text
+     x="731"
+     y="627"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text788">18</text>
+  <rect
+     x="739"
+     y="612"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect789" />
+  <rect
+     x="767"
+     y="612"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect790" />
+  <rect
+     x="795"
+     y="612"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect791" />
+  <rect
+     x="823"
+     y="612"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect792" />
+  <rect
+     x="851"
+     y="612"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect793" />
+  <rect
+     x="879"
+     y="612"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect794" />
+  <rect
+     x="907"
+     y="612"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect795" />
+  <rect
+     x="935"
+     y="612"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect796" />
+  <rect
+     x="963"
+     y="612"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect797" />
+  <rect
+     x="991"
+     y="612"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect798" />
+  <rect
+     x="1019"
+     y="612"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect799" />
+  <rect
+     x="1047"
+     y="612"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect800" />
+  <rect
+     x="1075"
+     y="612"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect801" />
+  <rect
+     x="1103"
+     y="612"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect802" />
+  <rect
+     x="1131"
+     y="612"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect803" />
+  <rect
+     x="1159"
+     y="612"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect804" />
+  <rect
+     x="1187"
+     y="612"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect805" />
+  <rect
+     x="1215"
+     y="612"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#7B52C1"
+     id="rect806" />
+  <rect
+     x="1243"
+     y="612"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect807" />
+  <rect
+     x="1271"
+     y="612"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect808" />
+  <text
+     x="731"
+     y="655"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text808">19</text>
+  <rect
+     x="739"
+     y="640"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect809" />
+  <rect
+     x="767"
+     y="640"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect810" />
+  <rect
+     x="795"
+     y="640"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect811" />
+  <rect
+     x="823"
+     y="640"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect812" />
+  <rect
+     x="851"
+     y="640"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect813" />
+  <rect
+     x="879"
+     y="640"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect814" />
+  <rect
+     x="907"
+     y="640"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect815" />
+  <rect
+     x="935"
+     y="640"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect816" />
+  <rect
+     x="963"
+     y="640"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect817" />
+  <rect
+     x="991"
+     y="640"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect818" />
+  <rect
+     x="1019"
+     y="640"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect819" />
+  <rect
+     x="1047"
+     y="640"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect820" />
+  <rect
+     x="1075"
+     y="640"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect821" />
+  <rect
+     x="1103"
+     y="640"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect822" />
+  <rect
+     x="1131"
+     y="640"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect823" />
+  <rect
+     x="1159"
+     y="640"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect824" />
+  <rect
+     x="1187"
+     y="640"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect825" />
+  <rect
+     x="1215"
+     y="640"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#7B52C1"
+     id="rect826" />
+  <rect
+     x="1243"
+     y="640"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect827" />
+  <rect
+     x="1271"
+     y="640"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect828" />
+  <text
+     x="731"
+     y="683"
+     text-anchor="middle"
+     font-size="10"
+     fill="#555"
+     font-weight="600"
+     id="text828">20</text>
+  <rect
+     x="739"
+     y="668"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect829" />
+  <rect
+     x="767"
+     y="668"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect830" />
+  <rect
+     x="795"
+     y="668"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect831" />
+  <rect
+     x="823"
+     y="668"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect832" />
+  <rect
+     x="851"
+     y="668"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect833" />
+  <rect
+     x="879"
+     y="668"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect834" />
+  <rect
+     x="907"
+     y="668"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect835" />
+  <rect
+     x="935"
+     y="668"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect836" />
+  <rect
+     x="963"
+     y="668"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect837" />
+  <rect
+     x="991"
+     y="668"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect838" />
+  <rect
+     x="1019"
+     y="668"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect839" />
+  <rect
+     x="1047"
+     y="668"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect840" />
+  <rect
+     x="1075"
+     y="668"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect841" />
+  <rect
+     x="1103"
+     y="668"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect842" />
+  <rect
+     x="1131"
+     y="668"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect843" />
+  <rect
+     x="1159"
+     y="668"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect844" />
+  <rect
+     x="1187"
+     y="668"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect845" />
+  <rect
+     x="1215"
+     y="668"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#7B52C1"
+     id="rect846" />
+  <rect
+     x="1243"
+     y="668"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect847" />
+  <rect
+     x="1271"
+     y="668"
+     width="26"
+     height="26"
+     rx="3"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="0.7"
+     id="rect848" />
+  <!-- ── Legend ── -->
+  <rect
+     x="748"
+     y="702"
+     width="16"
+     height="16"
+     rx="3"
+     fill="#2A9D7A"
+     id="rect849" />
+  <text
+     x="770"
+     y="714"
+     font-size="12"
+     fill="#207A5E"
+     id="text849">trophic link (niche model)</text>
+  <rect
+     x="940"
+     y="702"
+     width="16"
+     height="16"
+     rx="3"
+     fill="#7B52C1"
+     id="rect850" />
+  <text
+     x="962"
+     y="714"
+     font-size="12"
+     fill="#6B3FA0"
+     id="text850">top predator link</text>
+  <!-- ══════════════════════════════════════════════════════
+       METRIC SUMMARY BOXES
+  ══════════════════════════════════════════════════════ -->
+  <rect
+     x="24"
+     y="726"
+     width="628"
+     height="52"
+     rx="10"
+     fill="#E05A30"
+     opacity="0.10"
+     stroke="#E05A30"
+     stroke-width="1.2"
+     id="rect851" />
+  <text
+     x="338"
+     y="746"
+     text-anchor="middle"
+     font-size="13"
+     fill="#7a2a10"
+     id="text854"><tspan
+   font-weight="700"
+   id="tspan851">Rank = 16</tspan>   ·   D = 1 − 16/20 = <tspan
+   font-weight="700"
+   id="tspan852">0.20</tspan>   ·   SVD Entropy = <tspan
+   font-weight="700"
+   id="tspan853">0.943</tspan>   ·   Complexity = <tspan
+   font-weight="700"
+   id="tspan854">0.057</tspan></text>
+  <text
+     x="338"
+     y="765"
+     text-anchor="middle"
+     font-size="13"
+     fill="#7a2a10"
+     id="text855">1 basal species · links scattered across network</text>
+  <rect
+     x="748"
+     y="726"
+     width="628"
+     height="52"
+     rx="10"
+     fill="#2A9D7A"
+     opacity="0.10"
+     stroke="#2A9D7A"
+     stroke-width="1.2"
+     id="rect855" />
+  <text
+     x="1062"
+     y="746"
+     text-anchor="middle"
+     font-size="13"
+     fill="#0e4a38"
+     id="text858"><tspan
+   font-weight="700"
+   id="tspan855">Rank = 9</tspan>   ·   D = 1 − 9/20 = <tspan
+   font-weight="700"
+   id="tspan856">0.55</tspan>   ·   SVD Entropy = <tspan
+   font-weight="700"
+   id="tspan857">0.919</tspan>   ·   Complexity = <tspan
+   font-weight="700"
+   id="tspan858">0.081</tspan></text>
+  <text
+     x="1062"
+     y="765"
+     text-anchor="middle"
+     font-size="13"
+     fill="#0e4a38"
+     id="text859">8 basal species · many species share similar diets → high redundancy</text>
+  <!-- ══════════════════════════════════════════════════════
+       SECTION DIVIDER
+  ══════════════════════════════════════════════════════ -->
+  <line
+     x1="40"
+     y1="792"
+     x2="1360"
+     y2="792"
+     stroke="#CCCCCC"
+     stroke-width="1.5"
+     stroke-dasharray="6 4"
+     id="line859" />
+  <!-- ══════════════════════════════════════════════════════
+       SECTION 2 — SVD singular value bars
+  ══════════════════════════════════════════════════════ -->
+  <text
+     x="700"
+     y="822"
+     text-anchor="middle"
+     font-size="22px"
+     font-weight="700"
+     fill="#1a1a1a"
+     id="text860">Step 1 — singular value decomposition</text>
+  <text
+     x="700"
+     y="844"
+     text-anchor="middle"
+     font-size="14px"
+     fill="#555555"
+     font-style="italic"
+     id="text861">Each bar = one structural dimension · σ₁ largest → most important · zero bars = rank deficiency</text>
+  <rect
+     x="24"
+     y="856"
+     width="628"
+     height="340"
+     rx="14"
+     fill="#fff5f2"
+     stroke="#e8c4b8"
+     stroke-width="1.5"
+     id="rect861" />
+  <rect
+     x="748"
+     y="856"
+     width="628"
+     height="340"
+     rx="14"
+     fill="#f0faf7"
+     stroke="#a8d5c5"
+     stroke-width="1.5"
+     id="rect862" />
+  <text
+     x="338"
+     y="886"
+     text-anchor="middle"
+     font-size="17px"
+     font-weight="700"
+     fill="#c04a2a"
+     id="text862">Random: 16 non-zero values, gradual decay</text>
+  <text
+     x="338"
+     y="904"
+     text-anchor="middle"
+     font-size="13px"
+     fill="#c04a2a"
+     font-style="italic"
+     id="text863">Entropy = 0.943 · Complexity = 0.057</text>
+  <text
+     x="1062"
+     y="886"
+     text-anchor="middle"
+     font-size="17px"
+     font-weight="700"
+     fill="#207a5e"
+     id="text864">Ecological: 9 non-zero values, steep decay</text>
+  <text
+     x="1062"
+     y="904"
+     text-anchor="middle"
+     font-size="13px"
+     fill="#207a5e"
+     font-style="italic"
+     id="text865">Entropy = 0.919 · Complexity = 0.081</text>
+  <!-- RANDOM bars: 16 filled (rank=16), 4 near-zero, gradual decay -->
+  <!-- bars width=24, gap=5, baseline y=1100 -->
+  <!-- heights scale: max ~160, min non-zero ~30 -->
+  <rect
+     x="38"
+     y="934"
+     width="24"
+     height="150"
+     rx="3"
+     fill="#e05a30"
+     opacity="0.9"
+     id="rect865" />
+  <rect
+     x="67"
+     y="944"
+     width="24"
+     height="140"
+     rx="3"
+     fill="#e05a30"
+     opacity="0.87"
+     id="rect866" />
+  <rect
+     x="96"
+     y="956"
+     width="24"
+     height="128"
+     rx="3"
+     fill="#e05a30"
+     opacity="0.84"
+     id="rect867" />
+  <rect
+     x="125"
+     y="968"
+     width="24"
+     height="116"
+     rx="3"
+     fill="#e05a30"
+     opacity="0.81"
+     id="rect868" />
+  <rect
+     x="154"
+     y="978"
+     width="24"
+     height="106"
+     rx="3"
+     fill="#e05a30"
+     opacity="0.78"
+     id="rect869" />
+  <rect
+     x="183"
+     y="988"
+     width="24"
+     height="96"
+     rx="3"
+     fill="#e05a30"
+     opacity="0.75"
+     id="rect870" />
+  <rect
+     x="212"
+     y="997"
+     width="24"
+     height="87"
+     rx="3"
+     fill="#e05a30"
+     opacity="0.72"
+     id="rect871" />
+  <rect
+     x="241"
+     y="1005"
+     width="24"
+     height="79"
+     rx="3"
+     fill="#e05a30"
+     opacity="0.69"
+     id="rect872" />
+  <rect
+     x="270"
+     y="1013"
+     width="24"
+     height="71"
+     rx="3"
+     fill="#e05a30"
+     opacity="0.66"
+     id="rect873" />
+  <rect
+     x="299"
+     y="1021"
+     width="24"
+     height="63"
+     rx="3"
+     fill="#e05a30"
+     opacity="0.63"
+     id="rect874" />
+  <rect
+     x="328"
+     y="1028"
+     width="24"
+     height="56"
+     rx="3"
+     fill="#e05a30"
+     opacity="0.6"
+     id="rect875" />
+  <rect
+     x="357"
+     y="1035"
+     width="24"
+     height="49"
+     rx="3"
+     fill="#e05a30"
+     opacity="0.57"
+     id="rect876" />
+  <rect
+     x="386"
+     y="1042"
+     width="24"
+     height="42"
+     rx="3"
+     fill="#e05a30"
+     opacity="0.54"
+     id="rect877" />
+  <rect
+     x="415"
+     y="1049"
+     width="24"
+     height="35"
+     rx="3"
+     fill="#e05a30"
+     opacity="0.51"
+     id="rect878" />
+  <rect
+     x="444"
+     y="1055"
+     width="24"
+     height="29"
+     rx="3"
+     fill="#e05a30"
+     opacity="0.48"
+     id="rect879" />
+  <rect
+     x="473"
+     y="1060"
+     width="24"
+     height="24"
+     rx="3"
+     fill="#e05a30"
+     opacity="0.45"
+     id="rect880" />
+  <!-- 4 zero bars -->
+  <rect
+     x="502"
+     y="1083"
+     width="24"
+     height="1"
+     rx="1"
+     fill="#ddb5a8"
+     opacity="0.6"
+     id="rect881" />
+  <rect
+     x="531"
+     y="1083"
+     width="24"
+     height="1"
+     rx="1"
+     fill="#ddb5a8"
+     opacity="0.4"
+     id="rect882" />
+  <rect
+     x="560"
+     y="1083"
+     width="24"
+     height="1"
+     rx="1"
+     fill="#ddb5a8"
+     opacity="0.3"
+     id="rect883" />
+  <rect
+     x="589"
+     y="1083"
+     width="24"
+     height="1"
+     rx="1"
+     fill="#ddb5a8"
+     opacity="0.2"
+     id="rect884" />
+  <line
+     x1="30"
+     y1="1086"
+     x2="622"
+     y2="1086"
+     stroke="#888888"
+     stroke-width="1.2"
+     id="line884" />
+  <text
+     x="326"
+     y="1100"
+     text-anchor="middle"
+     font-size="11px"
+     fill="#888888"
+     font-style="italic"
+     id="text884">σ₁ through σ₂₀ (4 zeros at right, rank = 16)</text>
+  <rect
+     x="34"
+     y="1108"
+     width="614"
+     height="62"
+     rx="10"
+     fill="#e05a30"
+     opacity="0.1"
+     stroke="#e05a30"
+     stroke-width="1.2"
+     id="rect885" />
+  <text
+     x="341"
+     y="1129"
+     text-anchor="middle"
+     font-size="15px"
+     font-weight="700"
+     fill="#c04a2a"
+     id="text885"><tspan
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Georgia, 'Times New Roman', serif;-inkscape-font-specification:'Georgia, Times New Roman, serif'"
+       id="tspan966">SVD Entropy J = 0.943 → relatively high</tspan></text>
+  <text
+     x="341"
+     y="1152"
+     text-anchor="middle"
+     font-size="14px"
+     fill="#c04a2a"
+     id="text886"><tspan
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Georgia, 'Times New Roman', serif;-inkscape-font-specification:'Georgia, Times New Roman, serif Bold'"
+       id="tspan964">Complexity 1 − J =0.057 → low (disordered structure)</tspan></text>
+  <!-- ECOLOGICAL bars: 9 non-zero (rank=9), steep decay, 11 zeros -->
+  <rect
+     x="762"
+     y="866"
+     width="24"
+     height="218"
+     rx="3"
+     fill="#2a9d7a"
+     opacity="0.92"
+     id="rect886" />
+  <rect
+     x="791"
+     y="976"
+     width="24"
+     height="108"
+     rx="3"
+     fill="#2a9d7a"
+     opacity="0.85"
+     id="rect887" />
+  <rect
+     x="820"
+     y="1024"
+     width="24"
+     height="60"
+     rx="3"
+     fill="#2a9d7a"
+     opacity="0.78"
+     id="rect888" />
+  <rect
+     x="849"
+     y="1049"
+     width="24"
+     height="35"
+     rx="3"
+     fill="#2a9d7a"
+     opacity="0.71"
+     id="rect889" />
+  <rect
+     x="878"
+     y="1062"
+     width="24"
+     height="22"
+     rx="3"
+     fill="#2a9d7a"
+     opacity="0.64"
+     id="rect890" />
+  <rect
+     x="907"
+     y="1070"
+     width="24"
+     height="14"
+     rx="3"
+     fill="#2a9d7a"
+     opacity="0.57"
+     id="rect891" />
+  <rect
+     x="936"
+     y="1075"
+     width="24"
+     height="9"
+     rx="3"
+     fill="#2a9d7a"
+     opacity="0.5"
+     id="rect892" />
+  <rect
+     x="965"
+     y="1079"
+     width="24"
+     height="5"
+     rx="3"
+     fill="#2a9d7a"
+     opacity="0.43"
+     id="rect893" />
+  <rect
+     x="994"
+     y="1082"
+     width="24"
+     height="2"
+     rx="3"
+     fill="#2a9d7a"
+     opacity="0.36"
+     id="rect894" />
+  <!-- 11 zero bars -->
+  <rect
+     x="1023"
+     y="1084"
+     width="24"
+     height="1"
+     rx="1"
+     fill="#a8d5c5"
+     opacity="0.55"
+     id="rect895" />
+  <rect
+     x="1052"
+     y="1084"
+     width="24"
+     height="1"
+     rx="1"
+     fill="#a8d5c5"
+     opacity="0.48"
+     id="rect896" />
+  <rect
+     x="1081"
+     y="1084"
+     width="24"
+     height="1"
+     rx="1"
+     fill="#a8d5c5"
+     opacity="0.41"
+     id="rect897" />
+  <rect
+     x="1110"
+     y="1084"
+     width="24"
+     height="1"
+     rx="1"
+     fill="#a8d5c5"
+     opacity="0.35"
+     id="rect898" />
+  <rect
+     x="1139"
+     y="1084"
+     width="24"
+     height="1"
+     rx="1"
+     fill="#a8d5c5"
+     opacity="0.3"
+     id="rect899" />
+  <rect
+     x="1168"
+     y="1084"
+     width="24"
+     height="1"
+     rx="1"
+     fill="#a8d5c5"
+     opacity="0.25"
+     id="rect900" />
+  <rect
+     x="1197"
+     y="1084"
+     width="24"
+     height="1"
+     rx="1"
+     fill="#a8d5c5"
+     opacity="0.2"
+     id="rect901" />
+  <rect
+     x="1226"
+     y="1084"
+     width="24"
+     height="1"
+     rx="1"
+     fill="#a8d5c5"
+     opacity="0.16"
+     id="rect902" />
+  <rect
+     x="1255"
+     y="1084"
+     width="24"
+     height="1"
+     rx="1"
+     fill="#a8d5c5"
+     opacity="0.12"
+     id="rect903" />
+  <rect
+     x="1284"
+     y="1084"
+     width="24"
+     height="1"
+     rx="1"
+     fill="#a8d5c5"
+     opacity="0.08"
+     id="rect904" />
+  <rect
+     x="1313"
+     y="1084"
+     width="24"
+     height="1"
+     rx="1"
+     fill="#a8d5c5"
+     opacity="0.05"
+     id="rect905" />
+  <line
+     x1="754"
+     y1="1086"
+     x2="1346"
+     y2="1086"
+     stroke="#888888"
+     stroke-width="1.2"
+     id="line905" />
+  <text
+     x="1050"
+     y="1100"
+     text-anchor="middle"
+     font-size="11px"
+     fill="#888888"
+     font-style="italic"
+     id="text905">σ₁ through σ₂₀ (11 zeros at right, rank = 9)</text>
+  <rect
+     x="758"
+     y="1108"
+     width="614"
+     height="62"
+     rx="10"
+     fill="#2a9d7a"
+     opacity="0.1"
+     stroke="#2a9d7a"
+     stroke-width="1.2"
+     id="rect906" />
+  <text
+     x="1065"
+     y="1129"
+     text-anchor="middle"
+     font-size="15px"
+     font-weight="700"
+     fill="#207a5e"
+     id="text906"><tspan
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Georgia, 'Times New Roman', serif;-inkscape-font-specification:'Georgia, Times New Roman, serif'"
+       id="tspan965">SVD Entropy J = 0.919 → lower than random!</tspan></text>
+  <text
+     x="1065"
+     y="1152"
+     text-anchor="middle"
+     font-size="14px"
+     fill="#207a5e"
+     id="text907"><tspan
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Georgia, 'Times New Roman', serif;-inkscape-font-specification:'Georgia, Times New Roman, serif Bold'"
+       id="tspan963">Complexity 1 − J =0.081 → higher (organized hierarchy)</tspan></text>
+  <!-- ══════════════════════════════════════════════════════
+       SECTION DIVIDER 2
+  ══════════════════════════════════════════════════════ -->
+  <line
+     x1="38.464775"
+     y1="1207.817"
+     x2="1358.4647"
+     y2="1207.817"
+     stroke="#cccccc"
+     stroke-width="1.5"
+     stroke-dasharray="6, 4"
+     id="line907" />
+  <!-- ══════════════════════════════════════════════════════
+       SECTION 3 — Rank Deficiency explanation panel
+  ══════════════════════════════════════════════════════ -->
+  <text
+     x="700"
+     y="1230"
+     text-anchor="middle"
+     font-size="22"
+     font-weight="700"
+     fill="#1a1a1a"
+     id="text908">Step 2 — rank and redundancy of diet strategies</text>
+  <text
+     x="700"
+     y="1252"
+     text-anchor="middle"
+     font-size="14px"
+     fill="#555555"
+     font-style="italic"
+     id="text909">Each column = one predator's diet vector · similar or zero columns reduce rank</text>
+  <rect
+     x="24"
+     y="1266"
+     width="628"
+     height="380"
+     rx="14"
+     fill="#FFF5F2"
+     stroke="#E8C4B8"
+     stroke-width="1.5"
+     id="rect909" />
+  <rect
+     x="748"
+     y="1266"
+     width="628"
+     height="380"
+     rx="14"
+     fill="#F0FAF7"
+     stroke="#A8D5C5"
+     stroke-width="1.5"
+     id="rect910" />
+  <text
+     x="338"
+     y="1294"
+     text-anchor="middle"
+     font-size="16"
+     font-weight="700"
+     fill="#C04A2A"
+     id="text910">Most columns unique  (1 basal = 1 zero col)</text>
+  <text
+     x="1062"
+     y="1294"
+     text-anchor="middle"
+     font-size="16px"
+     font-weight="700"
+     fill="#207a5e"
+     id="text911">8 basal cols zero + many similar diet patterns</text>
+  <!-- Schematic column vectors — 6 representative for each -->
+  <!-- Cell: 18px tall, 36px wide, gap=2  →  20 rows = 20*18+19*2 = 398px -->
+  <!-- Too tall for panel; compress to 12px rows → 20*12+19*2 = 278px -->
+  <!-- x positions: left panel starts 44, right 762 -->
+  <!-- Each col 44px wide, gap 10 -->
+  <!-- LEFT — Random: show cols 8,9,11,13 (varied, non-zero) + note about 1 zero -->
+  <!-- Using schematic strips with colored segments for filled rows -->
+  <!-- Background strip (full height = 278, all empty) -->
+  <!-- col A (col 8 of random: rows 4,6,7 filled) -->
+  <rect
+     x="50"
+     y="1308"
+     width="38"
+     height="278"
+     rx="5"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="1"
+     id="rect911" />
+  <rect
+     x="50"
+     y="1380"
+     width="38"
+     height="24"
+     rx="0"
+     fill="#E05A30"
+     id="rect912" />
+  <!-- row 4 -->
+  <rect
+     x="50"
+     y="1428"
+     width="38"
+     height="24"
+     rx="0"
+     fill="#E05A30"
+     id="rect913" />
+  <!-- row 6 -->
+  <rect
+     x="50"
+     y="1452"
+     width="38"
+     height="24"
+     rx="0"
+     fill="#E05A30"
+     id="rect914" />
+  <!-- row 7 -->
+  <text
+     x="69"
+     y="1598"
+     text-anchor="middle"
+     font-size="11"
+     font-weight="600"
+     fill="#555"
+     id="text914">col 8</text>
+  <!-- col B (col 11: rows 1,3,9 filled) -->
+  <rect
+     x="102"
+     y="1308"
+     width="38"
+     height="278"
+     rx="5"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="1"
+     id="rect915" />
+  <rect
+     x="102"
+     y="1308"
+     width="38"
+     height="24"
+     rx="0"
+     fill="#E05A30"
+     id="rect916" />
+  <!-- row 1 -->
+  <rect
+     x="102"
+     y="1356"
+     width="38"
+     height="24"
+     rx="0"
+     fill="#E05A30"
+     id="rect917" />
+  <!-- row 3 -->
+  <rect
+     x="102"
+     y="1476"
+     width="38"
+     height="24"
+     rx="0"
+     fill="#E05A30"
+     id="rect918" />
+  <!-- row 9 -->
+  <text
+     x="121"
+     y="1598"
+     text-anchor="middle"
+     font-size="11"
+     font-weight="600"
+     fill="#555"
+     id="text918">col 11</text>
+  <!-- col C (col 13: rows 6,7,12 filled) -->
+  <rect
+     x="154"
+     y="1308"
+     width="38"
+     height="278"
+     rx="5"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="1"
+     id="rect919" />
+  <rect
+     x="154"
+     y="1428"
+     width="38"
+     height="24"
+     rx="0"
+     fill="#E05A30"
+     id="rect920" />
+  <!-- row 6 -->
+  <rect
+     x="154"
+     y="1452"
+     width="38"
+     height="24"
+     rx="0"
+     fill="#E05A30"
+     id="rect921" />
+  <!-- row 7 -->
+  <rect
+     x="154"
+     y="1524"
+     width="38"
+     height="24"
+     rx="0"
+     fill="#E05A30"
+     id="rect922" />
+  <!-- row 12 -->
+  <text
+     x="173"
+     y="1598"
+     text-anchor="middle"
+     font-size="11"
+     font-weight="600"
+     fill="#555"
+     id="text922">col 13</text>
+  <!-- col D (col 17: rows 7,8,11 filled) -->
+  <rect
+     x="206"
+     y="1308"
+     width="38"
+     height="278"
+     rx="5"
+     fill="#F5D5CB"
+     stroke="#DDB5A8"
+     stroke-width="1"
+     id="rect923" />
+  <rect
+     x="206"
+     y="1452"
+     width="38"
+     height="24"
+     rx="0"
+     fill="#E05A30"
+     id="rect924" />
+  <!-- row 7 -->
+  <rect
+     x="206"
+     y="1476"
+     width="38"
+     height="24"
+     rx="0"
+     fill="#E05A30"
+     id="rect925" />
+  <!-- row 8 -->
+  <rect
+     x="206"
+     y="1548"
+     width="38"
+     height="24"
+     rx="0"
+     fill="#E05A30"
+     id="rect926" />
+  <!-- row 11 -->
+  <text
+     x="225"
+     y="1598"
+     text-anchor="middle"
+     font-size="11"
+     font-weight="600"
+     fill="#555"
+     id="text926">col 17</text>
+  <!-- 1 zero column (col 2) -->
+  <rect
+     x="258"
+     y="1308"
+     width="38"
+     height="278"
+     rx="5"
+     fill="#E8E8E8"
+     stroke="#CCCCCC"
+     stroke-width="1"
+     stroke-dasharray="4 3"
+     id="rect927" />
+  <text
+     x="277"
+     y="1598"
+     text-anchor="middle"
+     font-size="11"
+     font-weight="600"
+     fill="#888"
+     id="text927">col 2</text>
+  <text
+     x="277"
+     y="1460"
+     text-anchor="middle"
+     font-size="10"
+     fill="#aaa"
+     font-style="italic"
+     id="text928">zero</text>
+  <!-- ellipsis -->
+  <text
+     x="320"
+     y="1460"
+     text-anchor="middle"
+     font-size="22"
+     fill="#DDB5A8"
+     id="text929">⋯</text>
+  <text
+     x="338"
+     y="1618"
+     text-anchor="middle"
+     font-size="13"
+     fill="#666"
+     id="text930">16 unique columns, 4 zero → rank = 16</text>
+  <text
+     x="338"
+     y="1636"
+     text-anchor="middle"
+     font-size="14"
+     fill="#666"
+     id="text931">D = 1 − 16/20 = <tspan
+   font-weight="700"
+   fill="#C04A2A"
+   id="tspan930">0.20</tspan>  (low redundancy)</text>
+  <!-- override with more space -->
+  <rect
+     x="42.443741"
+     y="1645.4722"
+     width="614"
+     height="22"
+     rx="0"
+     fill="#fafaf7"
+     id="rect932" />
+  <rect
+     x="35.535225"
+     y="1649.3248"
+     width="614"
+     height="82"
+     rx="10"
+     fill="#e05a30"
+     opacity="0.1"
+     stroke="#e05a30"
+     stroke-width="1.2"
+     id="rect933" />
+  <text
+     x="342.53522"
+     y="1672.3248"
+     text-anchor="middle"
+     font-size="15px"
+     font-weight="700"
+     fill="#c04a2a"
+     id="text933">Rank deficiency D = 0.20</text>
+  <text
+     x="342.53522"
+     y="1692.3248"
+     text-anchor="middle"
+     font-size="13px"
+     fill="#c04a2a"
+     id="text934">Random placement → each predator has a unique diet pattern</text>
+  <text
+     x="342.53522"
+     y="1710.3248"
+     text-anchor="middle"
+     font-size="13px"
+     fill="#c04a2a"
+     id="text935">Only 1 basal species (1 zero col) reduces rank slightly</text>
+  <!-- RIGHT — Ecological: 8 zero cols (basal) + groups sharing similar diets -->
+  <!-- 8 zero cols shaded block -->
+  <rect
+     x="762"
+     y="1308"
+     width="326"
+     height="278"
+     rx="5"
+     fill="#E8E8E8"
+     opacity="0.50"
+     id="rect935" />
+  <rect
+     x="762"
+     y="1308"
+     width="326"
+     height="278"
+     rx="5"
+     fill="none"
+     stroke="#AAAAAA"
+     stroke-width="1.2"
+     stroke-dasharray="5 3"
+     id="rect936" />
+  <text
+     x="925"
+     y="1380"
+     text-anchor="middle"
+     font-size="13"
+     fill="#888"
+     font-weight="700"
+     id="text936">8 zero columns</text>
+  <text
+     x="925"
+     y="1400"
+     text-anchor="middle"
+     font-size="12"
+     fill="#888"
+     font-style="italic"
+     id="text937">(basal species never eat)</text>
+  <text
+     x="762"
+     y="1302"
+     text-anchor="start"
+     font-size="10"
+     fill="#888"
+     id="text938">cols 1–8</text>
+  <!-- Non-zero ecological cols: groups sharing similar patterns -->
+  <!-- cols 9-12 (rows 5-8 similar) -->
+  <rect
+     x="1098"
+     y="1308"
+     width="38"
+     height="278"
+     rx="5"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="1"
+     id="rect938" />
+  <rect
+     x="1098"
+     y="1326"
+     width="38"
+     height="24"
+     rx="0"
+     fill="#2a9d7a"
+     id="rect939" />
+  <!-- r5 -->
+  <rect
+     x="1098"
+     y="1350"
+     width="38"
+     height="24"
+     rx="0"
+     fill="#2a9d7a"
+     id="rect940" />
+  <!-- r6 -->
+  <rect
+     x="1098"
+     y="1372"
+     width="38"
+     height="24"
+     rx="0"
+     fill="#2a9d7a"
+     id="rect941" />
+  <!-- r7 -->
+  <text
+     x="1117"
+     y="1598"
+     text-anchor="middle"
+     font-size="11"
+     font-weight="600"
+     fill="#555"
+     id="text941">col 14</text>
+  <rect
+     x="1148"
+     y="1308"
+     width="38"
+     height="278"
+     rx="5"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="1"
+     id="rect942" />
+  <rect
+     x="1148"
+     y="1452"
+     width="38"
+     height="24"
+     rx="0"
+     fill="#2a9d7a"
+     id="rect943" />
+  <rect
+     x="1148"
+     y="1404"
+     width="38"
+     height="24"
+     rx="0"
+     fill="#2A9D7A"
+     id="rect944" />
+  <rect
+     x="1148"
+     y="1428"
+     width="38"
+     height="24"
+     rx="0"
+     fill="#2A9D7A"
+     id="rect945" />
+  <text
+     x="1167"
+     y="1598"
+     text-anchor="middle"
+     font-size="11"
+     font-weight="600"
+     fill="#555"
+     id="text945">col 15</text>
+  <!-- amber brace between 14 and 15 -->
+  <rect
+     x="1198"
+     y="1308"
+     width="38"
+     height="278"
+     rx="5"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="1"
+     id="rect947" />
+  <rect
+     x="1198"
+     y="1308"
+     width="38"
+     height="24"
+     rx="0"
+     fill="#2A9D7A"
+     id="rect948" />
+  <!-- r1 -->
+  <rect
+     x="1198"
+     y="1332"
+     width="38"
+     height="24"
+     rx="0"
+     fill="#2A9D7A"
+     id="rect949" />
+  <!-- r2 -->
+  <rect
+     x="1198"
+     y="1356"
+     width="38"
+     height="24"
+     rx="0"
+     fill="#2A9D7A"
+     id="rect950" />
+  <!-- r3 -->
+  <rect
+     x="1198"
+     y="1380"
+     width="38"
+     height="24"
+     rx="0"
+     fill="#2A9D7A"
+     id="rect951" />
+  <!-- r4 -->
+  <text
+     x="1217"
+     y="1598"
+     text-anchor="middle"
+     font-size="11"
+     font-weight="600"
+     fill="#555"
+     id="text951">col 17</text>
+  <!-- col 18 = top predator -->
+  <rect
+     x="1250"
+     y="1308"
+     width="38"
+     height="278"
+     rx="5"
+     fill="#D8EDE7"
+     stroke="#A8D5C5"
+     stroke-width="1"
+     id="rect952" />
+  <rect
+     x="1250.2025"
+     y="1454.9144"
+     width="38"
+     height="24"
+     rx="0"
+     fill="#2a9d7a"
+     id="rect943-0" />
+  <rect
+     x="1250.0441"
+     y="1477.3103"
+     width="38"
+     height="24"
+     rx="0"
+     fill="#2a9d7a"
+     id="rect943-0-8" />
+  <rect
+     x="1250"
+     y="1548"
+     width="38"
+     height="24"
+     rx="0"
+     fill="#7B52C1"
+     id="rect953" />
+  <!-- r17-20 -->
+  <rect
+     x="1250"
+     y="1524"
+     width="38"
+     height="24"
+     rx="0"
+     fill="#7B52C1"
+     id="rect954" />
+  <rect
+     x="1250"
+     y="1500"
+     width="38"
+     height="24"
+     rx="0"
+     fill="#7B52C1"
+     id="rect955" />
+  <text
+     x="1269"
+     y="1598"
+     text-anchor="middle"
+     font-size="11"
+     font-weight="600"
+     fill="#555"
+     id="text956">col 18</text>
+  <text
+     x="1062"
+     y="1618"
+     text-anchor="middle"
+     font-size="13"
+     fill="#666"
+     id="text957">8 zero cols + shared patterns among non-zero cols → rank = 9</text>
+  <text
+     x="1062"
+     y="1636"
+     text-anchor="middle"
+     font-size="14"
+     fill="#666"
+     id="text958">D = 1 − 9/20 = <tspan
+   font-weight="700"
+   fill="#207A5E"
+   id="tspan957">0.55</tspan>  (high redundancy)</text>
+  <rect
+     x="758"
+     y="1648"
+     width="614"
+     height="82"
+     rx="10"
+     fill="#2A9D7A"
+     opacity="0.10"
+     stroke="#2A9D7A"
+     stroke-width="1.2"
+     id="rect958" />
+  <text
+     x="1065"
+     y="1671"
+     text-anchor="middle"
+     font-size="15"
+     font-weight="700"
+     fill="#207A5E"
+     id="text959">Rank deficiency D = 0.55</text>
+  <text
+     x="1071.9086"
+     y="1689.4647"
+     text-anchor="middle"
+     font-size="13px"
+     fill="#207a5e"
+     id="text960">8 basal species (zero cols) + many predators sharing similar diets → high structural redundancy</text>
+  <!-- FOOTER -->
+  <text
+     x="700"
+     y="1756"
+     text-anchor="middle"
+     font-size="13"
+     fill="#888"
+     font-style="italic"
+     id="text962">Higher D = more redundant diet strategies = more linearly dependent columns in the adjacency matrix</text>
+  <text
+     x="700"
+     y="1774"
+     text-anchor="middle"
+     font-size="13"
+     fill="#888"
+     font-style="italic"
+     id="text963">Note: both networks have the same S = 20 and C ≈ 0.10 — differences in metrics arise purely from structural organization</text>
+  <g
+     id="g3-4"
+     transform="translate(27.644288,27.800068)">
+    <rect
+       x="990.78735"
+       y="219.87289"
+       width="26.767612"
+       height="26.383806"
+       rx="3.0885706"
+       fill="#2a9d7a"
+       id="rect515-9-6-2"
+       style="stroke-width:1.02212" />
+    <rect
+       x="990.88507"
+       y="247.9377"
+       width="26.959517"
+       height="26"
+       rx="3.1107135"
+       fill="#2a9d7a"
+       id="rect516-2-3"
+       style="stroke-width:1.01829" />
+  </g>
+</svg>

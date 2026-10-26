@@ -9,7 +9,7 @@
 ##   - Puntos -> espacios (CSV BeagleChannel usa "Genus.species")
 ##   - Espacios múltiples colapsados, trim
 ##
-## Outputs:
+## Outputs (en Data/standardization_comparison/):
 ##   {net}_links_original_updated.csv   — original con nombres actualizados
 ##   {net}_links_standardized_updated.csv — standardized normalizado
 ##   network_differences_refined.csv    — diffs link a link por sitio
@@ -22,6 +22,8 @@ library(igraph)
 # ── Rutas ──────────────────────────────────────────────────────────────────
 DATA_DIR   <- "Data"
 LINKS_DATA <- file.path(DATA_DIR, "Links_data_2024_06_24_Time_04_31_40.xlsx")
+OUT_DIR    <- file.path(DATA_DIR, "standardization_comparison")
+dir.create(OUT_DIR, showWarnings = FALSE)
 
 files <- list(
   BeagleChannel = list(
@@ -51,8 +53,7 @@ normalize_name <- function(x) {
 }
 
 read_links <- function(path) {
-  df <- if (grepl("\\.csv$", path)) read.csv(path, stringsAsFactors = FALSE) \
-        else readxl::read_excel(path)
+  df <- if (grepl("\\.csv$", path)) read.csv(path, stringsAsFactors = FALSE) else readxl::read_excel(path)
   df |>
     dplyr::select(resource, consumer) |>
     dplyr::mutate(dplyr::across(dplyr::everything(), normalize_name))
@@ -108,8 +109,8 @@ for (net in names(files)) {
   }
 
   # Guardar archivos actualizados
-  write.csv(orig_updated, paste0(net, "_links_original_updated.csv"),    row.names = FALSE)
-  write.csv(std,          paste0(net, "_links_standardized_updated.csv"), row.names = FALSE)
+  write.csv(orig_updated, file.path(OUT_DIR, paste0(net, "_links_original_updated.csv")),    row.names = FALSE)
+  write.csv(std,          file.path(OUT_DIR, paste0(net, "_links_standardized_updated.csv")), row.names = FALSE)
 
   # Comparar
   o_set   <- paste(orig_updated$resource, "->", orig_updated$consumer)
@@ -167,10 +168,10 @@ for (net in names(files)) {
 summary_out <- do.call(rbind, summary_tbl)
 diffs_out   <- do.call(rbind, all_diffs)
 
-write.csv(summary_out, "network_metrics_summary_refined.csv",  row.names = FALSE)
-write.csv(diffs_out,   "network_differences_refined.csv",      row.names = FALSE)
+write.csv(summary_out, file.path(OUT_DIR, "network_metrics_summary_refined.csv"),  row.names = FALSE)
+write.csv(diffs_out,   file.path(OUT_DIR, "network_differences_refined.csv"),      row.names = FALSE)
 
-cat("\n\nArchivos generados:\n")
+cat("\n\nArchivos generados en", OUT_DIR, ":\n")
 for (net in names(files)) {
   cat(sprintf("  %s_links_original_updated.csv\n", net))
   cat(sprintf("  %s_links_standardized_updated.csv\n", net))

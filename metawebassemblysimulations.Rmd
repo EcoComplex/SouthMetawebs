@@ -1,19 +1,35 @@
 ---
 title: "Metaweb Assembly Simulations"
 output: html_document
-editor_options: 
+editor_options:
   chunk_output_type: console
 ---
+
+Variability of the metrics of each food web estimated with the metaweb
+assembly model (package `meweasmo`):
+
+1. Simulate the model over a Latin hypercube of parameters (m, a, se).
+2. Select the parameters that reproduce the observed number of species and
+   connectance (approximate Bayesian computation).
+3. Simulate 1,000 local food webs per site with the selected parameters and
+   compute their metrics (modularity with Infomap; a second run with spinglass
+   is used only in `R/CompareModularityAlgorithms.R`).
+4. Figures S3 to S5 (simulated vs empirical metrics), Figure S6 (correlation
+   between predictors) and Table S1.
+
+Reads `Data/network_info.rds` (complete, after `HalpernHumanImpact.Rmd` and
+`Stabilitysimulations.Rmd`) and `Data/stability_results_meig.rds` (Table S1).
+The simulation chunks are `eval = FALSE` because they take hours; their results
+are saved in `Data/`.
 
 ## Setup
 
 ```{r setup, echo = FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 
-
-# Check and install required packages
 required_packages <- c(
-  "lhs", "purrr", "igraph", "ggplot2", "tibble", "doFuture","devtools","abc", "tidyverse", "viridisLite"
+  "lhs", "purrr", "igraph", "ggplot2", "tibble", "future", "future.apply", "devtools", "abc",
+  "tidyverse", "viridisLite", "patchwork", "GGally", "xtable"
 )
 for (pkg in required_packages) {
   if (!requireNamespace(pkg, quietly = TRUE)) {
@@ -21,7 +37,6 @@ for (pkg in required_packages) {
   }
   require(pkg, character.only = TRUE)
 }
-
 
 # Install meweasmo from GitHub if not installed
 if (!requireNamespace("meweasmo", quietly = TRUE)) {
@@ -37,333 +52,123 @@ library(multiweb)
 
 source("R/network_fun.r")
 
-# load network_info
 network_info <- readRDS("Data/network_info.rds")
-
 ```
 
-## Parameter Ranges and Simulation Settings and Run Simulations
+## Simulate the metaweb assembly model
 
-```{r simulMetaWeb_NS, eval=FALSE, message=TRUE, warning=TRUE}
-
-# Parameter ranges (adjust as needed)
-
-par_ranges <- matrix(c(0.01, 0.3, 0.001, 0.5, 0.1, 0.9), nrow=3, byrow=TRUE)
+```{r simulMetaWeb, eval=FALSE, message=TRUE, warning=TRUE}
+# Parameter ranges: rows are m, a, se
+par_ranges <- matrix(c(0.01, 0.3, 0.001, 0.5, 0.1, 0.9), nrow = 3, byrow = TRUE)
 nsims <- 10000
-model_type <- 1 # or as needed for your function
+model_type <- 1
 
-if(FALSE) {
-# Remove networks with "std" in the site name
-  network_info <- network_info %>% filter(!grepl("std", site, ignore.case = TRUE))
-} else {
-# Only networks with "std" in the site name
-  # network_info <- network_info %>% filter(grepl("std", site, ignore.case = TRUE))
-  # network_info <- network_info[10:11,]
-}  
-# Function to run simulations for a single igraph object
 run_simulation_for_network <- function(g, net_name) {
-  A <- igraph::as_adjacency_matrix(g, sparse=FALSE)
-  sim <- sim_metaWebAssembly_lhs(3, nsims, par_ranges, A, model_type) %>%
-    mutate(model_type="Continuous", model="Prob", Metaweb=net_name)
-  return(sim)
+  A <- igraph::as_adjacency_matrix(g, sparse = FALSE)
+  sim_metaWebAssembly_lhs(3, nsims, par_ranges, A, model_type) %>%
+    mutate(model_type = "Continuous", model = "Prob", Metaweb = net_name)
 }
 
-## Run Simulations for All Networks
-
-# Assuming network_info has columns 'site' and 'igraph'
-require(tictoc)
-tic("Running simulations for all networks")
-simMetaWebAssembly <- purrr::map2_dfr(
-    network_info$igraph,
-    network_info$site,
-    run_simulation_for_network
-  )
-toc()
-
-# Save results and add it to already simulated data
-#
-if (file.exists("Data/simulations_metaWebAssembly_all_networks.rds")) {
-  simMetaWebAssembly <- bind_rows(simMetaWebAssembly, readRDS("Data/simulations_metaWebAssembly_all_networks.rds"))
-  message("Add simulations to simMetaWebAssembly from RDS file.")
-}
+simMetaWebAssembly <- purrr::map2_dfr(network_info$igraph, network_info$site, run_simulation_for_network)
 
 saveRDS(simMetaWebAssembly, "Data/simulations_metaWebAssembly_all_networks.rds")
 ```
 
-## Fit Metaweb Assembly Model
+## Fit the metaweb assembly model
 
 ```{r FitMetaWebAssembly, eval=FALSE, message=TRUE, warning=TRUE}
-# if the file not exist load it
-if (file.exists("Data/simulations_metaWebAssembly_all_networks.rds")) {
-  simMetaWebAssembly <- readRDS("Data/simulations_metaWebAssembly_all_networks.rds")
-  message("Loaded simMetaWebAssembly from RDS file.")
-}
+simMetaWebAssembly <- readRDS("Data/simulations_metaWebAssembly_all_networks.rds")
 
 all_results_list <- purrr::pmap(
-  list(
-    emp_S = network_info$S,
-    emp_C = network_info$C,
-    web_name = network_info$site
-  ),
+  list(emp_S = network_info$S, emp_C = network_info$C, web_name = network_info$site),
   function(emp_S, emp_C, web_name) {
-    #fit_metaWebAssembly_model(emp_S, emp_C, web_name, simMetaWebAssembly)
     CI_metaWebAssembly_model(emp_S, emp_C, web_name, simMetaWebAssembly)
   }
 )
 
-# and then row-binds them into a single data frame.
 fittedMetaWeb <- purrr::map_dfr(all_results_list, "sel")
-
-# Extract and combine the 'gof_rej_data' components into another data frame
-gof_rej_df <- purrr::map_dfr(all_results_list, "gof")
-
-
-## Save Fitted Results
-if (file.exists("Data/fittedMetaWeb_all_networks.rds")) {
-  f_MetaWeb <- readRDS("Data/fittedMetaWeb_all_networks.rds")
-  fittedMetaWeb <- bind_rows(fittedMetaWeb, f_MetaWeb)
-  message("Loaded simMetaWebAssembly from RDS file.")
-}
-if (file.exists("Data/gof_all_networks.rds")) {
-  g_rej_all <- readRDS("Data/gof_all_networks.rds")
-  gof_rej_df <- bind_rows(gof_rej_df, g_rej_all)
-  message("Loaded gof_all_networks from RDS file.")
-}
+gof_rej_df    <- purrr::map_dfr(all_results_list, "gof")
 
 saveRDS(fittedMetaWeb, "Data/fittedMetaWeb_all_networks.rds")
 saveRDS(gof_rej_df, "Data/gof_all_networks.rds")
-
-fittedMetaWeb %>% filter(min_dist)
 ```
-## Plot simulation ranges of parameters to check fit
 
-```{r plotParRange, eval=FALSE, message=TRUE, warning=TRUE}
+## Simulate local food webs and calculate their metrics
 
+```{r simMetaWebMetrics, eval=FALSE, message=TRUE, warning=TRUE}
 fittedMetaWeb <- readRDS("Data/fittedMetaWeb_all_networks.rds")
 
-# Crear un data frame con los límites para facilitar el ploteo con facet_wrap
-parameter_limits <- tibble::tibble(
-  parameter = c("a", "m", "se"),
-  min_val = par_ranges[, 1],
-  max_val = par_ranges[, 2]
-)
-
-# --- Transformar fittedMetaWeb a formato largo para los parámetros m, a, se ---
-fitted_long <- fittedMetaWeb %>%
-  pivot_longer(
-    cols = c(m, a, se), # Seleccionar las columnas de los parámetros a pivotar
-    names_to = "parameter", # Nombre de la nueva columna que contendrá los nombres de los parámetros
-    values_to = "value" # Nombre de la nueva columna que contendrá los valores de los parámetros
-  )
-
-# --- Graficar las distribuciones ---
-plots <- list()
-for (i in seq_along(network_info$site)) {
-  net_name <- network_info$site[i]
-  fl <- fitted_long %>% filter(Metaweb == net_name)
-  p <- ggplot(fitted_long, aes(x = value)) +
-    geom_density(fill = "steelblue", alpha = 0.7) + # O geom_histogram(bins = 30, fill = "steelblue", alpha = 0.7)
-    facet_wrap(vars( parameter), scales = "free_x", ncol = 1) + # Un facet por parámetro, con escala x libre
-    geom_vline(data = parameter_limits, aes(xintercept = min_val),
-               linetype = "dashed", color = "red", size = 0.8) +
-    geom_vline(data = parameter_limits, aes(xintercept = max_val),
-               linetype = "dashed", color = "red", size = 0.8) +
-    labs(
-      title = net_name,
-      x = "Valor del Parámetro",
-      y = "Densidad"
-    ) +
-    theme_bw(base_size = 14) +
-    theme(plot.title = element_text(hjust = 0.5))  # Centrar el título
-
-
-  print(p)
-}
-# Opcional: Guardar el gráfico
-# ggsave("parameter_distributions.png", plot = p, width = 8, height = 10, units = "in", dpi = 300)
-
-```
-
-## Plot a vs m for Each Network
-
-```{r plotSvsC, eval=FALSE, message=TRUE, warning=TRUE}
-library(ggplot2)
-
-# Ensure simMetaWebAssembly has columns S, C, and Metaweb
-
-# Loop over each network/site
-plots <- list()
-for (i in seq_along(network_info$site)) {
-  net_name <- network_info$site[i]
-  sim_data <- fittedMetaWeb %>% filter(Metaweb == net_name)
-  
-  p <- ggplot(sim_data, aes(x = a, y = m)) +
-    geom_point(alpha = 0.3, color = "blue") +
-    labs(
-      title = paste( net_name),
-      x = "a parameter",
-      y = "m parameter"
-    ) +
-    theme_minimal()
-  
-    plots[[i]] <- p
-}
-plots
-
-```
-
-## Simulate for each network and calculate metrics
-
-```{r simMetaWebMetrics_NS, eval=TRUE, message=TRUE, warning=TRUE}
-# Load the fittedMetaWeb data
-fittedMetaWeb <- readRDS("Data/fittedMetaWeb_all_networks.rds")
-
-# Only networks with "std" in the site name
-network_info <- network_info %>% filter(!(site %in% c("WeddellSea","BeagleChannel","SouthernScotia","NorthernScotia")))
-# network_info <- network_info[10:11,]
-
-if (file.exists("Data/simulations_metaWebAssembly_all_networks.rds")) {
-  simMetaWebMetrics <- readRDS("Data/simulations_metaWeb_metrics.rds")
-  message("Loaded simMetaWebAssembly from RDS file.")
-} else {
-  simMetaWebMetrics <- tibble::tibble()
+simulate_all_sites <- function(modularity_method) {
+  purrr::map_dfr(seq_along(network_info$site), function(i) {
+    message("Simulating for site: ", network_info$site[i])
+    simulate_metaweb_metrics(as_adjacency_matrix(network_info$igraph[[i]], sparse = FALSE),
+                             fittedMetaWeb, network_info$site[i], nsim = 1000,
+                             modularity_method = modularity_method)
+  }) %>%
+    mutate(relRank = Rank / S)
 }
 
-require(tictoc)
-tic()
-simulated_metaweb_metrics <- lapply(seq_along(network_info$site), function(i) {
-  message("Simulating for site: ", network_info$site[i])
+# Infomap: used in all the analyses
+simMetaWebMetrics <- simulate_all_sites("infomap")
+saveRDS(simMetaWebMetrics, "Data/simulations_metaWeb_metrics.rds")
 
-  # Simulate metaweb metrics
-  sim <- simulate_metaweb_metrics(as_adjacency_matrix(network_info$igraph[i][[1]],sparse=FALSE),
-                                                      fittedMetaWeb, 
-                          network_info$site[i], nsim=1000)
-
-  return(sim)
-})
-simulated_metaweb_metrics <- bind_rows(simulated_metaweb_metrics)
-toc()
-
-simMetaWebMetrics <- bind_rows(simMetaWebMetrics, simulated_metaweb_metrics)
-
-# Calculate Rank/S 
-
-simMetaWebMetrics <- simMetaWebMetrics %>% mutate(relRank = Rank/S)
-
-#saveRDS(simMetaWebMetrics,"Data/simulations_metaWeb_metrics.rds")
-
-#
-# Para comparar otro método de modularidad volvi a hacer las simulaciones con cluster_spinglass
-#
-saveRDS(simMetaWebMetrics,"Data/simulations_metaWeb_metrics_spinglass.rds")
-
+# Spinglass: only for the comparison in R/CompareModularityAlgorithms.R
+simMetaWebMetrics_sg <- simulate_all_sites("spinglass")
+saveRDS(simMetaWebMetrics_sg, "Data/simulations_metaWeb_metrics_spinglass.rds")
 ```
 
-# Plot Metaweb metrics vs empirical
+## Figures S3 to S5: simulated vs empirical metrics
 
-## UPDATED Entropy = 1 - Entropy
+```{r plotMetaWebMetrics, message=TRUE, warning=TRUE}
+simMetaWebMetrics <- readRDS("Data/simulations_metaWeb_metrics.rds") %>%
+  filter(Metaweb %in% network_info$site) %>%
+  mutate(SVDComplexity = 1 - Entropy, RankDeficiency = 1 - relRank)
 
-```{r plotMetaWebMetrics, eval=FALSE, message=TRUE, warning=TRUE}
-simMetaWebMetrics <- readRDS("Data/simulations_metaWeb_metrics.rds") %>% mutate(SVDComplexity= 1 - Entropy,
-                                                                                RankDeficiency = 1 - relRank)
-require(patchwork)
-network_info$site
-network_info <- filter(network_info, !(site %in% c("WeddellSea","BeagleChannel","NorthernScotia","SouthernScotia")))
-network_info <- network_info %>% mutate(relRank=Rank/S,RankDeficiency=1 - relRank, SVDComplexity= 1 - Entropy)
+save_density_figure <- function(metrics, file) {
+  plot_list <- plot_density_faceted_by_site(network_info, simMetaWebMetrics, metrics = metrics)
+  combined_plot <- wrap_plots(plot_list, ncol = 2, guides = "collect", axes = "collect_x") &
+    theme(legend.position = "bottom")
+  ggsave(file, plot = combined_plot, height = 6, width = 10, bg = "white")
+  combined_plot
+}
 
-plot_list <- plot_density_faceted_by_site(network_info,simMetaWebMetrics, metrics=c( "C","RankDeficiency"))
-
-#plot_list <- plot_empirical_vs_simulated_metrics(network_info,simMetaWebMetrics, metrics=c( "C","RankDeficiency", "SVDComplexity", "Modularity"))
-
-(combined_plot <- wrap_plots(plot_list, ncol = 2, guides = "collect", axes="collect_x") &
-  theme(legend.position = "bottom"))
-
-ggsave("Figures/empirical_vs_simulated_metrics_C_RD.png", 
-          plot = combined_plot, 
-          height = 6, 
-          width = 10,
-          bg = "white")
-
-plot_list <- plot_density_faceted_by_site(network_info,simMetaWebMetrics, metrics=c( "SVDComplexity", "Modularity"))
-
-(combined_plot <- wrap_plots(plot_list, ncol = 2, guides = "collect", axes="collect_x") &
-  theme(legend.position = "bottom"))
-
-ggsave("Figures/empirical_vs_simulated_metrics_SVDC_Mod.png", 
-          plot = combined_plot, 
-          height = 6, 
-          width = 10,
-          bg = "white")
-
-plot_list <- plot_density_faceted_by_site(network_info,simMetaWebMetrics, metrics=c("LD", "TLmean"))
-
-#plot_list <- plot_empirical_vs_simulated_metrics(network_info,simMetaWebMetrics, metrics=c("LD", "TLmean"))
-
-(combined_plot <- wrap_plots(plot_list, ncol = 2, guides = "collect", axes="collect_x") &
-  theme(legend.position = "bottom"))
-
-ggsave("Figures/empirical_vs_simulated_metrics_LD_TL.png", 
-          plot = combined_plot, 
-          height = 6, 
-          width = 10,
-          bg = "white")
-
-
+save_density_figure(c("C", "RankDeficiency"), "Figures/empirical_vs_simulated_metrics_C_RD.png")
+save_density_figure(c("SVDComplexity", "Modularity"), "Figures/empirical_vs_simulated_metrics_SVDC_Mod.png")
+save_density_figure(c("LD", "TLmean"), "Figures/empirical_vs_simulated_metrics_LD_TL.png")
 ```
 
+## Figure S6: correlations between predictors
 
-# Correlations between environmental (independent variables)
-
-```{r CheckCorrelation_createTables, eval=FALSE, message=TRUE, warning=TRUE}
-
-library(ggplot2)
-library(GGally)
-library(dplyr)
-# 
-# Added mean Temperature from bibliography 
-#
-network_info <- network_info %>% inner_join( tibble::tibble(
-  name = c("Beagle Channel", "Burdwood Bank", "San Jorge Gulf",
-           "North Scotia Sea", "Potter Cove", "South Scotia Sea", "Weddell Sea"),
-  temp_C = c(6.8, 6, 10.55, 4, -0.15, 0.5, -0.9)
-))
-saveRDS(network_info, "Data/network_info.rds")
-
-# Select relevant columns
-# S agregado (ademas de temp_C) para responder al pedido del Revisor 1 de
-# incluir "number of trophic species" en esta figura -- antes solo tenia
-# temp_C, latitude, log_area, impact_mean y depth_m (5 variables), lo cual
-# no coincidia con el caption de SuppMat.md.
-network_info %>% mutate(log_area = log(area_km2)) %>%
-  dplyr::select(temp_C, S, latitude, log_area, impact_mean,depth_m) %>%
+```{r CheckCorrelation, message=TRUE, warning=TRUE}
+network_info %>%
+  mutate(log_area = log(area_km2)) %>%
+  dplyr::select(temp_C, S, latitude, log_area, impact_mean, depth_m) %>%
   ggpairs(
-    upper = list(continuous = wrap("cor", size = 4)),  # correlation in upper panels
-    lower = list(continuous = wrap("points", alpha = 0.7, size = 3)), # scatterplots
-    diag = list(continuous = wrap("densityDiag", alpha = 0.5))        # density plots on diagonal
+    upper = list(continuous = wrap("cor", size = 4)),
+    lower = list(continuous = wrap("points", alpha = 0.7, size = 3)),
+    diag = list(continuous = wrap("densityDiag", alpha = 0.5))
   ) +
   theme_bw()
 
 ggsave("Figures/correlation_network_info.png", width = 9, height = 7, dpi = 300)
+```
 
-# Create RankDeficiency
-simMetaWebMetrics <- simMetaWebMetrics %>%
-  mutate(RankDeficiency = 1 - relRank)
+## Table S1: metrics of the simulated food webs
 
-# Function to compute mean and 95% interval
-# Function to compute mean and 95% interval, stacked inside a single cell
+```{r createTable, message=TRUE, warning=TRUE, results='asis'}
+# Mean and 95% interval, stacked inside a single LaTeX cell
 summarize_metric <- function(x, digits = 3) {
   m   <- mean(x, na.rm = TRUE)
   lwr <- quantile(x, 0.025, na.rm = TRUE)
   upr <- quantile(x, 0.975, na.rm = TRUE)
-  # Use \shortstack{ ... \\ {\tiny(...)} } to keep the linebreak INSIDE the cell
   sprintf("\\shortstack{%0.*f \\\\ {\\tiny(%0.*f--%0.*f)}}",
           digits, m, digits, lwr, digits, upr)
 }
 
-# Summarize by Metaweb
-stability_results_meig <- readRDS("Data/stability_results_meig.rds") 
+stability_results_meig <- readRDS("Data/stability_results_meig.rds")
 
-summary_table <- simMetaWebMetrics %>% rename(site = Metaweb ) %>% filter(!(site %in% c("WeddellSea","BeagleChannel","NorthernScotia","SouthernScotia"))) %>%
+summary_table <- simMetaWebMetrics %>%
+  rename(site = Metaweb) %>%
   group_by(site) %>%
   summarise(
     C = summarize_metric(C),
@@ -373,24 +178,17 @@ summary_table <- simMetaWebMetrics %>% rename(site = Metaweb ) %>% filter(!(site
     RankDeficiency = summarize_metric(RankDeficiency),
     Modularity = summarize_metric(Modularity),
     .groups = "drop"
-  )
+  ) %>%
+  inner_join(stability_results_meig %>% group_by(site) %>% summarise(Meig = summarize_metric(MEing_stable)),
+             by = "site")
 
-
-summary_table <- inner_join(summary_table,  stability_results_meig %>% group_by(site) %>% summarise(
-  Meig = summarize_metric(MEing_stable) ) )
-
-library(xtable)
-
-# Convert to LaTeX table
 print(
   xtable(summary_table,
          caption = "Summary of network metrics across 1000 simulations for each metaweb. Values are means with 95\\% intervals in parentheses.",
          label = "tab:metaweb_metrics",
          align = c("l","l","c","c","c","c","c","c","c")),
   include.rownames = FALSE,
-  sanitize.text.function = identity,  # keeps the formatted mean (lwr–upr)
+  sanitize.text.function = identity,
   booktabs = TRUE
 )
-
 ```
-

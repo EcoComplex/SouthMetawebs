@@ -7,3 +7,26 @@
 *.html
 *.pdf
 .trackdown/
+
+# Archived files no longer used by the analysis
+_archivo/
+
+# LaTeX build outputs
+*.aux
+*.log
+*.fls
+*.fdb_latexmk
+Manuscript.tex
+SuppMat.tex
+Title.tex
+.~lock.*
+
+# Word files (Manuscript.docx, reviews)
+*.docx
+
+# Local files not part of the repository (submission and editor)
+.vscode/
+Main.Rmd
+Title.Rmd
+CoverLetter.md
+Ecography_revision.md

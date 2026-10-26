@@ -10,7 +10,8 @@
 # del metodo.
 #
 # Requiere: Data/simulations_metaWeb_metrics.rds (Infomap, pipeline principal)
-#           Data/simulations_metaWeb_metrics_spinglass.rds (ya calculado, las 7 redes)
+#           Data/simulations_metaWeb_metrics_spinglass.rds (las 7 redes)
+# Ambos se generan en el chunk simMetaWebMetrics de metawebassemblysimulations.Rmd.
 
 library(tidyverse)
 
