@@ -41,7 +41,7 @@ nice_names <- c(
 )
 
 predictor_names <- c(
-  S_s           = "Number of trophic species (standardized)",
+  S_s           = "Species richness (standardized)",
   log_area_s    = "Log(area) (standardized)",
   latitude_s    = "Latitude (standardized)",
   impact_mean_s = "Human impact index (standardized)"
@@ -167,7 +167,7 @@ ggsave("Figures/Bayesian_TL_SVDC_LD_vs_Area_partial_origscale.png", fig3_partial
 # original units of each predictor.
 raw_pred <- c(S_s = "S", log_area_s = "log_area", latitude_s = "latitude", impact_mean_s = "impact_mean")
 raw_pred_names <- list(
-  S_s           = "Number of trophic species",
+  S_s           = "Species richness",
   log_area_s    = expression(Area~(km^2)),
   latitude_s    = "Latitude (°S)",
   impact_mean_s = "Human impact index"
@@ -206,7 +206,7 @@ support_table    <- readRDS("Data/support_table_n7.rds")
 loo_site_results <- readRDS("Data/loo_site_results.rds")
 
 site_nice_names <- c(
-  S_s = "Trophic Species", log_area_s = "Area (log)",
+  S_s = "Species richness", log_area_s = "Area (log)",
   latitude_s = "Latitude", impact_mean_s = "Human Impact",
   C_logit = "Connectance", Mod_logit = "Modularity",
   Rank_logit = "Rank Deficiency", LD_log = "Link Density",
@@ -252,7 +252,7 @@ make_band <- function(rows, fill, alpha) {
 metric_order <- c("C_logit", "LD_log", "TL_z", "SVD_z", "Rank_logit", "Mod_logit", "ME_log")
 pred_order   <- c("log_area_s", "latitude_s", "S_s", "impact_mean_s")
 pred_titles  <- c(log_area_s = "Area (log)", latitude_s = "Latitude",
-                  S_s = "Number of trophic species", impact_mean_s = "Human impact")
+                  S_s = "Species richness", impact_mean_s = "Human impact")
 x_lim <- range(sapply(draws_wide, quantile, probs = c(0.005, 0.995)))
 
 # prob = 0.8: the shaded central interval excludes 0 exactly when the posterior

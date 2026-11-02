@@ -137,6 +137,22 @@ MTL = \frac{1}{S} \sum_{i=1}^{S} TL_i.
 
 being $S$ the total number of trophic species in the food web.
 
+#### Mean trophic level and food chain length
+
+We used mean trophic level (prey-averaged, computed with NetIndices::TrophInd) as our measure of vertical food web structure. To assess how it relates to food chain length, we computed for each observed food web the maximum short-weighted trophic level, defined as the mean of the shortest and prey-averaged trophic levels, where the shortest trophic level of a species is 1 plus the length of the shortest path from any basal species. Short-weighted trophic level is the most accurate estimate of flow-based trophic level obtainable from binary food webs [@Williams2004], and its maximum is therefore the closest analogue of food chain length estimated from stable isotopes as the trophic position of the top predator [@Post2002]. Maximum short-weighted trophic level ranged from 3.7 in Potter Cove to 5.3 in the Scotia Sea food webs and was strongly correlated with mean trophic level (Pearson r = 0.99, Spearman $\rho$ = 0.96, n = 7; Table S1).
+
+Table: Mean trophic level (prey-averaged), food chain length (maximum short-weighted trophic level) and proportion of basal species in the seven observed food webs, ordered by latitude. S is species richness.
+
+| Food web         | Latitude (°S) |   S | Mean TL | Food chain length | Prop. basal |
+|:-----------------|--------------:|----:|--------:|------------------:|------------:|
+| San Jorge Gulf   |          46.0 | 164 |    2.95 |              4.46 |        0.05 |
+| North Scotia Sea |          51.5 | 253 |    3.56 |              5.25 |        0.12 |
+| Burdwood Bank    |          54.5 | 372 |    2.49 |              3.85 |        0.11 |
+| Beagle Channel   |          54.5 | 166 |    2.61 |              3.93 |        0.22 |
+| South Scotia Sea |          58.5 | 227 |    3.53 |              5.26 |        0.14 |
+| Potter Cove      |          62.2 | 110 |    2.22 |              3.71 |        0.27 |
+| Weddell Sea      |          76.0 | 430 |    3.46 |              5.16 |        0.01 |
+
 ### Link Density (LD)
 
 Link density measures the average number of trophic links per species:
@@ -175,7 +191,7 @@ We characterized structural complexity using two complementary metrics derived f
 distribution of singular values obtained by Singular Value Decomposition (SVD) of the adjacency matrix. Ecological networks with strong trophic hierarchy, 
 modularity, or body-size constraints tend to concentrate structural information in a few dominant dimensions, resulting in an uneven distribution of singular values. We captured this organized heterogeneity as $E = 1 - J$, where $J$ is the normalized Shannon entropy of the singular value spectrum-- Pielou's evenness [@Pielou1975]. Higher values of $E$ indicate that network structure is dominated by fewer independent dimensions, reflecting stronger ecological constraints, whereas random networks maximize $J$ and thus minimize $E$ (Figure S6).
 
-The second metric, **rank deficiency** ($D$), quantifies the proportion of linearly dependent rows and columns in the adjacency matrix, relative to the maximum possible rank (number of trophic species). A fully ranked matrix ($D = 0$) implies that every species has a unique interaction profile, whereas high deficiency ($D \to 1$) indicates substantial redundancy in trophic strategies. Together, SVD complexity and rank deficiency provide complementary views of the external and internal dimensionality of food web structure [@Strydom2021]. For a graphical illustration of how these metrics capture different aspects of network organization, see Figure S2.
+The second metric, **rank deficiency** ($D$), quantifies the proportion of linearly dependent rows and columns in the adjacency matrix, relative to the maximum possible rank (number of species, $S$). A fully ranked matrix ($D = 0$) implies that every species has a unique interaction profile, whereas high deficiency ($D \to 1$) indicates substantial redundancy in trophic strategies. Together, SVD complexity and rank deficiency provide complementary views of the external and internal dimensionality of food web structure [@Strydom2021]. For a graphical illustration of how these metrics capture different aspects of network organization, see Figure S2.
 
 #### SVD Complexity
 
@@ -315,7 +331,7 @@ not shown here (see Results).}
   \toprule
   Predictor & VIF \\
   \midrule
-  Number of trophic species (S) & 3.10 \\
+  Species richness (S) & 3.10 \\
   Area (log)                    & 1.91 \\
   Latitude                      & 1.81 \\
   Human impact (mean)           & 1.68 \\
@@ -324,18 +340,18 @@ not shown here (see Results).}
 \caption{Variance inflation factors (VIF) for the four predictors used in the
 site-level Bayesian regressions ($n=7$ food webs), computed as
 $1/(1-R^2_l)$ from an ordinary least-squares regression of each standardized
-predictor $l$ on the remaining three. Only the number of trophic species slightly
+predictor $l$ on the remaining three. Only species richness slightly
 exceeds the conservative threshold of 3 proposed by Zuur et al. (2010).}
 \label{tab:vif}
 \end{table}
 
 \newpage
 
-![SVD entropy of the observed food webs analyzed in this study (filled triangles) compared with directed random networks (filled circles) constructed over the same range of trophic species numbers (S). Lower entropy values indicate greater structural organization relative to random expectations. ](Figures/random_vs_empirical_SVDE.png)
+![SVD entropy of the observed food webs analyzed in this study (filled triangles) compared with directed random networks (filled circles) constructed over the same range of species richness (S). Lower entropy values indicate greater structural organization relative to random expectations. ](Figures/random_vs_empirical_SVDE.png)
 
 \newpage
 
-![Pairwise relationships among environmental and network covariates considered prior to model fitting. Panels show bivariate scatterplots (lower triangle), smoothed density distributions (diagonal), and Pearson correlation coefficients (upper triangle) for mean sea surface temperature, the number of trophic species (S), latitude, log-transformed area, mean human impact index, and mean depth. Temperature and depth were strongly correlated with latitude and log-transformed area, respectively, and were excluded from the statistical model on that basis (see Supplementary Methods S1).](Figures/correlation_network_info.png)
+![Pairwise relationships among environmental and network covariates considered prior to model fitting. Panels show bivariate scatterplots (lower triangle), smoothed density distributions (diagonal), and Pearson correlation coefficients (upper triangle) for mean sea surface temperature, species richness (S), latitude, log-transformed area, mean human impact index, and mean depth. Temperature and depth were strongly correlated with latitude and log-transformed area, respectively, and were excluded from the statistical model on that basis (see Supplementary Methods S1).](Figures/correlation_network_info.png)
 
 \newpage
 
@@ -381,7 +397,7 @@ $$
 
 For each site $j$ and each transformed metric $k$, we then computed the replicate mean $\bar y_{jk}$ and replicate standard deviation $s_{jk}$ across the retained metaweb-derived replicates, floored at a small positive value ($10^{-6}$) to avoid degenerate zero-uncertainty sites. These site-level pairs $(\bar y_{jk}, s_{jk})$, with $n=7$ per metric, are the unit of analysis for all regression models described below.
 
-Continuous predictors were centered and scaled. These included the number of trophic species ($S$), the natural logarithm of area, latitude, and the human impact index. Depth and temperature were initially considered as covariates; however, depth was strongly correlated with log-transformed area, and temperature was strongly correlated with latitude (Figure S7). To avoid multicollinearity and improve parameter interpretability, both variables were excluded from the final model.
+Continuous predictors were centered and scaled. These included species richness ($S$, the number of trophic species in each food web), the natural logarithm of area, latitude, and the human impact index. Depth and temperature were initially considered as covariates; however, depth was strongly correlated with log-transformed area, and temperature was strongly correlated with latitude (Figure S7). To avoid multicollinearity and improve parameter interpretability, both variables were excluded from the final model.
 
 For each site $j$:
 
@@ -422,7 +438,7 @@ $$
 
 and the `brms` default Student-t prior for the intercept $\beta_{0k}$, which is centered on the observed responses because the responses are on their transformed (not standardized) scales. Standardization of the predictors ensures that slopes lie on comparable scales and that the $\mathcal{N}(0, 1)$ prior corresponds to plausible effect sizes.
 
-Each of the seven models was fitted in **brms** [@Burkner2017] using the **CmdStan** backend, with 4 chains and 4,000 iterations (2,000 warmup), `adapt_delta = 0.95` and `max_treedepth = 15`. Convergence was assessed with R-hat and effective sample size diagnostics for all parameters. All $\hat{R}$ values were $\leq 1.005$, minimum bulk and tail ESS exceeded 1,100, and no divergent transitions occurred (Table S4).
+Each of the seven models was fitted in **brms** [@Burkner2017] using the **CmdStan** backend, with 4 chains and 4,000 iterations (2,000 warmup), `adapt_delta = 0.95` and `max_treedepth = 15`. Convergence was assessed with R-hat and effective sample size diagnostics for all parameters. All $\hat{R}$ values were $\leq 1.005$, minimum bulk and tail ESS exceeded 1,100, and no divergent transitions occurred (Table S5).
 
 \begin{table}[ht]
 \centering
@@ -456,11 +472,11 @@ $$
 p_{kl} = \max\!\big(\Pr(\beta_{kl} > 0 \mid \mathbf{y}),\; \Pr(\beta_{kl} < 0 \mid \mathbf{y})\big),
 $$
 
-and treated $p_{kl} \geq 0.90$ as the nominal threshold for discussing an effect (Table S2).
+and treated $p_{kl} \geq 0.90$ as the nominal threshold for discussing an effect (Table S3).
 
 ### Leave-one-site-out robustness check
 
-Because $n = 7$, any relationship reaching the nominal support threshold under the full dataset could in principle be driven by a small number of influential food webs. For every predictor–response pair with $p_{kl} \geq 0.90$ under the full dataset, we refit the corresponding univariate model seven times, each time excluding one site ($n = 6$ per refit), and recorded whether the sign of the effect and $p_{kl} \geq 0.90$ were preserved. An effect was classified as **robust** if this held in at least four of the seven leave-one-site-out refits (i.e., it failed to hold in at most three exclusions); effects failing to hold in four or more refits are reported in Table S2 but are not interpreted as general patterns in the main text.
+Because $n = 7$, any relationship reaching the nominal support threshold under the full dataset could in principle be driven by a small number of influential food webs. For every predictor–response pair with $p_{kl} \geq 0.90$ under the full dataset, we refit the corresponding univariate model seven times, each time excluding one site ($n = 6$ per refit), and recorded whether the sign of the effect and $p_{kl} \geq 0.90$ were preserved. An effect was classified as **robust** if this held in at least four of the seven leave-one-site-out refits (i.e., it failed to hold in at most three exclusions); effects failing to hold in four or more refits are reported in Table S3 but are not interpreted as general patterns in the main text.
 
 ### Variance inflation factors
 
@@ -470,7 +486,7 @@ $$
 VIF_l = \frac{1}{1 - R^2_l},
 $$
 
-where $R^2_l$ is the coefficient of determination from an ordinary least-squares regression of predictor $l$ on the remaining three predictors. Resulting values (Table S3) ranged from 1.68 to 3.10; only the number of trophic species slightly exceeded the conservative threshold of 3 proposed by @Zuur2010.
+where $R^2_l$ is the coefficient of determination from an ordinary least-squares regression of predictor $l$ on the remaining three predictors. Resulting values (Table S4) ranged from 1.68 to 3.10; only species richness slightly exceeded the conservative threshold of 3 proposed by @Zuur2010.
 
 \newpage
 
@@ -478,11 +494,11 @@ where $R^2_l$ is the coefficient of determination from an ordinary least-squares
 
 \newpage
 
-![Partial effects of ecosystem area on rank deficiency, modularity, and dynamic stability, in each metric's original units. Solid black lines show posterior mean predictions from the site-level Bayesian regressions with the other three predictors held at their mean, back-transformed to each metric's original scale; shaded regions indicate 95% credible intervals. Points are partial residuals: the observed mean of each food web after removing the estimated contribution of the other three predictors, with vertical bars showing the 95% quantiles of the metaweb-derived replicates shifted by the same amount. Area is shown in km^2^ on a logarithmic scale; the models used standardized log-transformed area. None of these three relationships reached the 0.90 posterior support threshold (Table S2); the four area relationships that did are shown in the main text (Figure 3).](Figures/Bayesian_RD_Mod_ST_vs_Area_partial.png)
+![Partial effects of ecosystem area on rank deficiency, modularity, and dynamic stability, in each metric's original units. Solid black lines show posterior mean predictions from the site-level Bayesian regressions with the other three predictors held at their mean, back-transformed to each metric's original scale; shaded regions indicate 95% credible intervals. Points are partial residuals: the observed mean of each food web after removing the estimated contribution of the other three predictors, with vertical bars showing the 95% quantiles of the metaweb-derived replicates shifted by the same amount. Area is shown in km^2^ on a logarithmic scale; the models used standardized log-transformed area. None of these three relationships reached the 0.90 posterior support threshold (Table S3); the four area relationships that did are shown in the main text (Figure 3).](Figures/Bayesian_RD_Mod_ST_vs_Area_partial.png)
 
-![Partial effects of latitude on the seven food web metrics, in each metric's original units. Solid black lines show posterior mean predictions from the site-level Bayesian regressions with the other three predictors held at their mean, back-transformed to each metric's original scale; shaded regions indicate 95% credible intervals. Points are partial residuals: the observed mean of each food web after removing the estimated contribution of the other three predictors, with vertical bars showing the 95% quantiles of the metaweb-derived replicates shifted by the same amount. The models used standardized latitude. The positive associations of latitude with SVD complexity and link density reached the 0.90 posterior support threshold and met the leave-one-site-out robustness criterion, each failing in three of the seven refits; those with connectance and mean trophic level reached the threshold but failed in five refits (Table S2). Rank deficiency, modularity, and dynamic stability did not reach the threshold.](Figures/Bayesian_all_vs_latitude_partial.png)
+![Partial effects of latitude on the seven food web metrics, in each metric's original units. Solid black lines show posterior mean predictions from the site-level Bayesian regressions with the other three predictors held at their mean, back-transformed to each metric's original scale; shaded regions indicate 95% credible intervals. Points are partial residuals: the observed mean of each food web after removing the estimated contribution of the other three predictors, with vertical bars showing the 95% quantiles of the metaweb-derived replicates shifted by the same amount. The models used standardized latitude. The positive associations of latitude with SVD complexity and link density reached the 0.90 posterior support threshold and met the leave-one-site-out robustness criterion, each failing in three of the seven refits; those with connectance and mean trophic level reached the threshold but failed in five refits (Table S3). Rank deficiency, modularity, and dynamic stability did not reach the threshold.](Figures/Bayesian_all_vs_latitude_partial.png)
 
-![Partial effects of the number of trophic species (S) on the seven food web metrics, in each metric's original units. Solid black lines show posterior mean predictions from the site-level Bayesian regressions with the other three predictors held at their mean, back-transformed to each metric's original scale; shaded regions indicate 95% credible intervals. Points are partial residuals: the observed mean of each food web after removing the estimated contribution of the other three predictors, with vertical bars showing the 95% quantiles of the metaweb-derived replicates shifted by the same amount. The models used standardized S. Rank deficiency and modularity (positive) and connectance (negative) reached the 0.90 posterior support threshold and met the leave-one-site-out robustness criterion (Table S2); the first two failed only when Burdwood Bank was excluded, and connectance failed in three refits. The remaining metrics did not reach the threshold.](Figures/Bayesian_all_vs_S_partial.png)
+![Partial effects of species richness (S) on the seven food web metrics, in each metric's original units. Solid black lines show posterior mean predictions from the site-level Bayesian regressions with the other three predictors held at their mean, back-transformed to each metric's original scale; shaded regions indicate 95% credible intervals. Points are partial residuals: the observed mean of each food web after removing the estimated contribution of the other three predictors, with vertical bars showing the 95% quantiles of the metaweb-derived replicates shifted by the same amount. The models used standardized S. Rank deficiency and modularity (positive) and connectance (negative) reached the 0.90 posterior support threshold and met the leave-one-site-out robustness criterion (Table S3); the first two failed only when Burdwood Bank was excluded, and connectance failed in three refits. The remaining metrics did not reach the threshold.](Figures/Bayesian_all_vs_S_partial.png)
 
 ![Partial effects of the human impact index on the seven food web metrics, in each metric's original units. Solid black lines show posterior mean predictions from the site-level Bayesian regressions with the other three predictors held at their mean, back-transformed to each metric's original scale; shaded regions indicate 95% credible intervals. Points are partial residuals: the observed mean of each food web after removing the estimated contribution of the other three predictors, with vertical bars showing the 95% quantiles of the metaweb-derived replicates shifted by the same amount. The models used the standardized index. No metric reached the 0.90 posterior support threshold (maximum posterior probability = 0.866, for SVD complexity).](Figures/Bayesian_all_vs_impact_mean_partial.png)
 
