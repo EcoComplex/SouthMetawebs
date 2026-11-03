@@ -1,5 +1,5 @@
 ---
-title: Ecosystem area shapes marine food web complexity and trophic structure across the Southwest Atlantic and Antarctica
+title: Ecosystem area predicts marine food web complexity and trophic structure across the Southwest Atlantic and Antarctica
 bibliography: SouthMarineFoodWebs.bib
 csl: "functional-ecology.csl"
 output:

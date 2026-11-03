@@ -37,6 +37,20 @@ if (length(hits) > 0)
 
 writeLines(main, "Main.Rmd", useBytes = TRUE)
 
+# Sync Title.Rmd with Manuscript.Rmd: title and author/affiliation block.
+# Title.Rmd is edited by hand only for running title, corresponding author,
+# acknowledgements, funding, etc.; authors and affiliations come from Manuscript.Rmd.
+tt <- readLines("Title.Rmd", encoding = "UTF-8")
+ms_title <- grep("^title:", ms[1:yaml_end], value = TRUE)[1]
+tt[grep("^title:", tt)[1]] <- ms_title
+run_line  <- grep("^\\*\\*Running title:", tt)[1]
+corr_line <- grep("^\\*\\*Corresponding author:", tt)[1]
+stopifnot(!is.na(run_line), !is.na(corr_line))
+authors_block <- ms[(yaml_end + 1):(abs_start - 1)]
+authors_block <- authors_block[cumsum(nzchar(trimws(authors_block))) > 0]  # drop leading blanks
+tt <- c(tt[1:run_line], "", authors_block, tt[corr_line:length(tt)])
+writeLines(tt, "Title.Rmd", useBytes = TRUE)
+
 rmarkdown::render("Main.Rmd")
 # The journal does not accept a PDF title page: render it as Word
 rmarkdown::render("Title.Rmd", output_format = "word_document")

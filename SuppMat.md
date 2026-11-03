@@ -1,5 +1,5 @@
 ---
-title: Supplementary Materials Latitudinal gradients in the structure and stability of marine food webs in the Southwest Atlantic
+title: 'Supplementary Materials: Ecosystem area predicts marine food web complexity and trophic structure across the Southwest Atlantic and Antarctica'
 bibliography: SouthMarineFoodWebs.bib
 csl: "functional-ecology.csl"
 output:
