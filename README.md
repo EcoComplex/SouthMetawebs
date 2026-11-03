@@ -1,4 +1,4 @@
-# Ecosystem area and the structure of marine food webs along a latitudinal gradient in the Southwest Atlantic and Antarctica
+# Ecosystem area predicts marine food web complexity and trophic structure across the Southwest Atlantic and Antarctica
 
 [![DOI](https://zenodo.org/badge/1009246443.svg)](https://doi.org/10.5281/zenodo.21045337)
 
@@ -6,11 +6,17 @@ Code and data for the manuscript.
 
 ## Abstract
 
-Understanding how food web structure varies across broad spatial gradients is essential for identifying general principles of ecosystem organization and resilience under global change. We analyzed seven highly resolved marine food webs spanning a latitudinal gradient from 48°S to 78°S in the Southwest Atlantic and Antarctic region to evaluate how ecosystem area, latitude, human impact, and number of trophic species are associated with network structure and dynamic stability. We quantified connectance, link density, mean trophic level, modularity, SVD complexity, rank deficiency, and dynamic stability, and related each metric to the four predictors using site-level Bayesian regressions that incorporate the uncertainty derived from a metaweb assembly model as a measurement-error term. Because the dataset comprises only seven independent food webs, we assessed the robustness of each relationship by refitting the models with each food web excluded in turn.
+**Aim:** To assess how ecosystem area, latitude, human impact and species richness are associated with the structure and dynamic stability of marine food webs.
 
-Ecosystem area showed the most consistent associations: larger ecosystems had higher mean trophic level, link density, connectance, and SVD complexity, and these associations held in all seven exclusions. The number of trophic species was positively associated with rank deficiency and modularity and negatively with connectance, but these associations lost support when a single food web, Burdwood Bank, was excluded. Latitude was positively associated with link density and SVD complexity, although these associations depended on three of the seven food webs, and its associations with connectance and trophic level did not survive exclusion. Human impact showed no clear association with any metric, possibly because the cumulative impact index integrates stressors whose effects on food web structure differ in magnitude and direction.
+**Location:** Southwest Atlantic Ocean and Antarctica, from San Jorge Gulf to the Weddell Sea (46°S to 76°S).
 
-Among the predictors considered, ecosystem area showed the most consistent associations with marine food web structure in the Southwest Atlantic and Antarctic. Patterns associated with species richness and latitude should be treated as exploratory and require evaluation with additional independent food webs.
+**Taxon:** Marine organisms across all trophic levels, from primary producers to top predators (fishes, seabirds and marine mammals).
+
+**Methods:** We quantified connectance, link density, mean trophic level, SVD complexity, rank deficiency, modularity and dynamic stability in seven highly resolved food webs. We estimated their variability by simulating local food webs using a metaweb assembly model fitted via approximate Bayesian computation. Each metric was related to ecosystem area, latitude, human impact and species richness using a Bayesian regression, including the simulated variability as a measurement-error term. The robustness of each association was assessed by refitting the models with each food web excluded in turn.
+
+**Results:** Ecosystem area was positively associated with mean trophic level, link density, connectance and SVD complexity, and these associations persisted across all seven food web exclusions. Species richness was positively associated with rank deficiency and modularity and negatively associated with connectance, while latitude was positively associated with link density and SVD complexity. All these associations lost support when Burdwood Bank was excluded, and some also when one or two other food webs were excluded. Human impact showed no clear association with any metric, and no predictor was associated with dynamic stability.
+
+**Main conclusions:** Ecosystem area was the most consistent correlate of marine food web structure along the Southwest Atlantic-Antarctic gradient, whereas the patterns associated with species richness and latitude remain exploratory. In macroecological syntheses based on few, non-replicated food webs, sensitivity analyses that exclude individual systems in turn are needed to distinguish consistent relationships from those that depend on particular systems and their ecological context.
 
 ## Workflow
 
@@ -27,17 +33,18 @@ Scripts are run from the repository root (also the `.R` files in `R/`), in this 
 | 6 | `R/GenerateFigures.R` | Figures 2 and 3, partial-residual figures for the four predictors and posterior predictive checks. | `Figures/Bayesian_*.png` |
 | 7 | `R/CompareModularityAlgorithms.R` | Modularity with Infomap vs spinglass (supplementary figure). | `Figures/modularity_infomap_vs_spinglass_comparison.png` |
 | 8 | `R/RandomNetworksSVD.R` | SVD entropy of the observed food webs vs random networks (supplementary figure). | `Figures/random_vs_empirical_SVDE.png` |
+| 9 | `R/FoodChainLength.R` | Compares mean trophic level with food chain length (maximum and short-weighted trophic level) in the seven observed food webs (diagnostic). | `food_chain_length.csv` |
 
 Shared code:
 
 - `R/network_fun.r`: functions for the metaweb assembly simulations, the stability simulations and the density plots of Figures S3 to S5.
 - `R/site_replicates.R`: builds the replicate-level data of step 5 (200 metaweb-derived replicates per food web, seed 2025).
 
-The manuscript is `Manuscript.Rmd` and the supplementary material `SuppMat.md`; both are rendered with `rmarkdown::render()`. Figure 1 (`Figures/Fig1_mapa.pdf`) and the schematic of SVD complexity and rank deficiency (`Figures/svd_complexity_figure_v4.svg`) are not generated by these scripts.
+The manuscript is `Manuscript.Rmd` and the supplementary material `SuppMat.md`; both are rendered with `rmarkdown::render()`. `R/make_submission.R` builds the anonymized `Main.Rmd` from `Manuscript.Rmd`, copies the title and author block into `Title.Rmd`, and renders both for submission. Figure 1 (`Figures/Fig1_mapa.pdf`) and the schematic of SVD complexity and rank deficiency (`Figures/svd_complexity_figure_v4.svg`) are not generated by these scripts.
 
 ### Requirements
 
-R packages: `tidyverse`, `igraph`, `readxl`, `brms` (with `cmdstanr`), `posterior`, `bayesplot`, `patchwork`, `ggtext`, `GGally`, `xtable`, `lhs`, `abc`, `future`, `future.apply`, `furrr`, `sf`, `terra`, `exactextractr`, and from GitHub `lsaravia/multiweb` and `lsaravia/meweasmo`.
+R packages: `tidyverse`, `igraph`, `readxl`, `brms` (with `cmdstanr`), `posterior`, `bayesplot`, `patchwork`, `ggtext`, `GGally`, `NetIndices`, `xtable`, `lhs`, `abc`, `future`, `future.apply`, `furrr`, `sf`, `terra`, `exactextractr`, and from GitHub `lsaravia/multiweb` and `lsaravia/meweasmo`.
 
 ## Data
 

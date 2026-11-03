@@ -1,5 +1,4 @@
 # FoodChainLength.R
-# Answers Susanne's question "Did you look at chain length at some point?".
 # For the seven observed food webs, computes prey-averaged trophic levels and
 # compares mean trophic level (our response) with food chain length
 # (maximum TL and related measures). Run from the project root
