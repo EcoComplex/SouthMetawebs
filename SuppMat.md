@@ -10,6 +10,10 @@ output:
       in_header: Appendices.sty
 ---
 
+## Data and Code Availability
+
+The standardized food webs, derived data, and the R code required to reproduce all analyses, figures and tables in the main text and in these Supplementary Materials are available in a public repository (anonymized link for review: https://anonymous.4open.science/r/SouthMetawebs-48B1/). 
+
 ## Food Web Standardization
 
 ### Beagle Channel
